@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Block Code</string>
+    <string name="logo">Block Code</string>
+    <string name="lets_code">Let\'s code</string>
+    <string name="saved">Saved</string>
+    <string name="todo">TODO</string>
+</resources>
