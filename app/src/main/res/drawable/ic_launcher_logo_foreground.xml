@@ -1,0 +1,38 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100.26">
+  <group android:scaleX="0.40838265"
+      android:scaleY="0.40944445"
+      android:translateX="29.580868"
+      android:translateY="29.60455">
+    <path
+        android:pathData="M85.75,35.47L15.09,35.47a14.67,14.67 45,1 0,0 29.33L85.75,64.79a14.67,14.67 0,0 0,0 -29.33ZM85.75,57.7L15.09,57.7a7.58,7.58 0,1 1,0 -15.14L85.75,42.56a7.58,7.58 0,0 1,0 15.14Z"
+        android:fillColor="#d4d4d4"/>
+    <path
+        android:pathData="M20.69,46.59L16.26,46.59a3.55,3.55 0,1 0,0 7.09l4.43,0a3.55,3.55 0,0 0,0 -7.09Z"
+        android:fillColor="#d4d4d4"/>
+    <path
+        android:pathData="M41.96,46.59L37.53,46.59a3.55,3.55 0,1 0,0 7.09l4.43,0a3.55,3.55 0,0 0,0 -7.09Z"
+        android:fillColor="#d4d4d4"/>
+    <path
+        android:pathData="M85.75,70.93L15.09,70.93a14.67,14.67 0,1 0,0 29.33L85.75,100.25a14.67,14.67 0,0 0,0 -29.33ZM85.75,93.16L15.09,93.16a7.58,7.58 0,1 1,0 -15.14L85.75,78.02a7.58,7.58 0,0 1,0 15.14Z"
+        android:fillColor="#d4d4d4"/>
+    <path
+        android:pathData="M20.69,82.05L16.26,82.05a3.55,3.55 0,1 0,0 7.09l4.43,0a3.55,3.55 0,0 0,0 -7.09Z"
+        android:fillColor="#d4d4d4"/>
+    <path
+        android:pathData="M41.96,82.05L37.53,82.05a3.55,3.55 0,1 0,0 7.09l4.43,0a3.55,3.55 0,0 0,0 -7.09Z"
+        android:fillColor="#d4d4d4"/>
+    <path
+        android:pathData="M85.75,0.01L15.09,0.01a14.67,14.67 45,1 0,0 29.33L85.75,29.33a14.67,14.67 0,0 0,0 -29.33ZM85.75,22.24L15.09,22.24a7.58,7.58 0,1 1,0 -15.14L85.75,7.1a7.58,7.58 0,0 1,0 15.14Z"
+        android:fillColor="#d4d4d4"/>
+    <path
+        android:pathData="M20.69,11.13L16.26,11.13a3.55,3.55 0,0 0,0 7.09l4.43,0a3.55,3.55 0,0 0,0 -7.09Z"
+        android:fillColor="#d4d4d4"/>
+    <path
+        android:pathData="M41.96,11.13L37.53,11.13a3.55,3.55 0,0 0,0 7.09l4.43,0a3.55,3.55 0,0 0,0 -7.09Z"
+        android:fillColor="#d4d4d4"/>
+  </group>
+</vector>
