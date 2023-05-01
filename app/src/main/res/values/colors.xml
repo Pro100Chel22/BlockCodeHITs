@@ -7,8 +7,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="front_wave_color">#9EDAE3</color>
-    <color name="background_wave_color">#00C8E4</color>
-    <color name="background_wave_color2">#00B4D0</color>
-    <color name="background_main">#00A0BC</color>
+    <color name="front_wave_color_default">#9EDAE3</color>
+    <color name="background_wave_color_default">#00C8E4</color>
+    <color name="background_wave_color2_default">#00B4D0</color>
+    <color name="background_main_default">#00A0BC</color>
 </resources>

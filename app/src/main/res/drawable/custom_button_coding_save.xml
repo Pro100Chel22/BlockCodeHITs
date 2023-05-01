@@ -5,26 +5,26 @@
     android:viewportHeight="50">
   <path
       android:pathData="M0.017,6.74C0.017,3.028 3.026,0.019 6.738,0.019L6.738,0.019L6.738,49.981L6.738,49.981L6.738,49.981C3.026,49.981 0.017,46.972 0.017,43.26z"
-      android:fillColor="@color/background_main"
+      android:fillColor="@color/background_main_default"
       android:fillType="nonZero" />
   <path
       android:pathData="M43.262,0.016L43.262,0.016L43.262,0.016C46.974,0.016 49.984,3.026 49.984,6.738L49.984,43.258L49.984,43.258C49.984,46.97 46.974,49.979 43.262,49.979L43.262,49.979z"
-      android:fillColor="@color/background_main"
+      android:fillColor="@color/background_main_default"
       android:fillType="nonZero" />
   <path
       android:pathData="M13.904,21.311L25,35.186L36.096,21.311L29.061,21.311L29.061,6.6L20.919,6.6L20.919,21.311z"
-      android:fillColor="@color/background_main"
+      android:fillColor="@color/background_main_default"
       android:fillType="nonZero" />
   <path
       android:pathData="M43.419,0.013L43.419,6.734L20.916,6.734L20.916,6.734L20.916,6.734C20.916,3.022 23.925,0.013 27.637,0.013z"
-      android:fillColor="@color/background_main"
+      android:fillColor="@color/background_main_default"
       android:fillType="nonZero" />
   <path
       android:pathData="M43.381,43.264L43.381,49.985L6.612,49.985L6.612,43.264z"
-      android:fillColor="@color/background_main"
+      android:fillColor="@color/background_main_default"
       android:fillType="nonZero" />
   <path
       android:pathData="M9.83,0.013C11.605,0.013 13.044,1.452 13.044,3.227L13.044,3.648L13.044,3.648C13.044,5.352 11.662,6.734 9.958,6.734L6.554,6.734L6.554,0.013z"
-      android:fillColor="@color/background_main"
+      android:fillColor="@color/background_main_default"
       android:fillType="nonZero" />
 </vector>
