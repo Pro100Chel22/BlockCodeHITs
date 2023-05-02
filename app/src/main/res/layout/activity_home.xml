@@ -8,10 +8,10 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/button11"
+        android:id="@+id/button3"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@drawable/ic_hotline_miami_theme"
+        android:background="@drawable/ic_swap_mode"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
@@ -23,18 +23,19 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/logo"
-        android:textColor="@color/front_wave_color_default"
-        android:textSize="60sp"
         android:shadowColor="#80000000"
         android:shadowDx="2"
         android:shadowDy="6"
         android:shadowRadius="4"
+        android:text="@string/logo"
+        android:textColor="@color/text_main"
+        android:textSize="55sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.177" />
+        app:layout_constraintVertical_bias="0.264" />
 
     <Button
         android:id="@+id/button"
@@ -42,7 +43,7 @@
         android:layout_height="60dp"
         android:background="@drawable/custom_button_home"
         android:text="@string/lets_code"
-        android:textColor="@color/front_wave_color_default"
+        android:textColor="@color/text_main"
         android:textSize="25sp"
         android:shadowColor="#80000000"
         android:shadowDx="1"
@@ -61,7 +62,7 @@
         android:layout_height="60dp"
         android:background="@drawable/custom_button_home"
         android:text="@string/saved"
-        android:textColor="@color/front_wave_color_default"
+        android:textColor="@color/text_main"
         android:textSize="25sp"
         android:shadowColor="#80000000"
         android:shadowDx="1"

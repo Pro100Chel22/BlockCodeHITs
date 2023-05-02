@@ -1,0 +1,62 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<item>
+    <vector xmlns:aapt="http://schemas.android.com/aapt"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:width="360dp"
+        android:height="640dp"
+        android:viewportWidth="360"
+        android:viewportHeight="640"
+        tools:ignore="VectorRaster">
+
+    <path
+        android:pathData="M-0.89,0.22L360.89,0.22L360.89,355.24L-0.89,355.24z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="180"
+                android:startY="355.24"
+                android:endX="180"
+                android:endY="0.22"
+                android:type="linear">
+                <item android:offset="0" android:color="@color/background_main_hm_start"/>
+                <item android:offset="0.19" android:color="@color/background_main_hm_start"/>
+                <item android:offset="1" android:color="@color/background_main_hm_end"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    </vector>
+</item>
+
+<item android:drawable="@drawable/background_wave_sun_hm"
+      android:height="300dp"
+      android:width="300dp"
+      android:gravity="center"
+      android:bottom="280dp"/>
+
+<item>
+    <vector xmlns:aapt="http://schemas.android.com/aapt"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:width="360dp"
+        android:height="640dp"
+        android:viewportWidth="360"
+        android:viewportHeight="640"
+        tools:ignore="VectorRaster">
+
+        <path
+            android:pathData="M-2.39,353.03L362.12,353.03L362.12,639.74L-2.39,639.74z"
+            android:fillColor="@color/front_wave_color_default"
+            android:fillType="nonZero" />
+        <path
+            android:pathData="M-8.4,260.62L6.46,263.45C21.31,266.48 50.92,271.81 80.8,283.36C110.37,294.71 140.12,311.75 169.56,320.27C199.44,328.79 229.31,328.79 258.76,314.57C288.5,300.56 318.08,271.81 347.95,271.97C377.57,271.81 407.27,300.56 437.15,297.53C466.64,294.71 496.47,260.62 525.91,252.1C555.74,243.58 585.23,260.62 600.39,269.14L615.11,277.66L615.11,345.83L600.26,345.83C585.4,345.83 555.79,345.83 525.91,345.83C496.34,345.83 466.59,345.83 437.15,345.83C407.27,345.83 377.4,345.83 347.95,345.83C318.21,345.83 288.63,345.83 258.76,345.83C229.14,345.83 199.44,345.83 169.56,345.83C140.08,345.83 110.24,345.83 80.8,345.83C50.97,345.83 21.48,345.83 6.33,345.83L-8.4,345.83z"
+            android:fillColor="@color/background_wave_color2_default"
+            android:fillType="nonZero" />
+        <path
+            android:pathData="M-27.13,297.32L-11.18,301.93C4.76,306.38 36.56,315.87 68.63,306.51C100.38,297.32 132.32,269.71 163.93,262.81C196.01,255.91 228.08,269.71 259.69,285.8C291.63,302.06 323.38,320.18 355.45,315.74C387.25,311.12 419.14,283.51 451.22,272C482.87,260.65 514.9,264.97 546.51,269.71C578.54,274.46 610.2,278.77 626.47,281.23L642.27,283.51L642.27,352.53L626.33,352.53C610.38,352.53 578.59,352.53 546.51,352.53C514.76,352.53 482.83,352.53 451.22,352.53C419.14,352.53 387.06,352.53 355.45,352.53C323.52,352.53 291.77,352.53 259.69,352.53C227.9,352.53 196.01,352.53 163.93,352.53C132.27,352.53 100.24,352.53 68.63,352.53C36.61,352.53 4.95,352.53 -11.32,352.53L-27.13,352.53z"
+            android:fillColor="@color/background_wave_color_default"
+            android:fillType="nonZero" />
+        <path
+            android:pathData="M-3.13,324.94L9.05,320.66C21.23,316.38 45.58,307.82 69.94,302.12C94.3,296.31 118.65,293.64 143.01,294.97C167.37,296.31 191.72,302.2 216.08,309.23C240.44,316.38 264.79,324.94 289.15,326.36C313.51,327.88 337.86,322 350.04,319.24L362.22,316.38L362.22,359.19L350.04,359.19C337.86,359.19 313.51,359.19 289.15,359.19C264.79,359.19 240.44,359.19 216.08,359.19C191.72,359.19 167.37,359.19 143.01,359.19C118.65,359.19 94.3,359.19 69.94,359.19C45.58,359.19 21.23,359.19 9.05,359.19L-3.13,359.19Z"
+            android:fillColor="@color/front_wave_color_default"
+            android:fillType="nonZero" />
+    </vector>
+</item>
+</layer-list>
