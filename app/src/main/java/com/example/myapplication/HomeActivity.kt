@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -15,23 +16,29 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        findViewById<Button>(R.id.button3).setOnClickListener {
-            val mode = when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
-                Configuration.UI_MODE_NIGHT_NO -> AppCompatDelegate.MODE_NIGHT_YES
-                Configuration.UI_MODE_NIGHT_YES -> AppCompatDelegate.MODE_NIGHT_NO
-                else -> 0
+        findViewById<Button>(R.id.buttonHomeSwapMode).setOnClickListener {
+            val sharedPrefs = applicationContext.getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
+            val editor = sharedPrefs.edit()
+
+            if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_NO) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                editor.putInt("UI_MODE_NIGHT", AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                editor.putInt("UI_MODE_NIGHT", AppCompatDelegate.MODE_NIGHT_NO)
             }
-            AppCompatDelegate.setDefaultNightMode(mode)
+
+            editor.apply()
         }
 
-        findViewById<Button>(R.id.button).setOnClickListener{
+        findViewById<Button>(R.id.buttonToCodingActivity).setOnClickListener{
             val intent = Intent();
             intent.setClass(this, CodingActivity::class.java);
             startActivity(intent);
             overridePendingTransition(androidx.appcompat.R.anim.abc_slide_in_bottom, androidx.appcompat.R.anim.abc_slide_out_top)
         }
 
-        findViewById<Button>(R.id.button2).setOnClickListener {
+        findViewById<Button>(R.id.buttonToSavedActivity).setOnClickListener {
             val intent = Intent();
             intent.setClass(this, SavedActivity::class.java);
             startActivity(intent);

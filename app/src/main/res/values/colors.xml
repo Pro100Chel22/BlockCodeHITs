@@ -7,17 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="text_main">#9EDAE3</color>
-    <color name="button_home">#00A0BC</color>
-    <color name="button_other">#00A0BC</color>
-    <color name="button_text_other">#9EDAE3</color>
+    <color name="text_main_default">#9EDAE3</color>
+    <color name="button_home_default">#00A0BC</color>
+    <color name="button_other_default">#00A0BC</color>
+    <color name="button_text_other_default">#9EDAE3</color>
     <color name="front_wave_color_default">#9EDAE3</color>
     <color name="background_wave_color_default">#00C8E4</color>
     <color name="background_wave_color2_default">#00B4D0</color>
     <color name="background_main_default">#00A0BC</color>
-    <color name="background_main_hm_start">#FF3F062F</color>
-    <color name="background_main_hm_end">#FFDF3282</color>
-    <color name="palm">#FF000000</color>
-    <color name="sun_start">#FFF82782</color>
-    <color name="sun_end">#FFFC9688</color>
 </resources>

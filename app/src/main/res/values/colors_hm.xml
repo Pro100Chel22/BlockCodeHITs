@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="text_main_hm">#DA146F</color>
+    <color name="button_home_hm">#9C074C</color>
+    <color name="button_text_home_hm">#49072E</color>
+    <color name="button_other_hm">#BC085B</color>
+    <color name="button_text_other_hm">#4A002C</color>
+    <color name="front_wave_color_hm">#280721</color>
+    <color name="background_wave_color_hm">#320525</color>
+    <color name="background_wave_color2_hm">#370529</color>
+    <color name="background_main_hm">#BC0006</color>
+    <color name="background_main_hm_start">#FF3F062F</color>
+    <color name="background_main_hm_end">#FFDF3282</color>
+    <color name="palm_hm">#FF000000</color>
+    <color name="sun_start_hm">#FFF82782</color>
+    <color name="sun_end_hm">#FFFC9688</color>
+</resources>

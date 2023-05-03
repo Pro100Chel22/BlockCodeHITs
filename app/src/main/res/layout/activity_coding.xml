@@ -4,14 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
+    style="@style/codingBackgroundStyle"
     tools:context=".CodingActivity">
 
     <Button
-        android:id="@+id/button11"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/ic_swap_mode"
+        android:id="@+id/buttonCodingSwapMode"
+        style="@style/buttonSwapModeStyle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
@@ -20,11 +18,8 @@
         app:layout_constraintVertical_bias="0.023" />
 
     <Button
-        android:id="@+id/button12"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/custom_button_coding_save"
-        android:text=""
+        android:id="@+id/buttonSaveCode"
+        style="@style/codingSaveButtonStyle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.044"
@@ -33,17 +28,9 @@
         app:layout_constraintVertical_bias="0.023" />
 
     <Button
-        android:id="@+id/button10"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:background="@drawable/custom_button_coding"
-        android:text="@string/add_block"
-        android:textColor="@color/button_text_other"
-        android:textSize="30sp"
-        android:shadowColor="#80000000"
-        android:shadowDx="1"
-        android:shadowDy="3"
-        android:shadowRadius="4"
+        android:id="@+id/buttonAddNewBlock"
+        style="@style/codingButtonStyle"
+        android:text="@string/add_new_block"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.948"
@@ -52,17 +39,9 @@
         app:layout_constraintVertical_bias="0.974" />
 
     <Button
-        android:id="@+id/button9"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:background="@drawable/custom_button_coding"
+        android:id="@+id/buttonCompiler"
+        style="@style/codingButtonStyle"
         android:text="@string/compiler"
-        android:textColor="@color/button_text_other"
-        android:textSize="30sp"
-        android:shadowColor="#80000000"
-        android:shadowDx="1"
-        android:shadowDy="3"
-        android:shadowRadius="4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.051"
