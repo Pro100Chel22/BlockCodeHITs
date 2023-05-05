@@ -13,4 +13,122 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="BottomSheetDialogThem" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="backgroundBottomSheetStyle">
+        <item name="android:background">@drawable/background_bottom_sheep</item>
+        <item name="android:backgroundTint">@color/front_wave_color_hm</item>
+    </style>
+
+    <style name="bottomSheetLineStyle">
+        <item name="android:background">@drawable/ic_bottom_sheet_line</item>
+        <item name="android:backgroundTint">@color/button_other_hm</item>
+    </style>
+
+    <style name="splashBackgroundStyle">
+        <item name="android:background">@drawable/background</item>
+        <item name="android:backgroundTint">@color/front_wave_color_hm</item>
+    </style>
+
+    <style name="splashMainTextStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_main_hm</item>
+        <item name="android:textSize">60sp</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">6</item>
+        <item name="android:shadowRadius">4</item>
+    </style>
+
+    <style name="splashLogoStyle">
+        <item name="android:layout_width">170dp</item>
+        <item name="android:layout_height">170dp</item>
+        <item name="android:background">@drawable/ic_logo</item>
+        <item name="android:backgroundTint">@color/text_main_hm</item>
+    </style>
+
+    <style name="homeBackgroundStyle">
+        <item name="android:background">@drawable/background_wave_hm</item>
+    </style>
+
+    <style name="buttonSwapModeStyle">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:background">@drawable/ic_wise_baobab</item>
+    </style>
+
+    <style name="homeMainTextStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_main_hm</item>
+        <item name="android:textSize">55sp</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">6</item>
+        <item name="android:shadowRadius">4</item>
+    </style>
+
+    <style name="homeButtonStyle">
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:textColor">@color/button_text_home_hm</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">4</item>
+        <item name="android:background">@drawable/custom_button_home</item>
+        <item name="android:backgroundTint">@color/button_home_hm</item>
+    </style>
+
+    <style name="codingBackgroundStyle">
+        <item name="android:background">@drawable/background</item>
+        <item name="android:backgroundTint">@color/front_wave_color_hm</item>
+    </style>
+
+    <style name="codingSaveButtonStyle">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:background">@drawable/custom_button_coding_save</item>
+        <item name="android:backgroundTint">@color/button_other_hm</item>
+    </style>
+
+    <style name="codingButtonStyle">
+        <item name="android:layout_width">100dp</item>
+        <item name="android:layout_height">100dp</item>
+        <item name="android:textColor">@color/button_text_other_hm</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">4</item>
+        <item name="android:background">@drawable/custom_button_coding</item>
+        <item name="android:backgroundTint">@color/button_other_hm</item>
+    </style>
+
+    <style name="savedBackgroundStyle">
+        <item name="android:background">@drawable/background</item>
+        <item name="android:backgroundTint">@color/front_wave_color_hm</item>
+    </style>
+
+    <style name="savedButtonStyle">
+        <item name="android:layout_width">340dp</item>
+        <item name="android:layout_height">55dp</item>
+        <item name="android:textColor">@color/button_text_other_hm</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">4</item>
+        <item name="android:background">@drawable/custom_button_saved</item>
+        <item name="android:backgroundTint">@color/button_other_hm</item>
+    </style>
 </resources>

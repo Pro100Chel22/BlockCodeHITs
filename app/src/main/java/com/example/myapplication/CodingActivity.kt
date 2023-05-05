@@ -4,9 +4,12 @@ import android.content.Context
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.View
 import android.view.WindowManager
-import android.widget.Button
+import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 @Suppress("DEPRECATION")
 class CodingActivity : AppCompatActivity() {
@@ -28,6 +31,32 @@ class CodingActivity : AppCompatActivity() {
             }
 
             editor.apply()
+        }
+
+        findViewById<Button>(R.id.buttonAddNewBlock).setOnClickListener {
+            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+            layoutParams.height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,500.0f, resources.displayMetrics).toInt()
+
+            val bottomSheetView = View.inflate(this, R.layout.layout_new_blocks, null)
+            bottomSheetView.findViewById<LinearLayout>(R.id.modalBottomSheetContainer).layoutParams = layoutParams
+
+            val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogThem)
+            bottomSheetDialog.setContentView(bottomSheetView)
+
+            bottomSheetDialog.show()
+        }
+
+        findViewById<Button>(R.id.buttonCompiler).setOnClickListener{
+            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+            layoutParams.height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,500.0f, resources.displayMetrics).toInt()
+
+            val bottomSheetView = View.inflate(this, R.layout.layout_compiler, null)
+            bottomSheetView.findViewById<LinearLayout>(R.id.modalBottomSheetContainer).layoutParams = layoutParams
+
+            val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogThem)
+            bottomSheetDialog.setContentView(bottomSheetView)
+
+            bottomSheetDialog.show()
         }
     }
 
