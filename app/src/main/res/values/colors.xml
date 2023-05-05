@@ -7,6 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="scroll_view_wave_default">#FF018786</color>
     <color name="text_main_default">#9EDAE3</color>
     <color name="button_home_default">#00A0BC</color>
     <color name="button_other_default">#00A0BC</color>
@@ -15,4 +16,22 @@
     <color name="background_wave_color_default">#00C8E4</color>
     <color name="background_wave_color2_default">#00B4D0</color>
     <color name="background_main_default">#00A0BC</color>
+    <color name="block_default">#34C7E1</color>
+    <color name="block_var_default">#21545E</color>
+    <color name="block_set_default">#5F507A</color>
+    <color name="block_print_default">#E13471</color>
+    <color name="block_input_default">#D0E134</color>
+    <color name="block_if_default">#E13434</color>
+    <color name="block_for_default">#4C8E77</color>
+    <color name="block_while_default">#0A6B7C</color>
+    <color name="block_break_default">#571785</color>
+    <color name="block_continue_default">#9441A3</color>
+    <color name="block_func_default">#33784A</color>
+    <color name="block_return_default">#656E3E</color>
+    <color name="block_end_default">#4A268C</color>
+    <color name="window_text_block_default">#9EDAE3</color>
+    <color name="text_block_default">#005260</color>
+    <color name="text_instruction_block_default">#008BA3</color>
+    <color name="stroke_block_default">#00A0BC</color>
+    <color name="container_default">#6FCFDD</color>
 </resources>

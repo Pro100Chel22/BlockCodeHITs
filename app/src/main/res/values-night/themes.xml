@@ -1,8 +1,8 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.MyApplication" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimary">@color/scroll_view_wave_hm</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
@@ -23,12 +23,12 @@
     </style>
 
     <style name="backgroundBottomSheetStyle">
-        <item name="android:background">@drawable/background_bottom_sheep</item>
+        <item name="android:background">@drawable/shape_background_bottom_sheep</item>
         <item name="android:backgroundTint">@color/front_wave_color_hm</item>
     </style>
 
     <style name="bottomSheetLineStyle">
-        <item name="android:background">@drawable/ic_bottom_sheet_line</item>
+        <item name="android:background">@drawable/shape_bottom_sheet_line</item>
         <item name="android:backgroundTint">@color/button_other_hm</item>
     </style>
 
@@ -85,7 +85,7 @@
         <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">3</item>
         <item name="android:shadowRadius">4</item>
-        <item name="android:background">@drawable/custom_button_home</item>
+        <item name="android:background">@drawable/shape_custom_button_home</item>
         <item name="android:backgroundTint">@color/button_home_hm</item>
     </style>
 
@@ -97,7 +97,7 @@
     <style name="codingSaveButtonStyle">
         <item name="android:layout_width">50dp</item>
         <item name="android:layout_height">50dp</item>
-        <item name="android:background">@drawable/custom_button_coding_save</item>
+        <item name="android:background">@drawable/shape_custom_button_coding_save</item>
         <item name="android:backgroundTint">@color/button_other_hm</item>
     </style>
 
@@ -110,7 +110,7 @@
         <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">3</item>
         <item name="android:shadowRadius">4</item>
-        <item name="android:background">@drawable/custom_button_coding</item>
+        <item name="android:background">@drawable/shape_custom_button_coding</item>
         <item name="android:backgroundTint">@color/button_other_hm</item>
     </style>
 
@@ -128,7 +128,27 @@
         <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">3</item>
         <item name="android:shadowRadius">4</item>
-        <item name="android:background">@drawable/custom_button_saved</item>
+        <item name="android:background">@drawable/shape_custom_button_saved</item>
         <item name="android:backgroundTint">@color/button_other_hm</item>
     </style>
+
+    <item name="color_block" type="color">@color/block_hm</item>
+    <item name="color_block_var" type="color">@color/block_var_hm</item>
+    <item name="color_block_set" type="color">@color/block_set_hm</item>
+    <item name="color_block_print" type="color">@color/block_print_hm</item>
+    <item name="color_block_input" type="color">@color/block_input_hm</item>
+    <item name="color_block_if" type="color">@color/block_if_hm</item>
+    <item name="color_block_for" type="color">@color/block_for_hm</item>
+    <item name="color_block_while" type="color">@color/block_while_hm</item>
+    <item name="color_block_break" type="color">@color/block_break_hm</item>
+    <item name="color_block_continue" type="color">@color/block_continue_hm</item>
+    <item name="color_block_func" type="color">@color/block_func_hm</item>
+    <item name="color_block_return" type="color">@color/block_return_hm</item>
+    <item name="color_block_end" type="color">@color/block_end_hm</item>
+
+    <item name="color_window_text_block" type="color">@color/window_text_block_hm</item>
+    <item name="color_text_block" type="color">@color/text_block_hm</item>
+    <item name="color_text_instruction_block" type="color">@color/text_instruction_block_hm</item>
+    <item name="color_stroke_block" type="color">@color/stroke_block_hm</item>
+    <item name="color_container" type="color">@color/container_hm</item>
 </resources>

@@ -7,4 +7,8 @@
     <string name="compiler">GO</string>
     <string name="add_new_block">NEW</string>
     <string name="test">sdjkfhsdkjfhskj</string>
+    <string name="instruction_elif">Elif</string>
+    <string name="instruction_else">Else</string>
+    <string name="block_hint_text">expression</string>
+    <string name="default_instruction_type">Func</string>
 </resources>

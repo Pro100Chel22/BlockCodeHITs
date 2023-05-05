@@ -18,32 +18,47 @@
         android:id="@+id/modalBottomSheetScroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
         android:layout_marginTop="15dp">
 
         <LinearLayout
+            android:id="@+id/blocks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center|top">
 
-            <Button
-                android:id="@+id/button31"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Button" />
+<!--            <LinearLayout-->
+<!--                android:layout_width="370dp"-->
+<!--                android:layout_marginBottom="10dp"-->
+<!--                android:paddingTop="10dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical"-->
+<!--                android:gravity="center|top"-->
+<!--                android:background="@drawable/shape_container_categories_blocks">-->
+<!--                <include layout="@layout/block_instruction_text" />-->
+<!--                <include layout="@layout/block_instruction_text" />-->
+<!--            </LinearLayout>-->
 
-            <Button
-                android:id="@+id/button33"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Button" />
+<!--            <LinearLayout-->
+<!--                android:layout_width="370dp"-->
+<!--                android:paddingTop="10dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical"-->
+<!--                android:gravity="center|top"-->
+<!--                android:background="@drawable/shape_container_categories_blocks">-->
+<!--                <include layout="@layout/block_instruction_text" />-->
+<!--                <include layout="@layout/block_instruction_text" />-->
+<!--            </LinearLayout>-->
 
-            <Button
-                android:id="@+id/button25"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Button" />
+<!--            <include layout="@layout/block_instruction_text" />-->
+<!--            <include layout="@layout/block_instruction_text"/>-->
+<!--            <include layout="@layout/block_instruction_text"/>-->
+<!--            <include layout="@layout/block_instruction_text"/>-->
+<!--            <include layout="@layout/block_instruction_text"/>-->
+<!--            <include layout="@layout/block_instruction_text"/>-->
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>
