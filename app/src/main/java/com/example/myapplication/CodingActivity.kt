@@ -12,6 +12,10 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
+import com.example.myapplication.databinding.ActivityCodingBinding
+import com.example.myapplication.databinding.LayoutCompilerBinding
+import com.example.myapplication.databinding.LayoutNewBlocksBinding
 import com.example.myapplication.modules.BlockView
 import com.example.myapplication.modules.InstructionType
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -24,10 +28,14 @@ class CodingActivity : AppCompatActivity() {
     private lateinit var listBlocksNotHaveText: List<InstructionType>
     private lateinit var listBlocksEnds: List<InstructionType>
 
-    private lateinit var bottomSheetViewNewBlock: View
+    //private lateinit var bottomSheetViewNewBlock: View
     private lateinit var bottomSheetDialogNewBlock: BottomSheetDialog
-    private lateinit var bottomSheetViewCompiler: View
     private lateinit var bottomSheetDialogCompiler: BottomSheetDialog
+
+    private lateinit var binding : ActivityCodingBinding
+    private lateinit var bottomSheetViewNewBlockBinding : LayoutNewBlocksBinding
+    private lateinit var bottomSheetViewCompilerBinding : LayoutCompilerBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +66,8 @@ class CodingActivity : AppCompatActivity() {
             InstructionType.END to BlockView(InstructionType.END, "End", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_end),
         )
 
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_coding);
+
         listBlocksNotHaveText = listOf(
             InstructionType.ENDCHOICEIF,
             InstructionType.ELSE,
@@ -83,7 +93,7 @@ class CodingActivity : AppCompatActivity() {
         initBottomSheetViewNewBlock()
         initBottomSheetCompiler()
 
-        findViewById<Button>(R.id.buttonCodingSwapMode).setOnClickListener {
+        binding.buttonCodingSwapMode.setOnClickListener {
             val sharedPrefs = applicationContext.getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
             val editor = sharedPrefs.edit()
 
@@ -97,6 +107,12 @@ class CodingActivity : AppCompatActivity() {
 
             editor.apply()
         }
+        binding.buttonAddNewBlock.setOnClickListener {
+            bottomSheetDialogNewBlock.show()
+        }
+        binding.buttonCompiler.setOnClickListener{
+            bottomSheetDialogCompiler.show()
+        }
     }
 
     override fun finish() {
@@ -107,12 +123,12 @@ class CodingActivity : AppCompatActivity() {
     private fun initBottomSheetViewNewBlock () {
         val layoutParamsBottomSheet = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (500 * scaleDp + 0.5).toInt())
 
-        bottomSheetViewNewBlock = View.inflate(this, R.layout.layout_new_blocks, null)
-        bottomSheetViewNewBlock.findViewById<LinearLayout>(R.id.modalBottomSheetContainer).layoutParams = layoutParamsBottomSheet
+        bottomSheetViewNewBlockBinding = DataBindingUtil.inflate(layoutInflater, R.layout.layout_new_blocks, null, false)
+        bottomSheetViewNewBlockBinding.modalBottomSheetContainer.layoutParams = layoutParamsBottomSheet
         bottomSheetDialogNewBlock = BottomSheetDialog(this, R.style.BottomSheetDialogThem)
-        bottomSheetDialogNewBlock.setContentView(bottomSheetViewNewBlock)
+        bottomSheetDialogNewBlock.setContentView(bottomSheetViewNewBlockBinding.root)
 
-        val containerBottomSheetView = bottomSheetViewNewBlock.findViewById<LinearLayout>(R.id.blocks)
+        val containerBottomSheetView = bottomSheetViewNewBlockBinding.blocks
 
         val listCategory = mapOf(
             "Variables" to View.generateViewId(),
@@ -183,23 +199,15 @@ class CodingActivity : AppCompatActivity() {
                 }
             }
         }
-
-        findViewById<Button>(R.id.buttonAddNewBlock).setOnClickListener {
-            bottomSheetDialogNewBlock.show()
-        }
     }
 
     private fun initBottomSheetCompiler () {
         val layoutParamsBottomSheet = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (500 * scaleDp + 0.5).toInt())
 
-        bottomSheetViewCompiler = View.inflate(this, R.layout.layout_compiler, null)
-        bottomSheetViewCompiler.findViewById<LinearLayout>(R.id.modalBottomSheetContainer).layoutParams = layoutParamsBottomSheet
+        bottomSheetViewCompilerBinding = DataBindingUtil.inflate(layoutInflater, R.layout.layout_compiler, null, false)
+        bottomSheetViewCompilerBinding.modalBottomSheetContainer.layoutParams = layoutParamsBottomSheet
         bottomSheetDialogCompiler = BottomSheetDialog(this, R.style.BottomSheetDialogThem)
-        bottomSheetDialogCompiler.setContentView(bottomSheetViewCompiler)
-
-        findViewById<Button>(R.id.buttonCompiler).setOnClickListener{
-            bottomSheetDialogCompiler.show()
-        }
+        bottomSheetDialogCompiler.setContentView(bottomSheetViewCompilerBinding.root)
     }
 
     private fun buildBlock(blockView: BlockView, instructionType: InstructionType): View {
