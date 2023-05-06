@@ -132,7 +132,7 @@ class CodingActivity : AppCompatActivity() {
                 val block = buildBlock(blockView, key)
 
                 val addBlocks = { v: View ->
-                    // <------------Код для добавления блоков в поле----------->
+                    // <------------Код для добавления блоков в поле---------
                     Toast.makeText(this, blockView.instruction, Toast.LENGTH_SHORT).show()
                 }
 
