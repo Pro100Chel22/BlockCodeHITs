@@ -1,16 +1,22 @@
 package com.example.myapplication
 
+import android.content.ClipData
+import android.content.ClipDescription
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.DragEvent
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.example.myapplication.databinding.ActivityCodingBinding
@@ -19,6 +25,7 @@ import com.example.myapplication.databinding.LayoutNewBlocksBinding
 import com.example.myapplication.modules.BlockView
 import com.example.myapplication.modules.InstructionType
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import org.w3c.dom.Text
 
 @Suppress("DEPRECATION")
 class CodingActivity : AppCompatActivity() {
@@ -28,13 +35,15 @@ class CodingActivity : AppCompatActivity() {
     private lateinit var listBlocksNotHaveText: List<InstructionType>
     private lateinit var listBlocksEnds: List<InstructionType>
 
-    //private lateinit var bottomSheetViewNewBlock: View
     private lateinit var bottomSheetDialogNewBlock: BottomSheetDialog
     private lateinit var bottomSheetDialogCompiler: BottomSheetDialog
 
     private lateinit var binding : ActivityCodingBinding
     private lateinit var bottomSheetViewNewBlockBinding : LayoutNewBlocksBinding
     private lateinit var bottomSheetViewCompilerBinding : LayoutCompilerBinding
+
+    private val regularBlockWidth : Int = 350;  private val regularBlockHeight : Int = 90;
+    private val specificBlockWidth : Int = 200; private val specificBlockHeight: Int = 55;
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,13 +122,101 @@ class CodingActivity : AppCompatActivity() {
         binding.buttonCompiler.setOnClickListener{
             bottomSheetDialogCompiler.show()
         }
+        binding.deleteBlock.setOnDragListener(deleteBlock)
     }
 
+
+    ////////////////////////////
+    val deleteBlock = View.OnDragListener { view, dragEvent ->
+        when(dragEvent.action){
+            DragEvent.ACTION_DRAG_STARTED -> {
+                dragEvent.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
+            }
+            DragEvent.ACTION_DRAG_ENTERED -> {
+                view.invalidate()
+                true
+            }
+            DragEvent.ACTION_DRAG_LOCATION -> true
+            DragEvent.ACTION_DRAG_EXITED -> {
+                view.invalidate();
+                true;
+            }
+            DragEvent.ACTION_DROP -> {
+                view.invalidate()
+                val v = dragEvent.localState as ConstraintLayout
+                val owner = v.parent as ViewGroup;
+                val ownerParent = owner.parent as ViewGroup;
+                ownerParent.removeView(owner);
+                numberOfBlockFieldChildren--;
+                true
+            }
+            else -> false
+        }
+    }
+
+    val containerDragListener = View.OnDragListener{view, event ->
+        when(event.action){
+            DragEvent.ACTION_DRAG_STARTED -> {
+                event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
+            }
+            DragEvent.ACTION_DRAG_ENTERED -> {
+                view.invalidate()
+                true
+            }
+            DragEvent.ACTION_DRAG_LOCATION -> true
+            DragEvent.ACTION_DRAG_EXITED -> {
+                view.invalidate();
+                true;
+            }
+            DragEvent.ACTION_DROP -> {
+                view.invalidate()
+                val v = event.localState as ViewGroup
+                val owner = v.parent as ViewGroup
+                val destination = view as ConstraintLayout
+                val destinationChild = destination.getChildAt(0);
+                if(destination.height < owner.height){
+                    val ownerParams = owner.layoutParams; val destinationParams = destination.layoutParams;
+
+                    owner.removeView(v); destination.removeView(destinationChild);
+                    owner.addView(destinationChild); destination.addView(v);
+
+                    owner.layoutParams = destinationParams; destination.layoutParams = ownerParams;
+
+                    v.visibility = View.VISIBLE
+                    return@OnDragListener false
+                }
+                owner.removeView(v)
+                if(destination.parent !== owner.parent || destination.height != owner.height){
+                    owner.addView(v);
+                    v.visibility = View.VISIBLE
+                }
+                else{
+                    if(destination.childCount > 0){
+                        val destinationChild = destination.getChildAt(0);
+                        destination.removeView(destinationChild);
+                        owner.addView(destinationChild);
+                    }
+                    destination.addView(v)
+                    v.visibility = View.VISIBLE
+                }
+                true
+            }
+            DragEvent.ACTION_DRAG_ENDED -> {
+                val v = event.localState as ViewGroup; v.visibility = View.VISIBLE;
+                view.invalidate();
+                true
+            }
+            else -> false
+        }
+    }
+
+    /////////////////////////////////
     override fun finish() {
         super.finish()
         overridePendingTransition(androidx.appcompat.R.anim.abc_slide_in_top, androidx.appcompat.R.anim.abc_slide_out_bottom)
     }
 
+    var numberOfBlockFieldChildren :Int = 0;
     private fun initBottomSheetViewNewBlock () {
         val layoutParamsBottomSheet = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (500 * scaleDp + 0.5).toInt())
 
@@ -148,8 +245,45 @@ class CodingActivity : AppCompatActivity() {
                 val block = buildBlock(blockView, key)
 
                 val addBlocks = { v: View ->
-                    // <------------Код для добавления блоков в поле---------
-                    Toast.makeText(this, blockView.instruction, Toast.LENGTH_SHORT).show()
+                    // <------------Код для добавления блоков в поле--------->
+                    if(key in listBlocksNotHaveText && numberOfBlockFieldChildren == 0){
+                        Toast.makeText(this, "You cant place it as first element", Toast.LENGTH_SHORT).show()
+                    }
+                    else{
+                        var isSpecific : Boolean = true
+                        var heightParams : Int = specificBlockHeight; var widthParams : Int = specificBlockWidth;
+                        if(key !in listBlocksNotHaveText){
+                            heightParams = regularBlockHeight; widthParams = regularBlockWidth
+                            isSpecific = false
+                        }
+                        val container : ConstraintLayout = ConstraintLayout(this);
+                        val contParams = ConstraintLayout.LayoutParams((widthParams * scaleDp + 0.5).toInt(), (heightParams * scaleDp + 20.5).toInt())
+                        container.layoutParams = contParams;
+                        container.setOnDragListener(containerDragListener)
+                        //container.setBackgroundColor(getResources().getColor(R.color.white));
+                        container.id = numberOfBlockFieldChildren * 1000;
+
+
+                        val newBlock = buildBlock(blockView, key)
+                        newBlock.setOnLongClickListener{
+                            val clipText = ""
+                            val item = ClipData.Item(clipText)
+                            val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
+                            val data = ClipData(clipText, mimeTypes, item)
+
+                            val dragShadowBuilder = View.DragShadowBuilder(it)
+                            it.startDragAndDrop(data, dragShadowBuilder, it, 0)
+                            it.visibility = View.INVISIBLE
+                            true
+                        }
+                        container.addView(newBlock)
+
+                        binding.blockField.addView(container)
+
+                        numberOfBlockFieldChildren++;
+
+                        Toast.makeText(this, blockView.instruction, Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 block.setOnClickListener(addBlocks)
@@ -221,10 +355,9 @@ class CodingActivity : AppCompatActivity() {
             val shapeText = block.findViewById<EditText>(R.id.inputExpression).background as GradientDrawable
             shapeText.setColor(ContextCompat.getColor(this, R.color.color_window_text_block))
             shapeText.setStroke((2 * scaleDp + 0.5).toInt(), ContextCompat.getColor(this, blockView.colorStroke))
-
-            LinearLayout.LayoutParams((350 * scaleDp + 0.5).toInt(), (90 * scaleDp + 0.5).toInt())
+            LinearLayout.LayoutParams((regularBlockWidth * scaleDp + 0.5).toInt(), (regularBlockHeight * scaleDp + 0.5).toInt())
         } else {
-            LinearLayout.LayoutParams((200 * scaleDp + 0.5).toInt(), (55 * scaleDp + 0.5).toInt())
+            LinearLayout.LayoutParams((specificBlockWidth * scaleDp + 0.5).toInt(), (specificBlockHeight * scaleDp + 0.5).toInt())
         }
         layoutParams.bottomMargin = (10 * scaleDp + 0.5).toInt()
 
@@ -251,6 +384,7 @@ class CodingActivity : AppCompatActivity() {
 
         return textView
     }
+
 
     private fun buildContainerBlocks(id: Int) : View {
         val linearLayout = LinearLayout.inflate(this, R.layout.block_container, null)
