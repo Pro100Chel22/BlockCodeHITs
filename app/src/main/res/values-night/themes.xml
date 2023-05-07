@@ -97,7 +97,7 @@
     <style name="codingSaveButtonStyle">
         <item name="android:layout_width">50dp</item>
         <item name="android:layout_height">50dp</item>
-        <item name="android:background">@drawable/shape_custom_button_coding_save</item>
+        <item name="android:background">@drawable/ic_code_save</item>
         <item name="android:backgroundTint">@color/button_other_hm</item>
     </style>
 
@@ -131,6 +131,9 @@
         <item name="android:background">@drawable/shape_custom_button_saved</item>
         <item name="android:backgroundTint">@color/button_other_hm</item>
     </style>
+
+    <item name="color_button_delete" type="color">@color/button_other_hm</item>
+    <item name="color_button_trash_delete" type="color">@color/button_text_other_hm</item>
 
     <item name="color_block" type="color">@color/block_hm</item>
     <item name="color_block_var" type="color">@color/block_var_hm</item>

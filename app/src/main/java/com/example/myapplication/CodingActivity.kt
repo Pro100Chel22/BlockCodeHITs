@@ -16,35 +16,36 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.example.myapplication.databinding.ActivityCodingBinding
-import com.example.myapplication.databinding.LayoutCompilerBinding
+import com.example.myapplication.databinding.LayoutConsoleBinding
 import com.example.myapplication.databinding.LayoutNewBlocksBinding
 import com.example.myapplication.modules.BlockView
 import com.example.myapplication.modules.InstructionType
+import com.example.myapplication.modules.getListBlocks
+import com.example.myapplication.modules.getListBlocksEnds
+import com.example.myapplication.modules.getListBlocksNotHaveText
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import org.w3c.dom.Text
 
 @Suppress("DEPRECATION")
 class CodingActivity : AppCompatActivity() {
     private var scaleDp: Float = 1f
 
-    private lateinit var listBlocks: Map<InstructionType, BlockView>
-    private lateinit var listBlocksNotHaveText: List<InstructionType>
-    private lateinit var listBlocksEnds: List<InstructionType>
+    private var listBlocks = getListBlocks()
+    private var listBlocksNotHaveText = getListBlocksNotHaveText()
+    private var listBlocksEnds = getListBlocksEnds()
 
     private lateinit var bottomSheetDialogNewBlock: BottomSheetDialog
-    private lateinit var bottomSheetDialogCompiler: BottomSheetDialog
+    private lateinit var bottomSheetDialogConsole: BottomSheetDialog
 
     private lateinit var binding : ActivityCodingBinding
     private lateinit var bottomSheetViewNewBlockBinding : LayoutNewBlocksBinding
-    private lateinit var bottomSheetViewCompilerBinding : LayoutCompilerBinding
+    private lateinit var bottomSheetViewConsoleBinding : LayoutConsoleBinding
 
-    private val regularBlockWidth : Int = 350;  private val regularBlockHeight : Int = 90;
-    private val specificBlockWidth : Int = 200; private val specificBlockHeight: Int = 55;
-
+    private var numberOfBlockFieldChildren :Int = 0
+    private val regularBlockWidth : Int = 350;  private val regularBlockHeight : Int = 90
+    private val specificBlockWidth : Int = 200; private val specificBlockHeight: Int = 55
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,54 +54,10 @@ class CodingActivity : AppCompatActivity() {
 
         scaleDp = resources.displayMetrics.density
 
-        listBlocks = mapOf(
-            InstructionType.VAR to BlockView(InstructionType.VAR,"Var", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_var),
-            InstructionType.SET to BlockView(InstructionType.SET,"Set", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_set),
-            InstructionType.PRINT to BlockView(InstructionType.PRINT,"Print", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_print),
-            InstructionType.INPUT to BlockView(InstructionType.INPUT, "Input", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_input),
-            InstructionType.IF to BlockView(InstructionType.IF, "If", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_if),
-            InstructionType.ENDCHOICEIF to BlockView(InstructionType.ENDCHOICEIF, "EndChoiceIf", R.layout.block_insctuction_end_choice_if, R.color.color_stroke_block, R.color.color_block_if),
-            InstructionType.ELIF to BlockView(InstructionType.ELIF,"Elif", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_if),
-            InstructionType.ELSE to BlockView(InstructionType.ELSE, "Else", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_if),
-            InstructionType.ENDIF to BlockView(InstructionType.ENDIF, "EndIf", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_if),
-            InstructionType.FOR to BlockView(InstructionType.FOR, "For", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_for),
-            InstructionType.ENDFOR to BlockView(InstructionType.ENDFOR, "EndFor", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_for),
-            InstructionType.WHILE to BlockView(InstructionType.WHILE, "While", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_while),
-            InstructionType.ENDWHILE to BlockView(InstructionType.ENDWHILE, "EndWhile", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_while),
-            InstructionType.BREAK to BlockView(InstructionType.BREAK, "Break", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_break),
-            InstructionType.CONTINUE to BlockView(InstructionType.CONTINUE, "Continue", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_continue),
-            InstructionType.FUNC to BlockView(InstructionType.FUNC, "Func", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_func),
-            InstructionType.ENDFUNC to BlockView(InstructionType.ENDFUNC, "EndFunc", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_func),
-            InstructionType.RETURN to BlockView(InstructionType.RETURN, "Return", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_return),
-            InstructionType.END to BlockView(InstructionType.END, "End", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_end),
-        )
-
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_coding);
-
-        listBlocksNotHaveText = listOf(
-            InstructionType.ENDCHOICEIF,
-            InstructionType.ELSE,
-            InstructionType.ENDIF,
-            InstructionType.ENDFOR,
-            InstructionType.ENDWHILE,
-            InstructionType.BREAK,
-            InstructionType.CONTINUE,
-            InstructionType.ENDFUNC,
-            InstructionType.RETURN,
-            InstructionType.END,
-        )
-
-        listBlocksEnds = listOf(
-            InstructionType.ENDCHOICEIF,
-            InstructionType.ENDIF,
-            InstructionType.ENDFOR,
-            InstructionType.ENDWHILE,
-            InstructionType.ENDFUNC,
-            InstructionType.END
-        )
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_coding)
 
         initBottomSheetViewNewBlock()
-        initBottomSheetCompiler()
+        initBottomSheetConsole()
 
         binding.buttonCodingSwapMode.setOnClickListener {
             val sharedPrefs = applicationContext.getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
@@ -119,8 +76,8 @@ class CodingActivity : AppCompatActivity() {
         binding.buttonAddNewBlock.setOnClickListener {
             bottomSheetDialogNewBlock.show()
         }
-        binding.buttonCompiler.setOnClickListener{
-            bottomSheetDialogCompiler.show()
+        binding.buttonConsole.setOnClickListener{
+            bottomSheetDialogConsole.show()
         }
         binding.deleteBlock.setOnDragListener(deleteBlock)
     }
@@ -138,16 +95,16 @@ class CodingActivity : AppCompatActivity() {
             }
             DragEvent.ACTION_DRAG_LOCATION -> true
             DragEvent.ACTION_DRAG_EXITED -> {
-                view.invalidate();
-                true;
+                view.invalidate()
+                true
             }
             DragEvent.ACTION_DROP -> {
                 view.invalidate()
                 val v = dragEvent.localState as ConstraintLayout
-                val owner = v.parent as ViewGroup;
-                val ownerParent = owner.parent as ViewGroup;
-                ownerParent.removeView(owner);
-                numberOfBlockFieldChildren--;
+                val owner = v.parent as ViewGroup
+                val ownerParent = owner.parent as ViewGroup
+                ownerParent.removeView(owner)
+                numberOfBlockFieldChildren--
                 true
             }
             else -> false
@@ -165,36 +122,36 @@ class CodingActivity : AppCompatActivity() {
             }
             DragEvent.ACTION_DRAG_LOCATION -> true
             DragEvent.ACTION_DRAG_EXITED -> {
-                view.invalidate();
-                true;
+                view.invalidate()
+                true
             }
             DragEvent.ACTION_DROP -> {
                 view.invalidate()
                 val v = event.localState as ViewGroup
                 val owner = v.parent as ViewGroup
                 val destination = view as ConstraintLayout
-                val destinationChild = destination.getChildAt(0);
+                val destinationChild = destination.getChildAt(0)
                 if(destination.height < owner.height){
-                    val ownerParams = owner.layoutParams; val destinationParams = destination.layoutParams;
+                    val ownerParams = owner.layoutParams; val destinationParams = destination.layoutParams
 
-                    owner.removeView(v); destination.removeView(destinationChild);
-                    owner.addView(destinationChild); destination.addView(v);
+                    owner.removeView(v); destination.removeView(destinationChild)
+                    owner.addView(destinationChild); destination.addView(v)
 
-                    owner.layoutParams = destinationParams; destination.layoutParams = ownerParams;
+                    owner.layoutParams = destinationParams; destination.layoutParams = ownerParams
 
                     v.visibility = View.VISIBLE
                     return@OnDragListener false
                 }
                 owner.removeView(v)
                 if(destination.parent !== owner.parent || destination.height != owner.height){
-                    owner.addView(v);
+                    owner.addView(v)
                     v.visibility = View.VISIBLE
                 }
                 else{
                     if(destination.childCount > 0){
-                        val destinationChild = destination.getChildAt(0);
-                        destination.removeView(destinationChild);
-                        owner.addView(destinationChild);
+                        val destinationChild = destination.getChildAt(0)
+                        destination.removeView(destinationChild)
+                        owner.addView(destinationChild)
                     }
                     destination.addView(v)
                     v.visibility = View.VISIBLE
@@ -202,8 +159,8 @@ class CodingActivity : AppCompatActivity() {
                 true
             }
             DragEvent.ACTION_DRAG_ENDED -> {
-                val v = event.localState as ViewGroup; v.visibility = View.VISIBLE;
-                view.invalidate();
+                val v = event.localState as ViewGroup; v.visibility = View.VISIBLE
+                view.invalidate()
                 true
             }
             else -> false
@@ -216,7 +173,7 @@ class CodingActivity : AppCompatActivity() {
         overridePendingTransition(androidx.appcompat.R.anim.abc_slide_in_top, androidx.appcompat.R.anim.abc_slide_out_bottom)
     }
 
-    var numberOfBlockFieldChildren :Int = 0;
+
     private fun initBottomSheetViewNewBlock () {
         val layoutParamsBottomSheet = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (500 * scaleDp + 0.5).toInt())
 
@@ -236,7 +193,7 @@ class CodingActivity : AppCompatActivity() {
         )
 
         for ((category, id) in listCategory) {
-            containerBottomSheetView.addView(buildTextView(category, 0, 5))
+            containerBottomSheetView.addView(buildTextView(category))
             containerBottomSheetView.addView(buildContainerBlocks(id))
         }
 
@@ -250,18 +207,18 @@ class CodingActivity : AppCompatActivity() {
                         Toast.makeText(this, "You cant place it as first element", Toast.LENGTH_SHORT).show()
                     }
                     else{
-                        var isSpecific : Boolean = true
-                        var heightParams : Int = specificBlockHeight; var widthParams : Int = specificBlockWidth;
+                        var isSpecific = true
+                        var heightParams : Int = specificBlockHeight; var widthParams : Int = specificBlockWidth
                         if(key !in listBlocksNotHaveText){
                             heightParams = regularBlockHeight; widthParams = regularBlockWidth
                             isSpecific = false
                         }
-                        val container : ConstraintLayout = ConstraintLayout(this);
+                        val container = ConstraintLayout(this)
                         val contParams = ConstraintLayout.LayoutParams((widthParams * scaleDp + 0.5).toInt(), (heightParams * scaleDp + 20.5).toInt())
-                        container.layoutParams = contParams;
+                        container.layoutParams = contParams
                         container.setOnDragListener(containerDragListener)
                         //container.setBackgroundColor(getResources().getColor(R.color.white));
-                        container.id = numberOfBlockFieldChildren * 1000;
+                        container.id = numberOfBlockFieldChildren * 1000
 
 
                         val newBlock = buildBlock(blockView, key)
@@ -280,13 +237,14 @@ class CodingActivity : AppCompatActivity() {
 
                         binding.blockField.addView(container)
 
-                        numberOfBlockFieldChildren++;
+                        numberOfBlockFieldChildren++
 
                         Toast.makeText(this, blockView.instruction, Toast.LENGTH_SHORT).show()
                     }
                 }
 
                 block.setOnClickListener(addBlocks)
+                block.findViewById<Button>(R.id.buttonBreakPoint).setOnClickListener(addBlocks)
 
                 if(key !in listBlocksNotHaveText) {
                     val editText: EditText = block.findViewById(R.id.inputExpression)
@@ -335,13 +293,13 @@ class CodingActivity : AppCompatActivity() {
         }
     }
 
-    private fun initBottomSheetCompiler () {
+    private fun initBottomSheetConsole () {
         val layoutParamsBottomSheet = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (500 * scaleDp + 0.5).toInt())
 
-        bottomSheetViewCompilerBinding = DataBindingUtil.inflate(layoutInflater, R.layout.layout_compiler, null, false)
-        bottomSheetViewCompilerBinding.modalBottomSheetContainer.layoutParams = layoutParamsBottomSheet
-        bottomSheetDialogCompiler = BottomSheetDialog(this, R.style.BottomSheetDialogThem)
-        bottomSheetDialogCompiler.setContentView(bottomSheetViewCompilerBinding.root)
+        bottomSheetViewConsoleBinding = DataBindingUtil.inflate(layoutInflater, R.layout.layout_console, null, false)
+        bottomSheetViewConsoleBinding.modalBottomSheetContainer.layoutParams = layoutParamsBottomSheet
+        bottomSheetDialogConsole = BottomSheetDialog(this, R.style.BottomSheetDialogThem)
+        bottomSheetDialogConsole.setContentView(bottomSheetViewConsoleBinding.root)
     }
 
     private fun buildBlock(blockView: BlockView, instructionType: InstructionType): View {
@@ -366,10 +324,21 @@ class CodingActivity : AppCompatActivity() {
             block.findViewById<TextView>(R.id.instructionType).text = blockView.instruction
         }
 
+        val breakPoint = block.findViewById<Button>(R.id.buttonBreakPoint)
+        val shapeBreakPoint = breakPoint.background as GradientDrawable
+        shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag))
+        breakPoint.setOnClickListener{
+            if (shapeBreakPoint.color?.defaultColor == ContextCompat.getColor(this, R.color.break_point_flag_marker)) {
+                shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag))
+            } else {
+                shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag_marker))
+            }
+        }
+
         return block
     }
 
-    private fun buildTextView(text: String, marginTop: Int = 0, marginBottom: Int = 0): TextView {
+    private fun buildTextView(text: String): TextView {
         val textView = TextView(this)
         textView.text = text
         textView.setTypeface(null, Typeface.BOLD)
@@ -378,8 +347,8 @@ class CodingActivity : AppCompatActivity() {
         textView.textSize = (scaleDp * 10)
 
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        layoutParams.bottomMargin = (marginBottom * scaleDp + 0.5).toInt()
-        layoutParams.topMargin = (marginTop * scaleDp + 0.5).toInt()
+        layoutParams.bottomMargin = 0
+        layoutParams.topMargin = (5 * scaleDp + 0.5).toInt()
         textView.layoutParams = layoutParams
 
         return textView

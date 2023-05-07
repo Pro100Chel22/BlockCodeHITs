@@ -7,26 +7,36 @@
     android:background="@drawable/shape_block_background">
 
     <Button
+        android:id="@+id/buttonBreakPoint"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/shape_break_point_flag"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
         android:id="@+id/buttonElif"
         android:layout_width="60dp"
         android:layout_height="40dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
         android:background="@drawable/shape_window_text_block"
         android:text="@string/instruction_elif"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonElse"
+        app:layout_constraintStart_toEndOf="@+id/buttonBreakPoint"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.571" />
+        app:layout_constraintVertical_bias="0.533" />
 
     <Button
         android:id="@+id/buttonElse"
         android:layout_width="60dp"
         android:layout_height="40dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
         android:background="@drawable/shape_window_text_block"
         android:text="@string/instruction_else"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonElif"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.571" />
 </androidx.constraintlayout.widget.ConstraintLayout>

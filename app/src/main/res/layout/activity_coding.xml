@@ -18,11 +18,14 @@
         />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/upperBoundContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:id="@+id/upperBoundContainer"
         app:layout_constraintBottom_toTopOf="@id/upperConstraint"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="-105dp">
+
         <Button
             android:id="@+id/buttonCodingSwapMode"
             style="@style/buttonSwapModeStyle"
@@ -31,6 +34,7 @@
             app:layout_constraintHorizontal_bias="0.95"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
         <Button
             android:id="@+id/buttonSaveCode"
             style="@style/codingSaveButtonStyle"
@@ -39,8 +43,53 @@
             app:layout_constraintHorizontal_bias="0.044"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <Button
+            android:id="@+id/buttonCompiler"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="@drawable/ic_compiler"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.341"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/buttonDebugNext"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="@drawable/ic_next"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.341"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/buttonDebug"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="@drawable/ic_debug"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.661"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/buttonDebugStop"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="@drawable/ic_stop"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.661"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.otaliastudios.zoom.ZoomLayout
         android:layout_width="0dp"
@@ -53,7 +102,7 @@
         app:layout_constraintTop_toBottomOf="@id/upperConstraint"
         app:layout_constraintLeft_toLeftOf="parent"
         android:id="@+id/parent_of_blocks"
-        android:background="#555555"
+
         android:orientation="vertical">
         <LinearLayout
             android:layout_gravity="top|start"
@@ -82,9 +131,9 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/buttonCompiler"
+            android:id="@+id/buttonConsole"
             style="@style/codingButtonStyle"
-            android:text="@string/compiler"
+            android:text="@string/console"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.051"
@@ -93,20 +142,20 @@
 
         <Button
             android:id="@+id/deleteBlock"
-            style="@style/codingButtonStyle"
-            android:background="@drawable/shape_custom_delete"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/ic_trash_close"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            />
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lowerConstraint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/lowerConstraint"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.84"
-        />
+        app:layout_constraintGuide_percent="0.86" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
