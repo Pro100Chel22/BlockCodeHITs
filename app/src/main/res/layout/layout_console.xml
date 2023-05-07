@@ -31,15 +31,15 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TEXT"/>
+                android:text=""/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TEXT"/>
+                android:text=""/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TEXT"/>
+                android:text=""/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>
