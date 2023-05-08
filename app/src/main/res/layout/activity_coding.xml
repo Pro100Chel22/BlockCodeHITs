@@ -94,7 +94,7 @@
     <com.otaliastudios.zoom.ZoomLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:minZoom="0.1"
+        app:minZoom="0.5"
         app:hasClickableChildren="true"
         app:zoomEnabled="true"
         app:layout_constraintBottom_toTopOf="@id/lowerConstraint"
