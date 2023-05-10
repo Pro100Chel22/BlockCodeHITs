@@ -24,6 +24,8 @@ fun getListBlocksNotHaveText(): List<InstructionType> {
     )
 }
 
+//fun getListBlockSupporting
+
 fun getListBlocksEnds(): List<InstructionType> {
     return listOf(
         InstructionType.ENDCHOICEIF,
