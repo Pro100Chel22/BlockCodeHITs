@@ -15,6 +15,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewParent
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
@@ -98,6 +99,26 @@ class CodingActivity : AppCompatActivity() {
         }
         binding.deleteBlock.setOnClickListener { startSelectiveErasing() }
         binding.deleteBlock.setOnLongClickListener { binding.blockField.removeAllViews(); true }
+
+        findViewById<Button>(R.id.buttonCompiler).setOnClickListener {
+            // ((binding.blockField.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0) as View
+            val blocks = recurBlockParser(binding.blockField)
+
+            for (i in blocks.indices) {
+                Toast.makeText(this,  i.toString() + ":" + blocks[i].findViewById<TextView>(R.id.instructionType).text.toString(), Toast.LENGTH_SHORT).show()
+
+                val breakPoint = blocks[i].findViewById<Button>(R.id.buttonBreakPoint)
+                val shapeBreakPoint = breakPoint.background as GradientDrawable
+
+                if (shapeBreakPoint.color?.defaultColor == ContextCompat.getColor(this, R.color.break_point_flag_marker)) {
+                    shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag))
+                    //Toast.makeText(this,  i.toString() + ": YES", Toast.LENGTH_SHORT).show()
+                } else {
+                    shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag_marker))
+                    //Toast.makeText(this,  i.toString() + ": NO", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
     /////////////////////////////////
     /////////////////////////////////
@@ -315,7 +336,7 @@ class CodingActivity : AppCompatActivity() {
 
     private fun createInnerLay(widthParams : Int, heightParams : Int) : ConstraintLayout{
         val innerLay = ConstraintLayout(this);
-        val innerLayParams = ConstraintLayout.LayoutParams((widthParams * scaleDp + 0.5).toInt(), (heightParams / 2 * scaleDp).toInt())
+        val innerLayParams = ConstraintLayout.LayoutParams((widthParams * scaleDp + 0.5).toInt(), (heightParams / 3 * scaleDp).toInt())
         innerLay.layoutParams = innerLayParams;
         innerLay.id = View.generateViewId();
         return innerLay
@@ -439,6 +460,55 @@ class CodingActivity : AppCompatActivity() {
         it.startDragAndDrop(data, dragShadowBuilder, it, 0)
         it.visibility = View.INVISIBLE
         true
+    }
+
+    private fun recurBlockParser(field: ViewGroup): MutableList<View> {
+        val viewList: MutableList<View> = mutableListOf()
+
+        for(i in 0 until field.childCount){
+            val parent = field.getChildAt(i)
+
+            val blockName = getViewBlock(parent).findViewById<TextView>(R.id.instructionType).text.toString()
+            if(blockName == listBlocks[InstructionType.IF]?.instruction) {
+                val blockContainer = getViewBlockContainer(parent)
+
+                for(j in 0 until blockContainer.childCount step 3) {
+                    val nestBlockView = blockContainer.getChildAt(j) as View
+                    val nestBlockName = nestBlockView.findViewById<TextView>(R.id.instructionType).text.toString()
+
+                    if(nestBlockName == listBlocks[InstructionType.IF]?.instruction ||
+                        nestBlockName == listBlocks[InstructionType.ELIF]?.instruction ||
+                        nestBlockName == listBlocks[InstructionType.ELSE]?.instruction) {
+
+                        viewList.add(nestBlockView)
+                        viewList.addAll(recurBlockParser(blockContainer.getChildAt(j + 2) as ViewGroup))
+                    } else {
+                        viewList.add(nestBlockView)
+                    }
+                }
+
+            } else if(blockName == listBlocks[InstructionType.WHILE]?.instruction ||
+                      blockName == listBlocks[InstructionType.FOR]?.instruction ||
+                      blockName == listBlocks[InstructionType.FUNC]?.instruction) {
+
+                val blockContainer = getViewBlockContainer(parent)
+                viewList.add(blockContainer.getChildAt(0) as View)
+                viewList.addAll(recurBlockParser(blockContainer.getChildAt(2) as ViewGroup))
+                viewList.add(blockContainer.getChildAt(3) as View)
+            } else {
+                viewList.add(getViewBlock(parent))
+            }
+        }
+
+        return viewList
+    }
+
+    private fun getViewBlock(parent: View): View {
+        return ((parent as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0) as View
+    }
+
+    private fun getViewBlockContainer(parent: View): ViewGroup {
+        return (parent as ViewGroup).getChildAt(0) as ViewGroup
     }
 
     /////////////////////////////////
@@ -648,15 +718,23 @@ class CodingActivity : AppCompatActivity() {
             block.findViewById<TextView>(R.id.instructionType).text = blockView.instruction
         }
 
+        val gradientDrawable = GradientDrawable()
+        gradientDrawable.setColor(ContextCompat.getColor(this, R.color.break_point_flag))
+        gradientDrawable.cornerRadius = 999f
+        gradientDrawable.setStroke((scaleDp * 5).toInt(), ContextCompat.getColor(this, R.color.color_stroke_block))
+
         val breakPoint = block.findViewById<Button>(R.id.buttonBreakPoint)
-        val shapeBreakPoint = breakPoint.background as GradientDrawable
-        shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag))
+        breakPoint.background = gradientDrawable
         breakPoint.setOnClickListener{
+            val shapeBreakPoint = it.background as GradientDrawable
+
             if (shapeBreakPoint.color?.defaultColor == ContextCompat.getColor(this, R.color.break_point_flag_marker)) {
                 shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag))
             } else {
                 shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag_marker))
             }
+
+            //Toast.makeText(this, block.findViewById<EditText>(R.id.inputExpression).text.toString(), Toast.LENGTH_SHORT).show()
         }
 
         block.id = View.generateViewId()

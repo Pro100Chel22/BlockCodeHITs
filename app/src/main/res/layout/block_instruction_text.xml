@@ -42,8 +42,8 @@
 
     <Button
         android:id="@+id/buttonBreakPoint"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_marginStart="8dp"
         android:background="@drawable/shape_break_point_flag"
         app:layout_constraintBottom_toBottomOf="parent"

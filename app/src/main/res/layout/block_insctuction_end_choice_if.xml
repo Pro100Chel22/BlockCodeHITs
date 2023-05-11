@@ -6,10 +6,18 @@
     android:layout_marginBottom="10dp"
     android:background="@drawable/shape_block_background">
 
+    <TextView
+        android:id="@+id/instructionType"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonBreakPoint"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Button
         android:id="@+id/buttonBreakPoint"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_marginStart="8dp"
         android:background="@drawable/shape_break_point_flag"
         app:layout_constraintBottom_toBottomOf="parent"

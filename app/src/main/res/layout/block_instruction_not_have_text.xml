@@ -8,8 +8,8 @@
 
     <Button
         android:id="@+id/buttonBreakPoint"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_marginStart="8dp"
         android:background="@drawable/shape_break_point_flag"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -22,7 +22,7 @@
         android:layout_height="50dp"
         android:layout_marginStart="8dp"
         android:gravity="center|top"
-        android:text="@string/default_instruction_type"
+        android:text=""
         android:textColor="@color/color_text_instruction_block"
         android:textSize="37sp"
         android:textStyle="bold"
