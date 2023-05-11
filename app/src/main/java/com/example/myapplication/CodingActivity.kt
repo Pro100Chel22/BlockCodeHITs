@@ -96,21 +96,8 @@ class CodingActivity : AppCompatActivity() {
         binding.lowerBoundContainer.setOnDragListener { view, dragEvent ->
             scrollBlocks(view, dragEvent, -scrollSpeed);
         }
-        binding.deleteBlock.setOnClickListener {
-            val keys : Set<View> = checkedBlocks.keys
-            for(key in keys){
-                if(checkedBlocks[key] == true){
-                    val keyContainer = key.parent.parent as? ViewGroup;
-                    val keyHolder = key.parent as? ViewGroup;
-                    keyContainer?.removeView(keyHolder)
-                }
-            }
-            Toast.makeText(this, binding.blockField.childCount.toString(), Toast.LENGTH_SHORT).show()
-        }
-        binding.deleteBlock.setOnLongClickListener {
-            binding.blockField.removeAllViews()
-            true
-        }
+        binding.deleteBlock.setOnClickListener { startSelectiveErasing() }
+        binding.deleteBlock.setOnLongClickListener { binding.blockField.removeAllViews(); true }
     }
     /////////////////////////////////
     /////////////////////////////////
@@ -118,6 +105,18 @@ class CodingActivity : AppCompatActivity() {
     /////////////////////////////////
     /////////////////////////////////
     /////////////////////////////////
+    private fun startSelectiveErasing(){
+        val keys : Set<View> = checkedBlocks.keys
+        for(key in keys){
+            if(checkedBlocks[key] == true){
+                val keyContainer = key.parent.parent as? ViewGroup;
+                val keyHolder = key.parent as? ViewGroup;
+                keyContainer?.removeView(keyHolder)
+            }
+        }
+    }
+
+
     private val deleteBlock = View.OnDragListener { view, dragEvent ->
         when(dragEvent.action){
             DragEvent.ACTION_DRAG_STARTED -> {
@@ -242,7 +241,9 @@ class CodingActivity : AppCompatActivity() {
             }
             DragEvent.ACTION_DROP -> {
                 var v = dragEvent.localState as ViewGroup; var owner = v.parent as ViewGroup;
+
                 val targetView = view as ViewGroup; val targetViewOwner = targetView.parent.parent as ViewGroup
+
                 val commonFather = owner.parent as ViewGroup
 
                 if(owner.parent != targetViewOwner.parent){
@@ -424,6 +425,22 @@ class CodingActivity : AppCompatActivity() {
             else -> false
         }
     }
+
+
+    private val makeContainerDraggable = View.OnLongClickListener {
+        val clipText = ""
+        val item = ClipData.Item(clipText)
+        val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
+        val data = ClipData(clipText, mimeTypes, item)
+
+        val firstChild = (it as ViewGroup).getChildAt(0);
+
+        val dragShadowBuilder = View.DragShadowBuilder(firstChild)
+        it.startDragAndDrop(data, dragShadowBuilder, it, 0)
+        it.visibility = View.INVISIBLE
+        true
+    }
+
     /////////////////////////////////
     /////////////////////////////////
     /////////////////////////////////
@@ -476,13 +493,17 @@ class CodingActivity : AppCompatActivity() {
                             isSpecific = false
                         }
 
-                        val originContainer = createOriginContainer(0); originContainer.setOnDragListener(swapDragListener)
+                        val originContainer = createOriginContainer(0);
 
                         val container = createOriginContainer(0); checkedBlocks.put(container, false);
+
                         val newBlock = buildBlock(blockView, key)
+
                         val innerLay = createInnerLay(widthParams, heightParams); innerLay.setOnDragListener(shiftBlocks)
 
+
                         container.addView(newBlock); container.addView(innerLay)
+
 
                         if(key == InstructionType.IF || key == InstructionType.FOR || key == InstructionType.WHILE || key == InstructionType.FUNC){
                             val origin = createOriginContainer(1);
@@ -527,19 +548,8 @@ class CodingActivity : AppCompatActivity() {
                             container.addView(newInnerLay);
                         }
 
-                        container.setOnLongClickListener{
-                            val clipText = ""
-                            val item = ClipData.Item(clipText)
-                            val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
-                            val data = ClipData(clipText, mimeTypes, item)
-
-                            val firstChild = container.getChildAt(0);
-
-                            val dragShadowBuilder = View.DragShadowBuilder(firstChild)
-                            it.startDragAndDrop(data, dragShadowBuilder, it, 0)
-                            it.visibility = View.INVISIBLE
-                            true
-                        }
+                        originContainer.setOnDragListener(swapDragListener)
+                        container.setOnLongClickListener(makeContainerDraggable)
                         container.setOnClickListener {
                             if(checkedBlocks[container] == false){
                                 checkedBlocks[container] = true
