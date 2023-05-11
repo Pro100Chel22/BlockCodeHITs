@@ -44,6 +44,7 @@ class CodingActivity : AppCompatActivity() {
     private var listBlocks = getListBlocks()
     private var listBlocksNotHaveText = getListBlocksNotHaveText()
     private var listBlocksEnds = getListBlocksEnds()
+    private var checkedBlocks = mutableMapOf<ViewGroup, Boolean>();
 
     private lateinit var bottomSheetDialogNewBlock: BottomSheetDialog
     private lateinit var bottomSheetDialogConsole: BottomSheetDialog
@@ -95,9 +96,22 @@ class CodingActivity : AppCompatActivity() {
         binding.lowerBoundContainer.setOnDragListener { view, dragEvent ->
             scrollBlocks(view, dragEvent, -scrollSpeed);
         }
-        binding.deleteBlock.setOnClickListener { binding.blockField.removeAllViews() }
+        binding.deleteBlock.setOnClickListener {
+            val keys : Set<View> = checkedBlocks.keys
+            for(key in keys){
+                if(checkedBlocks[key] == true){
+                    val keyContainer = key.parent.parent as? ViewGroup;
+                    val keyHolder = key.parent as? ViewGroup;
+                    keyContainer?.removeView(keyHolder)
+                }
+            }
+            Toast.makeText(this, binding.blockField.childCount.toString(), Toast.LENGTH_SHORT).show()
+        }
+        binding.deleteBlock.setOnLongClickListener {
+            binding.blockField.removeAllViews()
+            true
+        }
     }
-
     /////////////////////////////////
     /////////////////////////////////
     /////////////////////////////////
@@ -107,7 +121,7 @@ class CodingActivity : AppCompatActivity() {
     private val deleteBlock = View.OnDragListener { view, dragEvent ->
         when(dragEvent.action){
             DragEvent.ACTION_DRAG_STARTED -> {
-                view.background = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_trash_open, null)
+                view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_open, null)
                 dragEvent.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
             }
             DragEvent.ACTION_DRAG_ENTERED -> {
@@ -131,7 +145,7 @@ class CodingActivity : AppCompatActivity() {
             }
             DragEvent.ACTION_DRAG_ENDED -> {
                 view.invalidate()
-                view.background = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_trash_close, null)
+                view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_close, null)
                 true
             }
             else -> false
@@ -169,12 +183,8 @@ class CodingActivity : AppCompatActivity() {
             }
             DragEvent.ACTION_DROP -> {
                 view.invalidate()
-                val v = event.localState as ViewGroup
-                val owner = v.parent as ViewGroup
-                val ownerParent = owner.parent as ViewGroup;
-                val destination = view as ViewGroup
-                val destinationParent = destination.parent as ViewGroup;
-                val destinationChild = destination.getChildAt(0) as ViewGroup
+                val v = event.localState as ViewGroup; val owner = v.parent as ViewGroup; val ownerParent = owner.parent as ViewGroup;
+                val destination = view as ViewGroup; val destinationParent = destination.parent as ViewGroup; val destinationChild = destination.getChildAt(0) as ViewGroup;
 
                 if(owner.parent != destination.parent){
                     ownerParent.removeView(owner); destinationParent.addView(owner);
@@ -198,7 +208,6 @@ class CodingActivity : AppCompatActivity() {
                 }
                 owner.removeView(v)
                 if(destination.childCount > 0){
-                    val destinationChild = destination.getChildAt(0)
                     destination.removeView(destinationChild)
                     owner.addView(destinationChild)
                 }
@@ -469,7 +478,7 @@ class CodingActivity : AppCompatActivity() {
 
                         val originContainer = createOriginContainer(0); originContainer.setOnDragListener(swapDragListener)
 
-                        val container = createOriginContainer(0)
+                        val container = createOriginContainer(0); checkedBlocks.put(container, false);
                         val newBlock = buildBlock(blockView, key)
                         val innerLay = createInnerLay(widthParams, heightParams); innerLay.setOnDragListener(shiftBlocks)
 
@@ -530,6 +539,16 @@ class CodingActivity : AppCompatActivity() {
                             it.startDragAndDrop(data, dragShadowBuilder, it, 0)
                             it.visibility = View.INVISIBLE
                             true
+                        }
+                        container.setOnClickListener {
+                            if(checkedBlocks[container] == false){
+                                checkedBlocks[container] = true
+                                container.alpha = 0.5f
+                            }
+                            else if(checkedBlocks[container] == true){
+                                checkedBlocks[container] = false
+                                container.alpha = 1f
+                            }
                         }
 
                         originContainer.addView(container); binding.blockField.addView(originContainer)
