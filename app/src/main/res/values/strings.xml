@@ -11,4 +11,20 @@
     <string name="instruction_else">Else</string>
     <string name="block_hint_text">expression</string>
     <string name="default_instruction_type">Func</string>
+
+    <string name="addition">&#x002B;</string>
+    <string name="subtraction">&#x2212;</string>
+    <string name="multiplication">&#42;</string>
+    <string name="division">&#47;</string>
+    <string name="exponent">&#x005E;</string>
+    <string name="modulo">&#x0025;</string>
+    <string name="equality">&#x003D;&#x003D;</string>
+    <string name="inequality">&#x0021;&#x003D;</string>
+    <string name="greater_than">&#x003E;</string>
+    <string name="less_than">&#x003C;</string>
+    <string name="less_than_or_equal_to">&#x003C;&#x003D;</string>
+    <string name="greater_than_or_equal_to">&#x003E;&#x003D;</string>
+    <string name="logical_and">&#x0026;&#x0026;</string>
+    <string name="logical_or">&#x007C;&#x007C;</string>
+    <string name="logical_not">&#x0021;</string>
 </resources>

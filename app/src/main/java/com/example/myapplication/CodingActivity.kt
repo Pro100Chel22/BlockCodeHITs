@@ -24,6 +24,8 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityCodingBinding
 import com.example.myapplication.databinding.LayoutConsoleBinding
 import com.example.myapplication.databinding.LayoutNewBlocksBinding
@@ -32,6 +34,10 @@ import com.example.myapplication.modules.InstructionType
 import com.example.myapplication.modules.getListBlocks
 import com.example.myapplication.modules.getListBlocksEnds
 import com.example.myapplication.modules.getListBlocksNotHaveText
+import com.example.myapplication.modules.recycler_view_logic.DataSource
+import com.example.myapplication.modules.recycler_view_logic.ItemsDecoration
+import com.example.myapplication.modules.recycler_view_logic.OperatorAdapter
+import com.example.myapplication.modules.recycler_view_logic.Operators
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlin.math.max
 import kotlin.math.min
@@ -40,15 +46,19 @@ import kotlin.math.min
 class CodingActivity : AppCompatActivity() {
     private var scaleDp: Float = 1f
     private val scrollSpeed : Float = 20.0f
-    private val leftPadding : Int = 40;
+    private val leftPadding : Int = 40
+    private val marginForRecyclerViewItems : Int = (30 * scaleDp).toInt();
 
     private var listBlocks = getListBlocks()
     private var listBlocksNotHaveText = getListBlocksNotHaveText()
     private var listBlocksEnds = getListBlocksEnds()
     private var checkedBlocks = mutableMapOf<ViewGroup, Boolean>();
+    private var editTextsFocuses = mutableMapOf<EditText, Boolean>();
 
     private lateinit var bottomSheetDialogNewBlock: BottomSheetDialog
     private lateinit var bottomSheetDialogConsole: BottomSheetDialog
+    private lateinit var operatorsRecycler : RecyclerView;
+    private lateinit var operatorsAdapter : OperatorAdapter;
 
     private lateinit var binding : ActivityCodingBinding
     private lateinit var bottomSheetViewNewBlockBinding : LayoutNewBlocksBinding
@@ -67,9 +77,20 @@ class CodingActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_coding)
 
+
+        val dataList = DataSource().loadOperators()
+        operatorsRecycler = binding.operatorRecycler
+        operatorsAdapter = OperatorAdapter(this@CodingActivity, marginForRecyclerViewItems, editTextsFocuses, dataList)
+
+        operatorsRecycler.layoutManager = LinearLayoutManager(this@CodingActivity, LinearLayoutManager.HORIZONTAL, false)
+        operatorsRecycler.adapter = operatorsAdapter
+
+
+        val itemDecoration = ItemsDecoration(this, (40 * scaleDp).toInt());
+        operatorsRecycler.addItemDecoration(itemDecoration)
+
         initBottomSheetViewNewBlock()
         initBottomSheetConsole()
-
         binding.buttonCodingSwapMode.setOnClickListener {
             val sharedPrefs = applicationContext.getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
             val editor = sharedPrefs.edit()
@@ -278,7 +299,6 @@ class CodingActivity : AppCompatActivity() {
                 val targetViewOwnerInd : Int = commonFather.indexOfChild(targetViewOwner);
 
                 if(targetViewOwnerInd == vInd - 1){
-                    v.visibility = View.VISIBLE;
                     return@OnDragListener false
                 }
                 owner.removeView(v);
@@ -333,7 +353,6 @@ class CodingActivity : AppCompatActivity() {
         originContainer.orientation = LinearLayout.VERTICAL
         return originContainer
     }
-
     private fun createInnerLay(widthParams : Int, heightParams : Int) : ConstraintLayout{
         val innerLay = ConstraintLayout(this);
         val innerLayParams = ConstraintLayout.LayoutParams((widthParams * scaleDp + 0.5).toInt(), (heightParams / 3 * scaleDp).toInt())
@@ -376,8 +395,6 @@ class CodingActivity : AppCompatActivity() {
         blockParams.leftToLeft = newBlock.getId();
     }////////////////////////////////////out of order////////////////////////////////////
     ////////////////////////////////////out of order////////////////////////////////////
-
-
 
 
     private fun moveBlocksToNewOriginListener(origin : LinearLayout, view : View, dragEvent : DragEvent) : Boolean{
@@ -522,7 +539,6 @@ class CodingActivity : AppCompatActivity() {
         overridePendingTransition(androidx.appcompat.R.anim.abc_slide_in_top, androidx.appcompat.R.anim.abc_slide_out_bottom)
     }
 
-
     @SuppressLint("ClickableViewAccessibility")
     private fun initBottomSheetViewNewBlock () {
         val layoutParamsBottomSheet = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (500 * scaleDp + 0.5).toInt())
@@ -556,34 +572,36 @@ class CodingActivity : AppCompatActivity() {
                         Toast.makeText(this, "You cant place it as first element", Toast.LENGTH_SHORT).show()
                     }
                     else{
-                        var isSpecific = true
                         var heightParams : Int = specificBlockHeight; var widthParams : Int = specificBlockWidth
                         if(key !in listBlocksNotHaveText){
                             heightParams = regularBlockHeight; widthParams = regularBlockWidth
-                            isSpecific = false
                         }
 
-                        val originContainer = createOriginContainer(0);
+                        val originContainer = createOriginContainer(0)
 
-                        val container = createOriginContainer(0); checkedBlocks.put(container, false);
+                        val container = createOriginContainer(0); checkedBlocks[container] = false
 
                         val newBlock = buildBlock(blockView, key)
+                        val newBlockEditText = newBlock.findViewById<EditText>(R.id.inputExpression); editTextsFocuses[newBlockEditText] = false
+                        newBlockEditText.setOnFocusChangeListener { _, b ->
+                            editTextsFocuses[newBlockEditText] = b
+                        }
+
 
                         val innerLay = createInnerLay(widthParams, heightParams); innerLay.setOnDragListener(shiftBlocks)
-
 
                         container.addView(newBlock); container.addView(innerLay)
 
 
                         if(key == InstructionType.IF || key == InstructionType.FOR || key == InstructionType.WHILE || key == InstructionType.FUNC){
-                            val origin = createOriginContainer(1);
+                            val origin = createOriginContainer(1)
 
-                            container.addView(origin);
+                            container.addView(origin)
 
                             val newInnerLay = createInnerLay(specificBlockWidth, regularBlockHeight); newInnerLay.setOnDragListener(shiftBlocks);
 
                             innerLay.setOnDragListener { view, dragEvent ->
-                                moveBlocksToNewOriginListener(origin, view, dragEvent);
+                                moveBlocksToNewOriginListener(origin, view, dragEvent)
                             }
 
                             when(key){
@@ -593,24 +611,24 @@ class CodingActivity : AppCompatActivity() {
                                     val buttonElif = endChoiceIfBlock.getViewById(R.id.buttonElif);
                                     val buttonElse = endChoiceIfBlock.getViewById(R.id.buttonElse);
 
-                                    buttonElif.setOnTouchListener { view, motionEvent ->
+                                    buttonElif.setOnTouchListener { _, motionEvent ->
                                         addElseOrElifByClick(container, "Elif", motionEvent)
                                     }
-                                    buttonElse.setOnTouchListener { view, motionEvent ->
-                                        addElseOrElifByClick(container, "Else", motionEvent);
+                                    buttonElse.setOnTouchListener { _, motionEvent ->
+                                        addElseOrElifByClick(container, "Else", motionEvent)
                                     }
                                 }
                                 InstructionType.WHILE -> {
                                     val endWhileBlock = listBlocks[InstructionType.ENDWHILE]?.let { buildBlock(it, InstructionType.ENDWHILE) } as ConstraintLayout
-                                    container.addView(endWhileBlock);
+                                    container.addView(endWhileBlock)
                                 }
                                 InstructionType.FUNC -> {
                                     val endFuncBlock = listBlocks[InstructionType.ENDFUNC]?.let { buildBlock(it, InstructionType.ENDFUNC) } as ConstraintLayout
-                                    container.addView(endFuncBlock);
+                                    container.addView(endFuncBlock)
                                 }
                                 InstructionType.FOR -> {
                                     val endFuncBlock = listBlocks[InstructionType.ENDFOR]?.let { buildBlock(it, InstructionType.ENDFOR) } as ConstraintLayout
-                                    container.addView(endFuncBlock);
+                                    container.addView(endFuncBlock)
                                 }
                                 else -> {}
                             }
