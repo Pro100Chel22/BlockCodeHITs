@@ -24,22 +24,11 @@
         android:layout_marginTop="15dp">
 
         <LinearLayout
+            android:id="@+id/consoleOutput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

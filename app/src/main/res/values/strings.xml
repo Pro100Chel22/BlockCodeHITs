@@ -11,6 +11,7 @@
     <string name="instruction_else">Else</string>
     <string name="block_hint_text">expression</string>
     <string name="default_instruction_type">Func</string>
+    <string name="enter">Enter</string>
 
     <string name="addition">&#x002B;</string>
     <string name="subtraction">&#x2212;</string>

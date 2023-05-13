@@ -34,7 +34,8 @@
 
     <style name="splashBackgroundStyle">
         <item name="android:background">@drawable/background</item>
-        <item name="android:backgroundTint">@color/background_main_default</item>
+        <item name
+            ="android:backgroundTint">@color/background_main_default</item>
     </style>
 
     <style name="splashMainTextStyle">

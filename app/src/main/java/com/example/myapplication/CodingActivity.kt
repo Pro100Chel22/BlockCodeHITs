@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
@@ -30,7 +31,9 @@ import com.example.myapplication.databinding.ActivityCodingBinding
 import com.example.myapplication.databinding.LayoutConsoleBinding
 import com.example.myapplication.databinding.LayoutNewBlocksBinding
 import com.example.myapplication.modules.BlockView
+import com.example.myapplication.modules.Console
 import com.example.myapplication.modules.InstructionType
+import com.example.myapplication.modules.Interpreter
 import com.example.myapplication.modules.getListBlocks
 import com.example.myapplication.modules.getListBlocksEnds
 import com.example.myapplication.modules.getListBlocksNotHaveText
@@ -67,6 +70,9 @@ class CodingActivity : AppCompatActivity() {
     private var numberOfBlockFieldChildren :Int = 0
     private val regularBlockWidth : Int = 350;  private val regularBlockHeight : Int = 90
     private val specificBlockWidth : Int = 200; private val specificBlockHeight: Int = 55
+
+    private lateinit var console: Console
+    private lateinit var interpreter: Interpreter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,26 +127,41 @@ class CodingActivity : AppCompatActivity() {
         binding.deleteBlock.setOnClickListener { startSelectiveErasing() }
         binding.deleteBlock.setOnLongClickListener { binding.blockField.removeAllViews(); true }
 
+        console = Console(bottomSheetViewConsoleBinding.consoleOutput, this, R.layout.layout_console_line)
+
         findViewById<Button>(R.id.buttonCompiler).setOnClickListener {
-            // ((binding.blockField.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0) as View
-            val blocks = recurBlockParser(binding.blockField)
+            console.clear()
 
-            for (i in blocks.indices) {
-                Toast.makeText(this,  i.toString() + ":" + blocks[i].findViewById<TextView>(R.id.instructionType).text.toString(), Toast.LENGTH_SHORT).show()
+            val blocksView = recurBlockParser(binding.blockField)
 
-                val breakPoint = blocks[i].findViewById<Button>(R.id.buttonBreakPoint)
-                val shapeBreakPoint = breakPoint.background as GradientDrawable
+            interpreter = Interpreter(blocksView, this, console)
 
-                if (shapeBreakPoint.color?.defaultColor == ContextCompat.getColor(this, R.color.break_point_flag_marker)) {
-                    shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag))
-                    //Toast.makeText(this,  i.toString() + ": YES", Toast.LENGTH_SHORT).show()
-                } else {
-                    shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag_marker))
-                    //Toast.makeText(this,  i.toString() + ": NO", Toast.LENGTH_SHORT).show()
-                }
-            }
+            interpreter.run()
         }
     }
+
+    fun inputRequest() {
+        val builder = AlertDialog.Builder(this)
+        val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert, null)
+        builder.setView(dialogLayout)
+
+        val dialog = builder.create()
+
+        val enter = {
+            interpreter.input(dialogLayout.findViewById<EditText>(R.id.inputExpression).text.toString())
+            interpreter.run()
+            dialog.dismiss()
+        }
+
+        dialogLayout.findViewById<Button>(R.id.buttonEnter).setOnClickListener { enter() }
+        dialog.setOnCancelListener { enter() }
+
+        dialog.show()
+
+        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
+        dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (200 * scaleDp + 0.5).toInt())
+    }
+
     /////////////////////////////////
     /////////////////////////////////
     /////////////////////////////////

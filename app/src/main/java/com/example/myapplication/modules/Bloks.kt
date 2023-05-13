@@ -1,12 +1,5 @@
 package com.example.myapplication.modules
 
-import android.graphics.drawable.GradientDrawable
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import androidx.core.content.ContextCompat
-import com.example.myapplication.CodingActivity
 import com.example.myapplication.R
 
 enum class InstructionType {
@@ -66,37 +59,4 @@ fun getListBlocks() : Map<InstructionType, BlockView> {
         InstructionType.RETURN to BlockView(InstructionType.RETURN, "Return", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_return),
         InstructionType.END to BlockView(InstructionType.END, "End", R.layout.block_instruction_not_have_text, R.color.color_stroke_block, R.color.color_block_end),
     )
-}
-
-fun blockViewToBlock(view: View, context: CodingActivity): Block {
-    val instruction = view.findViewById<TextView>(R.id.instructionType).text
-
-    val breakPoint = view.findViewById<Button>(R.id.buttonBreakPoint)
-    val shapeBreakPoint = breakPoint.background as GradientDrawable
-
-    val breakPointFlag = shapeBreakPoint.color?.defaultColor == ContextCompat.getColor(context, R.color.break_point_flag_marker)
-
-    return when(instruction) {
-        "Var" -> Block(InstructionType.VAR, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Set" ->  Block(InstructionType.SET, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Print" ->  Block(InstructionType.PRINT, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Input" ->  Block(InstructionType.INPUT, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "If" ->  Block(InstructionType.IF, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Elif" ->  Block(InstructionType.ELIF, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Else" ->  Block(InstructionType.ELSE, "", breakPointFlag, 0u)
-        "For" ->  Block(InstructionType.FOR, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "While" ->  Block(InstructionType.WHILE, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Break" ->  Block(InstructionType.BREAK, "", breakPointFlag, 0u)
-        "Continue" ->  Block(InstructionType.CONTINUE, "", breakPointFlag, 0u)
-        "Func" ->  Block(InstructionType.FUNC, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Return" ->  Block(InstructionType.RETURN, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "End",
-        "EndChoiceIf",
-        "Endif",
-        "EndFor",
-        "EndWhile",
-        "EndFunc",
-        "" ->  Block(InstructionType.END, "", breakPointFlag, 0u)
-        else -> Block(InstructionType.ENDCHOICEIF, "", breakPointFlag, 0u)
-    }
 }
