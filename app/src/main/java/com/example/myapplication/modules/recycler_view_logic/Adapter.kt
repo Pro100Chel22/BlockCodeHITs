@@ -42,11 +42,14 @@ class OperatorAdapter(private val context : Context, private val marginInDp : In
 
         val marginLeft = if (position == 0) 0 else marginInDp
 
-        val marginRight = if (position == operatorsList.size - 1) 0 else marginInDp
-
         val layoutParams = holder.itemView.layoutParams as RecyclerView.LayoutParams
-        layoutParams.setMargins(marginLeft, layoutParams.topMargin, marginRight, layoutParams.bottomMargin)
-
+        layoutParams.setMargins(marginLeft, layoutParams.topMargin, layoutParams.rightMargin, layoutParams.bottomMargin)
+        if(holder.textView.text.length == 1 || holder.textView.text == "||"){
+            layoutParams.width = marginInDp * 4;
+        }
+        else{
+            layoutParams.width = (marginInDp * 5)
+        }
         holder.itemView.layoutParams = layoutParams
     }
 
