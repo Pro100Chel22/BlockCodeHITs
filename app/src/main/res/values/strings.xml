@@ -18,6 +18,7 @@
     <string name="multiplication">&#42;</string>
     <string name="division">&#47;</string>
     <string name="exponent">&#x005E;</string>
+    <string name="assignment">&#x003D;</string>
     <string name="modulo">&#x0025;</string>
     <string name="equality">&#x003D;&#x003D;</string>
     <string name="inequality">&#x0021;&#x003D;</string>

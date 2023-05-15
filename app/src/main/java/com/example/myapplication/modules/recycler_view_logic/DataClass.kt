@@ -11,6 +11,7 @@ class DataSource{
             Operators(R.string.multiplication),
             Operators(R.string.division),
             Operators(R.string.exponent),
+            Operators(R.string.assignment),
             Operators(R.string.modulo),
             Operators(R.string.equality),
             Operators(R.string.inequality),

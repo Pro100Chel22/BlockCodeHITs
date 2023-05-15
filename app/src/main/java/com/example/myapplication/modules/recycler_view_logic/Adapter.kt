@@ -1,6 +1,7 @@
 package com.example.myapplication.modules.recycler_view_logic
 
 import android.content.Context
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
+import java.lang.StringBuilder
 
 class OperatorAdapter(private val context : Context, private val marginInDp : Int,
                       private val mapOfEditTexts : Map<EditText, Boolean>,
@@ -20,7 +22,12 @@ class OperatorAdapter(private val context : Context, private val marginInDp : In
             val keys : Set<EditText> = mapOfEditTexts.keys
             for(key in keys){
                 if(mapOfEditTexts[key] == true){
-                    key.append(textView.text)
+                    val cursorPosition : Int = key.selectionStart;
+                    val editable : Editable = key.text;
+                    val stringBuilder : StringBuilder = StringBuilder(editable)
+                    stringBuilder.insert(cursorPosition, textView.text);
+                    key.setText(stringBuilder.toString());
+                    key.setSelection(cursorPosition + textView.text.length)
                     break
                 }
             }
@@ -40,7 +47,8 @@ class OperatorAdapter(private val context : Context, private val marginInDp : In
         val item = operatorsList[position]
         holder.textView.text = context.resources.getString(item.operator)
 
-        val marginLeft = if (position == 0) 0 else marginInDp
+        val marginLeft = if (position == 0) marginInDp * 2 else marginInDp
+        val marginRight = if(position == operatorsList.size - 1) marginInDp else -marginInDp
 
         val layoutParams = holder.itemView.layoutParams as RecyclerView.LayoutParams
         layoutParams.setMargins(marginLeft, layoutParams.topMargin, layoutParams.rightMargin, layoutParams.bottomMargin)
