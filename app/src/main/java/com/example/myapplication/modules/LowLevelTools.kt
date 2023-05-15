@@ -1,17 +1,79 @@
 package com.example.myapplication.modules
 
-import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.myapplication.CodingActivity
 import java.util.Stack
 
-class CallStack {
-
+class StackFrame {
+    val returnVariable = VariableInt(10)
+    var numbLine = 0
+    val funcIsOver = true
 }
 
-class StackFrame {
+data class Arithmetic(
+    var split: List<String> = listOf(),
+    val variableStack: Stack<Variable> = Stack(),
+    val operationStack: Stack<String> = Stack(),
+    var curIdSplit: Int = 0,
+    var functionCall: Boolean = false
+)
 
+data class BracketCondition (
+        val bracket: InstructionType,
+        val into: Boolean = false
+)
+
+class ArithmeticStack {
+    private val arithmeticStack = Stack<Arithmetic>()
+
+    fun addArithmetic(arithmetic: Arithmetic) {
+        arithmeticStack.add(arithmetic)
+    }
+
+    fun popArithmetic(): Arithmetic {
+        return arithmeticStack.pop()
+    }
+
+    fun peekArithmetic(): Arithmetic {
+        return arithmeticStack.peek()
+    }
+
+    fun size(): Int {
+        return arithmeticStack.size
+    }
+}
+class Data {
+    private val globalData = DataStack()
+    private val funcLocalData = Stack<DataStack>()
+
+    fun addFuncLocalData() {
+
+    }
+
+    fun popFuncLocalData() {
+
+    }
+
+    fun initVariable(name: String, variable: Variable) {
+
+    }
+
+    fun getVariable(name: String): Variable {
+       return Variable()
+    }
+
+    fun setVariable(name: String, variable: Variable) {
+
+    }
+
+    fun createNesting() {
+
+    }
+
+    fun deleteNesting() {
+
+    }
 }
 
 class DataStack {
