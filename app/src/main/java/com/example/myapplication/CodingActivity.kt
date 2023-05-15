@@ -454,6 +454,7 @@ class CodingActivity : AppCompatActivity() {
                 }
 
                 val elifChildOrigin = createOriginContainer("LinearLayout",1); val innerLay = createInnerLay(regularBlockWidth, regularBlockHeight)
+                fieldList.add(elifChildOrigin)
 
                 innerLay.setOnDragListener { view, dragEvent ->
                     moveBlocksToNewOriginListener(elifChildOrigin, view, dragEvent)
@@ -563,7 +564,7 @@ class CodingActivity : AppCompatActivity() {
     }
     private fun createConnector() : ConstraintLayout{
         val connector : ConstraintLayout = ConstraintLayout(this);
-        val connectorParams = LinearLayout.LayoutParams((2 * scaleDp).toInt(), ConstraintLayout.LayoutParams.MATCH_PARENT)
+        val connectorParams = LinearLayout.LayoutParams((4 * scaleDp).toInt(), ConstraintLayout.LayoutParams.MATCH_PARENT)
         connector.layoutParams = connectorParams;
         connector.setBackgroundColor(resources.getColor(R.color.white))
         return connector
