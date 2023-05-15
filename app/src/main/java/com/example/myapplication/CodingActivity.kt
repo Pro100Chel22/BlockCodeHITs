@@ -131,7 +131,6 @@ class CodingActivity : AppCompatActivity() {
         binding.lowerBoundContainer.setOnDragListener { view, dragEvent ->
             scrollBlocks(view, dragEvent, -scrollSpeed);
         }
-        binding.deleteBlock.setOnClickListener { startSelectiveErasing() }
         binding.deleteBlock.setOnLongClickListener { binding.blockField.removeAllViews();
             connectorsMap.clear(); numberOfBlockFieldChildren = 0; true
         }
@@ -177,7 +176,7 @@ class CodingActivity : AppCompatActivity() {
     /////////////////////////////////
     /////////////////////////////////
     /////////////////////////////////
-    private fun startSelectiveErasing(){
+    /*private fun startSelectiveErasing(){
         val keys : Set<View> = checkedBlocks.keys
         for(key in keys){
             if(checkedBlocks[key] == true){
@@ -188,7 +187,7 @@ class CodingActivity : AppCompatActivity() {
                 numberOfBlockFieldChildren--
             }
         }
-    }
+    }*/
 
 
     private val deleteBlock = View.OnDragListener { view, dragEvent ->
@@ -214,10 +213,17 @@ class CodingActivity : AppCompatActivity() {
 
                 ownerParent.removeView(owner)
                 connectorsMap.remove(owner)
+                val keys = connectorsMap.keys;
+                for(key in keys){
+                    val connector = key.getChildAt(1) as ViewGroup;
+                    connector.layoutParams.height -= v.height;
+                    connector.requestLayout()
+                }
                 numberOfBlockFieldChildren--
                 true
             }
             DragEvent.ACTION_DRAG_ENDED -> {
+                val v = dragEvent.localState as ViewGroup
                 view.invalidate()
                 view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_close, null)
                 true
@@ -511,6 +517,7 @@ class CodingActivity : AppCompatActivity() {
         val dragShadowBuilder = View.DragShadowBuilder(firstChild)
         it.startDragAndDrop(data, dragShadowBuilder, it, 0)
         it.visibility = View.INVISIBLE
+        updateConnectors()
         true
     }
 
@@ -705,16 +712,6 @@ class CodingActivity : AppCompatActivity() {
                         }
                         originContainer.setOnDragListener(swapDragListener)
                         container.setOnLongClickListener(makeContainerDraggable)
-                        container.setOnClickListener {
-                            if(checkedBlocks[container] == false){
-                                checkedBlocks[container] = true
-                                container.alpha = 0.5f
-                            }
-                            else if(checkedBlocks[container] == true){
-                                checkedBlocks[container] = false
-                                container.alpha = 1f
-                            }
-                        }
 
                         val connector = createConnector();
 
