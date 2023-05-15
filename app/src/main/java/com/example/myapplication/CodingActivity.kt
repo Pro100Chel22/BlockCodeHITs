@@ -500,7 +500,7 @@ class CodingActivity : AppCompatActivity() {
     }
     private fun createInnerLay(widthParams : Int, heightParams : Int) : ConstraintLayout{
         val innerLay = ConstraintLayout(this);
-        val innerLayParams = ConstraintLayout.LayoutParams((widthParams * scaleDp + 0.5).toInt(), (heightParams / 2 * scaleDp).toInt())
+        val innerLayParams = ConstraintLayout.LayoutParams((widthParams * scaleDp + 0.5).toInt(), (heightParams / 3 * scaleDp).toInt())
         innerLay.layoutParams = innerLayParams;
         innerLay.id = View.generateViewId();
         return innerLay

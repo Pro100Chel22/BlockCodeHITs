@@ -42,6 +42,22 @@ enum class VariableType {
                 VariableInt(constant)
             }
         }
+
+        fun isConstant(string: String): Boolean {
+            if(string == "false"){
+                return true
+            } else if(string == "true") {
+                return true
+            }
+
+            for(ch in string) {
+                if(!(ch.isDigit() || ch == '.')) {
+                    return false
+                }
+            }
+
+            return true
+        }
     }
 }
 
@@ -52,15 +68,27 @@ open class Variable(_type: VariableType = VariableType.VOID) {
 
     fun getType(): VariableType { return type }
 
-    open operator fun plus(operand: Variable): Variable { println("ERROR: plus void"); return operand }
+    open operator fun plus(operand: Variable): Variable { println("ERROR: plus void"); return Variable() }
 
-    open operator fun minus(operand: Variable): Variable { println("ERROR: minus void"); return operand }
+    open operator fun minus(operand: Variable): Variable { println("ERROR: minus void"); return Variable() }
 
-    open operator fun div(operand: Variable): Variable { println("ERROR: div void"); return operand }
+    open operator fun div(operand: Variable): Variable { println("ERROR: div void"); return Variable() }
 
-    open operator fun times(operand: Variable): Variable { println("ERROR: multi void"); return operand }
+    open operator fun times(operand: Variable): Variable { println("ERROR: multi void"); return Variable() }
 
-    open operator fun rem(operand: Variable): Variable { println("ERROR: mod void"); return operand }
+    open operator fun rem(operand: Variable): Variable { println("ERROR: mod void"); return Variable() }
+
+    open fun or(operand: Variable): VariableBoolean { println("ERROR: or void"); return VariableBoolean() }
+
+    open fun and(operand: Variable): VariableBoolean { println("ERROR: and void"); return VariableBoolean() }
+
+    open fun compareMore(operand: Variable): VariableBoolean { println("ERROR: compare more void"); return VariableBoolean() }
+
+    open fun compareLess(operand: Variable): VariableBoolean { println("ERROR: compare less void"); return VariableBoolean() }
+
+    open fun equal(operand: Variable): VariableBoolean { println("ERROR: equals void"); return VariableBoolean() }
+
+    open fun not(): VariableBoolean { println("ERROR: not void"); return VariableBoolean() }
 
     open fun toInt(): VariableInt { println("ERROR: void to int"); return VariableInt(0) }
 
@@ -104,6 +132,30 @@ class VariableInt: Variable {
 
     override fun rem(operand: Variable): Variable {
         return VariableInt(value % operand.toInt().getValue())
+    }
+
+    override fun or(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toBoolean().getValue() || operand.toBoolean().getValue())
+    }
+
+    override fun and(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toBoolean().getValue() && operand.toBoolean().getValue())
+    }
+
+    override fun compareMore(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toInt().getValue() > operand.toInt().getValue())
+    }
+
+    override fun compareLess(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toInt().getValue() < operand.toInt().getValue())
+    }
+
+    override fun equal(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toInt().getValue() == operand.toInt().getValue())
+    }
+
+    override fun not(): VariableBoolean {
+        return VariableBoolean(!this.toBoolean().getValue())
     }
 
     override fun toInt(): VariableInt {
@@ -160,6 +212,30 @@ class VariableDouble: Variable {
 
     override fun rem(operand: Variable): Variable {
         return VariableDouble(value % operand.toDouble().getValue())
+    }
+
+    override fun or(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toBoolean().getValue() || operand.toBoolean().getValue())
+    }
+
+    override fun and(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toBoolean().getValue() && operand.toBoolean().getValue())
+    }
+
+    override fun compareMore(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toDouble().getValue() > operand.toDouble().getValue())
+    }
+
+    override fun compareLess(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toDouble().getValue() < operand.toDouble().getValue())
+    }
+
+    override fun equal(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toDouble().getValue() == operand.toDouble().getValue())
+    }
+
+    override fun not(): VariableBoolean {
+        return VariableBoolean(!this.toBoolean().getValue())
     }
 
     override fun toInt(): VariableInt {
@@ -223,6 +299,29 @@ class VariableBoolean: Variable {
         return VariableBoolean(value)
     }
 
+    override fun or(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toBoolean().getValue() || operand.toBoolean().getValue())
+    }
+
+    override fun and(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toBoolean().getValue() && operand.toBoolean().getValue())
+    }
+
+    override fun compareMore(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toInt().getValue() > operand.toInt().getValue())
+    }
+
+    override fun compareLess(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toInt().getValue() < operand.toInt().getValue())
+    }
+
+    override fun equal(operand: Variable): VariableBoolean {
+        return VariableBoolean(this.toBoolean().getValue() == operand.toBoolean().getValue())
+    }
+
+    override fun not(): VariableBoolean {
+        return VariableBoolean(!this.toBoolean().getValue())
+    }
     override fun toInt(): VariableInt {
         return if (value) VariableInt(1) else VariableInt(0)
     }
