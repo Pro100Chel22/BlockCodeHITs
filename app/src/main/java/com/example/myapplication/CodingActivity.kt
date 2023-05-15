@@ -725,7 +725,6 @@ class CodingActivity : AppCompatActivity() {
 
                         binding.blockField.addView(originContainer)
                         binding.blockField.requestLayout()
-
                         connectorsMap[originContainer] = connector
 
                         updateConnectors()
