@@ -1,8 +1,11 @@
 package com.example.myapplication.modules
 
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import com.example.myapplication.CodingActivity
 import java.util.Stack
+import java.util.concurrent.CountDownLatch
 
 class Interpreter {
     private val globalData = DataStack()
@@ -22,6 +25,7 @@ class Interpreter {
     private var console: Console
 
     private val error = false
+    private var isActive = false
 
     constructor(_blocksView: List<View>, _context: CodingActivity, _console: Console) {
         blocksView = _blocksView
@@ -34,51 +38,61 @@ class Interpreter {
         }
     }
 
+    fun getIsActive(): Boolean {
+        return isActive
+    }
+
+    fun deactivate() {
+        isActive = false
+    }
+
     fun run() {
-        while (!error) {
-            if(callStack.isNotEmpty()) {
-                // Когда вызывается функция, создается кадр стека и кладется в стек вызовов, а в памяти
-                // выделяется помять под локальные переменные функции
-                // Если стек вызовов не пуст, проверяется закончилась функция или нет, если закончилась,
-                // возвращаем значение функции в место, где она вызвана (стек арифметических выражений)
-                // и убираем ее из стека, если не закончилась, то выполняем блок, на котором она находится
-                //
+        isActive = true
+        Thread {
+            while (!error && isActive) {
+                if(callStack.isNotEmpty()) {
+                    // Когда вызывается функция, создается кадр стека и кладется в стек вызовов, а в памяти
+                    // выделяется помять под локальные переменные функции
+                    // Если стек вызовов не пуст, проверяется закончилась функция или нет, если закончилась,
+                    // возвращаем значение функции в место, где она вызвана (стек арифметических выражений)
+                    // и убираем ее из стека, если не закончилась, то выполняем блок, на котором она находится
+                    //
 
-                if(callStack.peek().funcIsOver) {
-                    arithmeticStack.peekArithmetic().variableStack.add(callStack.peek().returnVariable)
-                    callStack.pop()
+                    if(callStack.peek().funcIsOver) {
+                        arithmeticStack.peekArithmetic().variableStack.add(callStack.peek().returnVariable)
+                        callStack.pop()
 
-                    while (opsArithmetic("", true)) {
-                        if(arithmeticStack.size() > 1) {
-                            val index = arithmeticStack.popArithmetic().variableStack.peek()
-                            arithmeticStack.peekArithmetic().variableStack.push(index)
-                        } else {
-//                            if(blocksCode[numbLine - 1].instructionType == InstructionType.SET) {
-//                                val nameVar = blocksCode[numbLine - 1].expression.trim().split("\\s+".toRegex())[0]
-//                                globalData.setVariable(nameVar, arithmeticStack.popArithmetic().variableStack.peek())
-//                            }
-                            numbLine--
-                            break
+                        while (opsArithmetic("", true)) {
+                            if(arithmeticStack.size() > 1) {
+                                val index = arithmeticStack.popArithmetic().variableStack.peek()
+                                arithmeticStack.peekArithmetic().variableStack.push(index)
+                            } else {
+                                numbLine--
+                                break
+                            }
                         }
                     }
-                }
-            } else {
-                if(numbLine >= blocksCode.size) {
-                    break
-                }
+                } else {
+                    if(numbLine >= blocksCode.size) {
+                        isActive = false
+                        break
+                    }
 
-                processing(blocksCode[numbLine])
+                    processing(blocksCode[numbLine])
 
-                if(waitForInput) {
-                    context.inputRequest()
-                    waitForInput = false
-                    println(waitForInput.toString())
-                    break
+                    if(waitForInput) {
+                        Handler(Looper.getMainLooper()).post {
+                            context.inputRequest()
+                        }
+                        waitForInput = false
+                        isActive = false
+                        break
+                    }
+
+                    numbLine++
                 }
-
-                numbLine++
             }
-        }
+        }.start()
     }
 
     fun input(expression: String) {
@@ -86,30 +100,15 @@ class Interpreter {
         inputExpression = expression
     }
 
-    // Если зашли в if то после выхода идем до end, если нет, то идем до elif или else
-    private fun ifToNext(toEnd: Boolean = true) {
-//        numbLine++
-//
-//        while(!(blocksCode[numbLine].instructionType == InstructionType.END ||
-//              !toEnd && (blocksCode[numbLine].instructionType == InstructionType.ELIF ||
-//                         blocksCode[numbLine].instructionType == InstructionType.ELSE))) {
-//
-//            numbLine++
-//
-//            if(numbLine >= blocksCode.size) {
-//                println("ERROR: wrong block code")
-//                return
-//            }
-//        }
-//
-//        numbLine--
-
+    private fun toNext(toEnd: Boolean = true) {
         val stack = Stack<InstructionType>()
         stack.add(blocksCode[numbLine].instructionType);
         while (stack.isNotEmpty()) {
             numbLine++
 
-            if(blocksCode[numbLine].instructionType == InstructionType.IF){
+            if(blocksCode[numbLine].instructionType == InstructionType.IF ||
+                blocksCode[numbLine].instructionType == InstructionType.WHILE ||
+                blocksCode[numbLine].instructionType == InstructionType.FOR){
                 stack.add(blocksCode[numbLine].instructionType)
             } else if(stack.size == 1 && !toEnd &&
                         (blocksCode[numbLine].instructionType == InstructionType.ELIF ||
@@ -126,6 +125,7 @@ class Interpreter {
     private fun processing(block: Block) {
         when(block.instructionType) {
             InstructionType.VAR -> {
+                println("var " + block.expression)
                 val expressions = block.expression.split(",")
 
                 for (exp in expressions) {
@@ -133,9 +133,13 @@ class Interpreter {
                 }
             }
             InstructionType.SET -> {
+                println("set " + block.expression)
+
                 opsSet(block.expression)
             }
             InstructionType.PRINT -> {
+                println("print " + block.expression)
+
                 val expressions = block.expression.split(",")
 
                 for (exp in expressions) {
@@ -171,7 +175,7 @@ class Interpreter {
                 println("elif " + block.expression)
 
                 if((bracketStack.peek().bracket == InstructionType.IF || bracketStack.peek().bracket == InstructionType.ELIF) && bracketStack.peek().into) {
-                    ifToNext()
+                    toNext(true)
                 } else {
                     bracketStack.pop()
                     opsIf(block.expression, InstructionType.ELIF)
@@ -181,22 +185,41 @@ class Interpreter {
                 println("else " + block.expression)
 
                 if((bracketStack.peek().bracket == InstructionType.IF || bracketStack.peek().bracket == InstructionType.ELIF) && bracketStack.peek().into) {
-                    ifToNext()
+                    toNext(true)
                 } else {
                     bracketStack.pop()
-                    bracketStack.add(BracketCondition(InstructionType.ELSE, false))
+                    bracketStack.add(BracketCondition(InstructionType.ELSE, false, numbLine))
                     globalData.createNesting()
                 }
             }
             InstructionType.END -> {
                 println("end " + block.expression)
 
-                if(bracketStack.isNotEmpty() && bracketStack.peek().bracket == InstructionType.IF || bracketStack.peek().bracket == InstructionType.ELIF || bracketStack.peek().bracket == InstructionType.ELSE) {
+                if(bracketStack.isNotEmpty() &&
+                           (bracketStack.peek().bracket == InstructionType.IF ||
+                            bracketStack.peek().bracket == InstructionType.ELIF ||
+                            bracketStack.peek().bracket == InstructionType.ELSE ||
+                            bracketStack.peek().bracket == InstructionType.ELSE)) {
+
+                    if(bracketStack.peek().into) globalData.deleteNesting()
                     bracketStack.pop()
-                    globalData.deleteNesting()
-                } else {
+                } else if(bracketStack.isNotEmpty() &&
+                            bracketStack.peek().bracket == InstructionType.WHILE) {
+
+                    if(bracketStack.peek().into) {
+                        numbLine = bracketStack.peek().line - 1
+                        globalData.deleteNesting()
+                    }
+                    bracketStack.pop()
+                }
+                else {
                     println("ERROR: unknown operation")
                 }
+            }
+            InstructionType.WHILE -> {
+                println("while " + block.expression)
+
+                opsWhile(block.expression)
             }
             else -> 0
         }
@@ -205,7 +228,7 @@ class Interpreter {
     private fun arithmeticStringToList(arithmetic: String): List<String> {
         val list: MutableList<String> = mutableListOf()
 
-        val listMathOperation = listOf('-', '+', '/', '*')
+        val listMathOperation = listOf('-', '+', '/', '*', '%')
         val listLogicOperationPartOne = listOf('=', '!', '<', '>', '|', '&')
         val listLogicOperationFull = listOf("==", "!=", "<=", ">=", "||", "&&")
 
@@ -294,11 +317,12 @@ class Interpreter {
 
     private fun opsArithmetic(expression: String, functionCall: Boolean = false): Boolean {
         val priorityOperation = mapOf(
-            "||" to 0, "&&" to 0, ">=" to 0, "<=" to 0, ">" to 0, "<" to 0, "!=" to 0, "==" to 0,
-            "+" to 1, "-" to 1,
-            "*" to 2, "/" to 2,
-            "!" to 3,
-            ".toInt" to 4, ".toDouble" to 4, ".toBoolean" to 4
+            "||" to 0, "&&" to 0,
+            ">=" to 1, "<=" to 1, ">" to 1, "<" to 1, "!=" to 1, "==" to 1,
+            "+" to 2, "-" to 2,
+            "*" to 3, "/" to 3, "%" to 3,
+            "!" to 4,
+            ".toInt" to 5, ".toDouble" to 5, ".toBoolean" to 5
         )
 
         val split = arithmeticStack.peekArithmetic().split.ifEmpty {
@@ -327,6 +351,7 @@ class Interpreter {
                     "-" -> var2 - var1
                     "*" -> var2 * var1
                     "/" -> var2 / var1
+                    "%" -> var2 % var1
                     "||" -> var2.or(var1)
                     "&&" -> var2.and(var1)
                     ">" -> var2.compareMore(var1)
@@ -396,12 +421,19 @@ class Interpreter {
                 println(next + " isArray")
 
                 if(fC) {
-                   // arithmeticStack.peekArithmetic().variableStack.push(arithmeticStack.popArithmetic().variableStack.peek())
+                    val index = arithmeticStack.peekArithmetic().variableStack.pop()
+                    val name = getName(next, '[')
+                    val value = globalData.getArrayElement(name, index)
+
+                    arithmeticStack.peekArithmetic().variableStack.push(value)
                 } else {
                     arithmeticStack.addArithmetic(Arithmetic())
                     if(opsArithmetic(getExpressionBetween(next, '['))) {
                         val index = arithmeticStack.popArithmetic().variableStack.peek()
-                        arithmeticStack.peekArithmetic().variableStack.push(index)
+                        val name = getName(next, '[')
+                        val value = globalData.getArrayElement(name, index)
+
+                        arithmeticStack.peekArithmetic().variableStack.push(value)
                     } else {
                         return false
                     }
@@ -445,6 +477,17 @@ class Interpreter {
         return false
     }
 
+    private fun getName(string: String, bracket: Char): String {
+        for(i in string.indices) {
+            if(string[i] == bracket) {
+                println(string.substring(0, i))
+                return string.substring(0, i)
+            }
+        }
+
+        return ""
+    }
+
     private fun getExpressionBetween(string: String, bracket: Char): String {
         for(i in string.indices) {
             if(string[i] == bracket) {
@@ -457,43 +500,81 @@ class Interpreter {
     }
 
     private fun opsVar(expression: String) {
+        println(expression)
+
         val expressions = expression.trim().split("\\s+".toRegex())
 
-        if(expressions.size >= 2) {
-            val newVar = VariableType.getType(expressions[0])
-            if(expressions.size >= 4 && expressions[2] == "=") {
-                var arithmetic = ""
-                for(i in 3 until  expressions.size) {
-                    arithmetic += expressions[i]
-                }
-                newVar.setValue(VariableType.toVariable(arithmetic))
-            } else if(expressions.size >= 3) {
-                println("ERROR: to variable incorrect expression")
+        if(expressions.size > 1) {
+            val type = expressions[0]
+            var partTwo = ""
+            for(i in 1 until expressions.size) {
+                partTwo += expressions[i]
             }
-            globalData.initVariable(expressions[1], newVar)
+
+            if(isArray(partTwo)) {
+                val name = getName(partTwo, '[')
+                val expressionBetween = getExpressionBetween(partTwo, '[')
+                val countElement = if (expressionBetween[0].isLetter()) {
+                    globalData.getVariable(expressionBetween)
+                } else {
+                    VariableType.toVariable(expressionBetween)
+                }
+                globalData.intArray(name, countElement, VariableType.getType(type))
+            } else if(partTwo.contains("=")) {
+                val exp = partTwo.split("=")
+                val name = exp[0]
+
+                if(exp.size == 2) {
+                    val newVar = VariableType.getType(type)
+                    newVar.setValue(VariableType.toVariable(exp[1]))
+                    globalData.initVariable(name, newVar)
+                } else {
+                    println("ERROR: to variable incorrect expression")
+                }
+            } else {
+                globalData.initVariable(partTwo, VariableType.getType(type))
+            }
         } else {
             println("ERROR: to variable incorrect expression")
         }
     }
 
     private fun opsSet(expression: String) {
-        val expressions = expression.trim().split("\\s+".toRegex())
+        if(expression.contains("=")) {
+            val expressions = expression.split("=")
 
-        if(expressions.size > 2 && expressions[1] == "=") {
-            var arithmeticExpression = ""
-            for(i in 2 until  expressions.size) {
-                arithmeticExpression += expressions[i]
+            val setOperation = fun (variable: String) {
+                val value = arithmeticStack.popArithmetic().variableStack.peek()
+                if(isArray(variable)) {
+                    val name = getName(variable, '[')
+                    val expressionBetween = getExpressionBetween(variable, '[')
+                    val index = if (expressionBetween[0].isLetter()) {
+                        globalData.getVariable(expressionBetween)
+                    } else {
+                        VariableType.toVariable(expressionBetween)
+                    }
+                    globalData.setArrayElement(name, index, value)
+                } else {
+                    globalData.setVariable(variable, value)
+                }
             }
 
-            if(arithmeticStack.size() == 1 && arithmeticStack.peekArithmetic().variableStack.size == 1) {
-                globalData.setVariable(expressions[0], arithmeticStack.popArithmetic().variableStack.peek())
-            } else if(arithmeticStack.size() == 0){
-                arithmeticStack.addArithmetic(Arithmetic())
-                if(opsArithmetic(arithmeticExpression)) {
-                    globalData.setVariable(expressions[0], arithmeticStack.popArithmetic().variableStack.peek())
+            if(expressions.size == 2) {
+                val variable = expressions[0].replace(" ", "")
+                val arithmeticExpression = expressions[1].replace(" ", "")
+
+                if (arithmeticStack.size() == 1 && arithmeticStack.peekArithmetic().variableStack.size == 1) {
+                    setOperation(variable)
+                } else if (arithmeticStack.size() == 0) {
+                    arithmeticStack.addArithmetic(Arithmetic())
+                    if (opsArithmetic(arithmeticExpression)) {
+                        setOperation(variable)
+                    }
+                } else {
+                    println("ERROR: arithmetic stack")
                 }
             } else {
-                println("ERROR: arithmetic stack")
+                println("ERROR: incorrect expression")
             }
         } else {
             println("ERROR: incorrect expression")
@@ -501,16 +582,36 @@ class Interpreter {
     }
 
     private fun opsPrint(expression: String) {
-        val expressions = expression.trim().split("\\s+".toRegex())
+        val exp = expression.replace(" ", "")
 
-        if(expressions.size == 1 && expressions[0].isNotEmpty()) {
-            val out = if (expressions[0][0].isLetter()) {
-                globalData.getVariable(expressions[0])
+        if(exp.isNotEmpty()) {
+            val out = if (exp[0].isLetter()) {
+                if (isArray(exp)) {
+                    val name = getName(exp, '[')
+                    val expressionBetween = getExpressionBetween(exp, '[')
+                    val index = if (expressionBetween[0].isLetter()) {
+                        globalData.getVariable(expressionBetween)
+                    } else {
+                        VariableType.toVariable(expressionBetween)
+                    }
+                    globalData.getArrayElement(name, index)
+                } else {
+                    globalData.getVariable(exp)
+                }
             } else {
-                VariableType.toVariable(expressions[0])
+                VariableType.toVariable(exp)
             }
 
-            console.println(out)
+            val latch = CountDownLatch(1)
+            val handler = Handler(Looper.getMainLooper())
+
+            handler.post {
+                console.println(out)
+
+                latch.countDown()
+            }
+
+            latch.await()
         } else {
             println("ERROR: incorrect expression output")
         }
@@ -533,22 +634,49 @@ class Interpreter {
         if(arithmeticStack.size() == 1 && arithmeticStack.peekArithmetic().variableStack.size == 1) {
             val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
             if(value.getValue()) {
-                bracketStack.add(BracketCondition(typeIf, true))
+                bracketStack.add(BracketCondition(typeIf, true, numbLine))
                 globalData.createNesting()
             } else {
-                ifToNext(false)
-                bracketStack.add(BracketCondition(typeIf, false))
+                toNext(false)
+                bracketStack.add(BracketCondition(typeIf, false, numbLine))
             }
         } else if(arithmeticStack.size() == 0){
             arithmeticStack.addArithmetic(Arithmetic())
             if(opsArithmetic(expression.replace(" ", ""))) {
                 val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
                 if(value.getValue()) {
-                    bracketStack.add(BracketCondition(typeIf, true))
+                    bracketStack.add(BracketCondition(typeIf, true, numbLine))
                     globalData.createNesting()
                 } else {
-                    ifToNext(false)
-                    bracketStack.add(BracketCondition(typeIf, false))
+                    toNext(false)
+                    bracketStack.add(BracketCondition(typeIf, false, numbLine))
+                }
+            }
+        } else {
+            println("ERROR: arithmetic stack")
+        }
+    }
+
+    private fun opsWhile(expression: String) {
+        if(arithmeticStack.size() == 1 && arithmeticStack.peekArithmetic().variableStack.size == 1) {
+            val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
+            if(value.getValue()) {
+                bracketStack.add(BracketCondition(InstructionType.WHILE, true, numbLine))
+                globalData.createNesting()
+            } else {
+                toNext(true)
+                bracketStack.add(BracketCondition(InstructionType.WHILE, false, numbLine))
+            }
+        } else if(arithmeticStack.size() == 0){
+            arithmeticStack.addArithmetic(Arithmetic())
+            if(opsArithmetic(expression.replace(" ", ""))) {
+                val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
+                if(value.getValue()) {
+                    bracketStack.add(BracketCondition(InstructionType.WHILE, true, numbLine))
+                    globalData.createNesting()
+                } else {
+                    toNext(true)
+                    bracketStack.add(BracketCondition(InstructionType.WHILE, false, numbLine))
                 }
             }
         } else {

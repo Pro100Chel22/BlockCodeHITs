@@ -61,8 +61,6 @@ enum class VariableType {
     }
 }
 
-// Добавить логические операции > < <= >= != ==
-
 open class Variable(_type: VariableType = VariableType.VOID) {
     private var type: VariableType = _type
 

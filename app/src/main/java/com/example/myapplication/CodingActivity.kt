@@ -80,7 +80,7 @@ class CodingActivity : AppCompatActivity() {
     private lateinit var interpreter: Interpreter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState) // посмотреть
         setContentView(R.layout.activity_coding)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
@@ -142,9 +142,15 @@ class CodingActivity : AppCompatActivity() {
 
             val blocksView = recurBlockParser(binding.blockField)
 
+            if(::interpreter.isInitialized) interpreter.deactivate()
+
             interpreter = Interpreter(blocksView, this, console)
 
             interpreter.run()
+        }
+
+        binding.buttonDebug.setOnClickListener{
+            interpreter.deactivate()
         }
     }
 
