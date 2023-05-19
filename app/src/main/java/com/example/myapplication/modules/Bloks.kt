@@ -13,7 +13,7 @@ enum class InstructionType {
     VAR, SET, PRINT, INPUT, IF, ENDCHOICEIF, ELIF, ELSE, ENDIF, FOR, ENDFOR, WHILE, ENDWHILE, BREAK, CONTINUE, FUNC, ENDFUNC, RETURN, END
 }
 
-data class Block (val instructionType: InstructionType, val expression: String, val breakPoint: Boolean, val numbLine: UInt)
+data class Block (val instructionType: InstructionType, val expression: String, val breakPoint: Boolean, var numbLineToNext: Int)
 
 data class BlockView (val instructionType: InstructionType, val instruction: String, val layout: Int, val colorStroke: Int, val colorFill: Int)
 
@@ -77,26 +77,26 @@ fun blockViewToBlock(view: View, context: CodingActivity): Block {
     val breakPointFlag = shapeBreakPoint.color?.defaultColor == ContextCompat.getColor(context, R.color.break_point_flag_marker)
 
     return when(instruction) {
-        "Var" -> Block(InstructionType.VAR, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Set" ->  Block(InstructionType.SET, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Print" ->  Block(InstructionType.PRINT, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Input" ->  Block(InstructionType.INPUT, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "If" ->  Block(InstructionType.IF, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Elif" ->  Block(InstructionType.ELIF, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Else" ->  Block(InstructionType.ELSE, "", breakPointFlag, 0u)
-        "For" ->  Block(InstructionType.FOR, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "While" ->  Block(InstructionType.WHILE, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Break" ->  Block(InstructionType.BREAK, "", breakPointFlag, 0u)
-        "Continue" ->  Block(InstructionType.CONTINUE, "", breakPointFlag, 0u)
-        "Func" ->  Block(InstructionType.FUNC, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
-        "Return" ->  Block(InstructionType.RETURN, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, 0u)
+        "Var" -> Block(InstructionType.VAR, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, -1)
+        "Set" ->  Block(InstructionType.SET, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, -1)
+        "Print" ->  Block(InstructionType.PRINT, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, -1)
+        "Input" ->  Block(InstructionType.INPUT, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, -1)
+        "If" ->  Block(InstructionType.IF, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, -1)
+        "Elif" ->  Block(InstructionType.ELIF, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, -1)
+        "Else" ->  Block(InstructionType.ELSE, "", breakPointFlag, -1)
+        "For" ->  Block(InstructionType.FOR, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, -1)
+        "While" ->  Block(InstructionType.WHILE, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, -1)
+        "Break" ->  Block(InstructionType.BREAK, "", breakPointFlag, -1)
+        "Continue" ->  Block(InstructionType.CONTINUE, "", breakPointFlag, -1)
+        "Func" ->  Block(InstructionType.FUNC, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, -1)
+        "Return" ->  Block(InstructionType.RETURN, view.findViewById<EditText>(R.id.inputExpression).text.toString(), breakPointFlag, -1)
         "End",
         "EndChoiceIf",
         "Endif",
         "EndFor",
         "EndWhile",
         "EndFunc",
-        "" ->  Block(InstructionType.END, "", breakPointFlag, 0u)
-        else -> Block(InstructionType.ENDCHOICEIF, "", breakPointFlag, 0u)
+        "" ->  Block(InstructionType.END, "", breakPointFlag, -1)
+        else -> Block(InstructionType.ENDCHOICEIF, "", breakPointFlag, -1)
     }
 }

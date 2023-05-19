@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import com.example.myapplication.CodingActivity
+import java.util.EmptyStackException
 import java.util.Stack
 import java.util.concurrent.CountDownLatch
 import kotlin.Exception
@@ -25,7 +26,6 @@ class Interpreter {
     private val blocksCode: MutableList<Block> = mutableListOf()
     private var console: Console
 
-    //private var errorController: ErrorController
     private var isActive = false
 
     constructor(_blocksView: List<View>, _context: CodingActivity, _console: Console) {
@@ -100,6 +100,12 @@ class Interpreter {
                             "\nExpression: " + blocksCode[numbLine].expression +
                             "\n" + e.message)
                 }
+            } catch (e: EmptyStackException) {
+                Handler(Looper.getMainLooper()).post {
+                    context.errorRequest("Line: " + numbLine.toString() +
+                            "\nExpression: " + blocksCode[numbLine].expression +
+                            "\nStack error: " + e.message)
+                }
             }
         }.start()
     }
@@ -110,25 +116,31 @@ class Interpreter {
     }
 
     private fun toNext(toEnd: Boolean = true) {
-        val stack = Stack<InstructionType>()
-        stack.add(blocksCode[numbLine].instructionType)
-        while (stack.isNotEmpty()) {
-            numbLine++
+        if(blocksCode[numbLine].numbLineToNext != -1) {
+            numbLine = blocksCode[numbLine].numbLineToNext - 1
+        } else {
+            val oldNumbLine = numbLine
+            val stack = Stack<InstructionType>()
+            stack.add(blocksCode[numbLine].instructionType)
+            while (stack.isNotEmpty()) {
+                numbLine++
 
-            if(blocksCode[numbLine].instructionType == InstructionType.IF ||
-                blocksCode[numbLine].instructionType == InstructionType.WHILE ||
-                blocksCode[numbLine].instructionType == InstructionType.FOR){
-                stack.add(blocksCode[numbLine].instructionType)
-            } else if(stack.size == 1 && !toEnd &&
-                        (blocksCode[numbLine].instructionType == InstructionType.ELIF ||
-                        blocksCode[numbLine].instructionType == InstructionType.ELSE)) {
-                stack.pop()
+                if(blocksCode[numbLine].instructionType == InstructionType.IF ||
+                    blocksCode[numbLine].instructionType == InstructionType.WHILE ||
+                    blocksCode[numbLine].instructionType == InstructionType.FOR){
+                    stack.add(blocksCode[numbLine].instructionType)
+                } else if(stack.size == 1 && !toEnd &&
+                    (blocksCode[numbLine].instructionType == InstructionType.ELIF ||
+                            blocksCode[numbLine].instructionType == InstructionType.ELSE)) {
+                    stack.pop()
+                }
+                else if(blocksCode[numbLine].instructionType == InstructionType.END) {
+                    stack.pop()
+                }
             }
-            else if(blocksCode[numbLine].instructionType == InstructionType.END) {
-                stack.pop()
-            }
+            blocksCode[oldNumbLine].numbLineToNext = numbLine
+            numbLine--
         }
-        numbLine--
     }
 
     private fun processing(block: Block) {
@@ -224,6 +236,7 @@ class Interpreter {
                 }
                 else {
                     println("ERR: unknown operation")
+
                     throw Exception("Unknown operation")
                 }
             }
@@ -231,6 +244,48 @@ class Interpreter {
                 println("while " + block.expression)
 
                 opsWhile(block.expression)
+            }
+            InstructionType.BREAK -> {
+                println("break " + block.expression)
+
+                if(bracketStack.isEmpty()) {
+                    throw Exception("The break instruction must be inside for or while")
+                }
+
+                while (bracketStack.peek().bracket != InstructionType.WHILE) {
+                    bracketStack.pop()
+                    if(bracketStack.isEmpty()) {
+                        throw Exception("The break instruction must be inside for or while")
+                    }
+                }
+
+                bracketStack.peek().into = false
+
+                while (blocksCode[numbLine].instructionType != InstructionType.WHILE) {
+                    numbLine--
+                }
+
+                toNext(true)
+            }
+            InstructionType.CONTINUE -> {
+                println("continue " + block.expression)
+
+                if(bracketStack.isEmpty()) {
+                    throw Exception("The continue instruction must be inside for or while")
+                }
+
+                while (bracketStack.peek().bracket != InstructionType.WHILE) {
+                    bracketStack.pop()
+                    if(bracketStack.isEmpty()) {
+                        throw Exception("The continue instruction must be inside for or while")
+                    }
+                }
+
+                while (blocksCode[numbLine].instructionType != InstructionType.WHILE) {
+                    numbLine--
+                }
+
+                toNext(true)
             }
             else -> 0
         }
@@ -650,7 +705,9 @@ class Interpreter {
                     val handler = Handler(Looper.getMainLooper())
 
                     handler.post {
-                        console.println(out)
+                        if(isActive) {
+                            console.println(out)
+                        }
 
                         latch.countDown()
                     }
@@ -747,4 +804,5 @@ class Interpreter {
             throw Exception("Incorrect expression: empty expression")
         }
     }
+
 }

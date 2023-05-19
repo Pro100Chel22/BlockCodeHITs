@@ -22,7 +22,7 @@ data class Arithmetic(
 
 data class BracketCondition (
         val bracket: InstructionType,
-        val into: Boolean = false,
+        var into: Boolean = false,
         val line: Int
 )
 
@@ -253,11 +253,11 @@ class Console(_consoleContainer: LinearLayout, _context: CodingActivity, _resour
 
     @SuppressLint("SetTextI18n")
     fun println(variable: Variable) {
-        val currentLine = consoleContainer.getChildAt(consoleContainer.childCount - 1) as TextView
-
-        if(consoleContainer.childCount > 100 || countLine >  100) {
+        if(consoleContainer.childCount > 100 || countLine >= 100) {
             clear()
         }
+
+        val currentLine = consoleContainer.getChildAt(consoleContainer.childCount - 1) as TextView
 
         when (variable) {
             is VariableInt -> {
@@ -277,15 +277,16 @@ class Console(_consoleContainer: LinearLayout, _context: CodingActivity, _resour
                 throw Exception("Incorrect expression output")
             }
         }
+        currentLine.requestLayout()
     }
 
     @SuppressLint("SetTextI18n")
     fun println(array: Array<Variable>) {
-        val currentLine = consoleContainer.getChildAt(consoleContainer.childCount - 1) as TextView
-
-        if(consoleContainer.childCount > 100 || countLine >  100) {
+        if(consoleContainer.childCount > 100 || countLine >=  100) {
             clear()
         }
+
+        val currentLine = consoleContainer.getChildAt(consoleContainer.childCount - 1) as TextView
 
         currentLine.text = currentLine.text.toString() + "["
         for(element in array) {

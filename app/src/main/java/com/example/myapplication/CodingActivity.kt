@@ -131,11 +131,11 @@ class CodingActivity : AppCompatActivity() {
         console = Console(bottomSheetViewConsoleBinding.consoleOutput, this, R.layout.layout_console_line)
 
         binding.buttonCompiler.setOnClickListener {
-            console.clear()
+            if(::interpreter.isInitialized) interpreter.deactivate()
 
             val blocksView = recurBlockParser(binding.blockField)
 
-            if(::interpreter.isInitialized) interpreter.deactivate()
+            console.clear()
 
             interpreter = Interpreter(blocksView, this, console)
 
