@@ -315,7 +315,7 @@ class Interpreter {
         return list
     }
 
-    private fun opsArithmetic(expression: String, functionCall: Boolean = false): Boolean {
+    private fun opsArithmetic(expression: String, funcCall: Boolean = false, doNotCallFunc: Boolean = false): Boolean {
         val priorityOperation = mapOf(
             "||" to 0, "&&" to 0,
             ">=" to 1, "<=" to 1, ">" to 1, "<" to 1, "!=" to 1, "==" to 1,
@@ -368,7 +368,7 @@ class Interpreter {
             }
         }
 
-        var fC = functionCall
+        var fC = funcCall
 
         var foundCloseBracket = false
         while (arithmeticStack.peekArithmetic().curIdSplit < split.size){
@@ -414,8 +414,13 @@ class Interpreter {
             } else if(isFunction(next)) {
                 println(next + " isFunction")
 
-                arithmeticStack.peekArithmetic().curIdSplit++
-                callStack.add(StackFrame())
+                if(doNotCallFunc) {
+                    println("ERROR: the function cannot be called in this expression")
+                } else {
+                    arithmeticStack.peekArithmetic().curIdSplit++
+                    callStack.add(StackFrame())
+                }
+
                 return false // ops is not over
             } else if(isArray(next)) {
                 println(next + " isArray")
@@ -514,20 +519,34 @@ class Interpreter {
             if(isArray(partTwo)) {
                 val name = getName(partTwo, '[')
                 val expressionBetween = getExpressionBetween(partTwo, '[')
-                val countElement = if (expressionBetween[0].isLetter()) {
-                    globalData.getVariable(expressionBetween)
+
+                arithmeticStack.addArithmetic(Arithmetic())
+                if (opsArithmetic(expressionBetween, false, true) &&
+                    arithmeticStack.size() == 1 &&
+                    arithmeticStack.peekArithmetic().variableStack.size == 1
+                ) {
+                    val countElement = arithmeticStack.popArithmetic().variableStack.peek()
+                    globalData.intArray(name, countElement, VariableType.getType(type))
                 } else {
-                    VariableType.toVariable(expressionBetween)
+                    println("ERROR: incorrect expression")
                 }
-                globalData.intArray(name, countElement, VariableType.getType(type))
             } else if(partTwo.contains("=")) {
                 val exp = partTwo.split("=")
                 val name = exp[0]
 
                 if(exp.size == 2) {
                     val newVar = VariableType.getType(type)
-                    newVar.setValue(VariableType.toVariable(exp[1]))
-                    globalData.initVariable(name, newVar)
+
+                    arithmeticStack.addArithmetic(Arithmetic())
+                    if (opsArithmetic(exp[1], false, true) &&
+                        arithmeticStack.size() == 1 &&
+                        arithmeticStack.peekArithmetic().variableStack.size == 1
+                    ) {
+                        newVar.setValue(arithmeticStack.popArithmetic().variableStack.peek())
+                        globalData.initVariable(name, newVar)
+                    } else {
+                        println("ERROR: incorrect expression")
+                    }
                 } else {
                     println("ERROR: to variable incorrect expression")
                 }
@@ -548,12 +567,17 @@ class Interpreter {
                 if(isArray(variable)) {
                     val name = getName(variable, '[')
                     val expressionBetween = getExpressionBetween(variable, '[')
-                    val index = if (expressionBetween[0].isLetter()) {
-                        globalData.getVariable(expressionBetween)
+
+                    arithmeticStack.addArithmetic(Arithmetic())
+                    if (opsArithmetic(expressionBetween, false, true) &&
+                        arithmeticStack.size() == 1 &&
+                        arithmeticStack.peekArithmetic().variableStack.size == 1
+                    ) {
+                        val index = arithmeticStack.popArithmetic().variableStack.peek()
+                        globalData.setArrayElement(name, index, value)
                     } else {
-                        VariableType.toVariable(expressionBetween)
+                        println("ERROR: incorrect expression")
                     }
-                    globalData.setArrayElement(name, index, value)
                 } else {
                     globalData.setVariable(variable, value)
                 }
@@ -585,33 +609,26 @@ class Interpreter {
         val exp = expression.replace(" ", "")
 
         if(exp.isNotEmpty()) {
-            val out = if (exp[0].isLetter()) {
-                if (isArray(exp)) {
-                    val name = getName(exp, '[')
-                    val expressionBetween = getExpressionBetween(exp, '[')
-                    val index = if (expressionBetween[0].isLetter()) {
-                        globalData.getVariable(expressionBetween)
-                    } else {
-                        VariableType.toVariable(expressionBetween)
-                    }
-                    globalData.getArrayElement(name, index)
-                } else {
-                    globalData.getVariable(exp)
+            arithmeticStack.addArithmetic(Arithmetic())
+            if (opsArithmetic(exp, false, true) &&
+                arithmeticStack.size() == 1 &&
+                arithmeticStack.peekArithmetic().variableStack.size == 1
+            ) {
+                val out = arithmeticStack.popArithmetic().variableStack.peek()
+
+                val latch = CountDownLatch(1)
+                val handler = Handler(Looper.getMainLooper())
+
+                handler.post {
+                    console.println(out)
+
+                    latch.countDown()
                 }
+
+                latch.await()
             } else {
-                VariableType.toVariable(exp)
+                println("ERROR: incorrect expression")
             }
-
-            val latch = CountDownLatch(1)
-            val handler = Handler(Looper.getMainLooper())
-
-            handler.post {
-                console.println(out)
-
-                latch.countDown()
-            }
-
-            latch.await()
         } else {
             println("ERROR: incorrect expression output")
         }
@@ -631,45 +648,39 @@ class Interpreter {
     }
 
     private fun opsIf(expression: String, typeIf: InstructionType) {
-        if(arithmeticStack.size() == 1 && arithmeticStack.peekArithmetic().variableStack.size == 1) {
-            val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
-            if(value.getValue()) {
-                bracketStack.add(BracketCondition(typeIf, true, numbLine))
-                globalData.createNesting()
-            } else {
-                toNext(false)
-                bracketStack.add(BracketCondition(typeIf, false, numbLine))
-            }
-        } else if(arithmeticStack.size() == 0){
-            arithmeticStack.addArithmetic(Arithmetic())
-            if(opsArithmetic(expression.replace(" ", ""))) {
+        if(expression.isNotEmpty()) {
+            if (arithmeticStack.size() == 1 && arithmeticStack.peekArithmetic().variableStack.size == 1) {
                 val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
-                if(value.getValue()) {
+                if (value.getValue()) {
                     bracketStack.add(BracketCondition(typeIf, true, numbLine))
                     globalData.createNesting()
                 } else {
                     toNext(false)
                     bracketStack.add(BracketCondition(typeIf, false, numbLine))
                 }
+            } else if (arithmeticStack.size() == 0) {
+                arithmeticStack.addArithmetic(Arithmetic())
+                if (opsArithmetic(expression.replace(" ", ""))) {
+                    val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
+                    if (value.getValue()) {
+                        bracketStack.add(BracketCondition(typeIf, true, numbLine))
+                        globalData.createNesting()
+                    } else {
+                        toNext(false)
+                        bracketStack.add(BracketCondition(typeIf, false, numbLine))
+                    }
+                }
+            } else {
+                println("ERROR: arithmetic stack")
             }
         } else {
-            println("ERROR: arithmetic stack")
+            println("ERROR: incorrect expression")
         }
     }
 
     private fun opsWhile(expression: String) {
-        if(arithmeticStack.size() == 1 && arithmeticStack.peekArithmetic().variableStack.size == 1) {
-            val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
-            if(value.getValue()) {
-                bracketStack.add(BracketCondition(InstructionType.WHILE, true, numbLine))
-                globalData.createNesting()
-            } else {
-                toNext(true)
-                bracketStack.add(BracketCondition(InstructionType.WHILE, false, numbLine))
-            }
-        } else if(arithmeticStack.size() == 0){
-            arithmeticStack.addArithmetic(Arithmetic())
-            if(opsArithmetic(expression.replace(" ", ""))) {
+        if(expression.isNotEmpty()) {
+            if(arithmeticStack.size() == 1 && arithmeticStack.peekArithmetic().variableStack.size == 1) {
                 val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
                 if(value.getValue()) {
                     bracketStack.add(BracketCondition(InstructionType.WHILE, true, numbLine))
@@ -678,9 +689,23 @@ class Interpreter {
                     toNext(true)
                     bracketStack.add(BracketCondition(InstructionType.WHILE, false, numbLine))
                 }
+            } else if(arithmeticStack.size() == 0){
+                arithmeticStack.addArithmetic(Arithmetic())
+                if(opsArithmetic(expression.replace(" ", ""))) {
+                    val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
+                    if(value.getValue()) {
+                        bracketStack.add(BracketCondition(InstructionType.WHILE, true, numbLine))
+                        globalData.createNesting()
+                    } else {
+                        toNext(true)
+                        bracketStack.add(BracketCondition(InstructionType.WHILE, false, numbLine))
+                    }
+                }
+            } else {
+                println("ERROR: arithmetic stack")
             }
         } else {
-            println("ERROR: arithmetic stack")
+            println("ERROR: incorrect expression")
         }
     }
 }
