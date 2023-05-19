@@ -10,8 +10,9 @@ enum class VariableType {
                 "double" -> VariableDouble(0.0)
                 "boolean" -> VariableBoolean(false)
                 else -> {
-                    println("ERROR: you cannot create a variable of this type")
+                    println("ERR: you cannot create a variable of this type")
                     Variable()
+                    throw Exception("You cannot create a variable of this type: $name")
                 }
             }
         }
@@ -26,13 +27,13 @@ enum class VariableType {
             var isRealVariable = false
             for(i in constant.indices) {
                 if(constant[i] == '.' && isRealVariable) {
-                    println("ERROR: to variable incorrect expression")
-                    return Variable()
+                    println("ERR: to variable incorrect expression")
+                    throw Exception("Incorrect expression: $constant")
                 } else if(constant[i] == '.') {
                     isRealVariable = true
                 } else if(constant[i].isLetter()){
-                    println("ERROR: to variable incorrect expression")
-                    return Variable()
+                    println("ERR: to variable incorrect expression")
+                    throw Exception("Incorrect expression: $constant")
                 }
             }
 
@@ -58,6 +59,22 @@ enum class VariableType {
 
             return true
         }
+
+        fun isName(name: String) {
+            for(ch in name) {
+                if(!(ch.isLetter() || ch.isDigit() || ch == '_')) {
+                    throw Exception("Incorrect expression: the name can contain only letters numbers and underscores,  $name")
+                }
+            }
+
+            if(!(name[0].isLetter() || name[0] == '_')) {
+                throw Exception("Incorrect expression: the name can only start with a letter or an underscore,  $name")
+            }
+
+            if(name in listOf("int", " double", " boolean", "toInt", "toDouble", "toBoolean")) {
+                throw Exception("Incorrect expression: the name already exists,  $name")
+            }
+        }
     }
 }
 
@@ -66,35 +83,80 @@ open class Variable(_type: VariableType = VariableType.VOID) {
 
     fun getType(): VariableType { return type }
 
-    open operator fun plus(operand: Variable): Variable { println("ERROR: plus void"); return Variable() }
+    open operator fun plus(operand: Variable): Variable {
+        println("ERR: plus void")
+        throw Exception("Incorrect expression: you cannot perform a '+' operation with the void type")
+    }
 
-    open operator fun minus(operand: Variable): Variable { println("ERROR: minus void"); return Variable() }
+    open operator fun minus(operand: Variable): Variable {
+        println("ERR: minus void")
+        throw Exception("Incorrect expression: you cannot perform a '-' operation with the void type")
+    }
 
-    open operator fun div(operand: Variable): Variable { println("ERROR: div void"); return Variable() }
+    open operator fun div(operand: Variable): Variable {
+        println("ERR: div void")
+        throw Exception("Incorrect expression: you cannot perform a '/' operation with the void type")
+    }
 
-    open operator fun times(operand: Variable): Variable { println("ERROR: multi void"); return Variable() }
+    open operator fun times(operand: Variable): Variable {
+        println("ERR: multi void")
+        throw Exception("Incorrect expression: you cannot perform a '*' operation with the void type")
+    }
 
-    open operator fun rem(operand: Variable): Variable { println("ERROR: mod void"); return Variable() }
+    open operator fun rem(operand: Variable): Variable {
+        println("ERR: mod void")
+        throw Exception("Incorrect expression: you cannot perform a '%' operation with the void type")
+    }
 
-    open fun or(operand: Variable): VariableBoolean { println("ERROR: or void"); return VariableBoolean() }
+    open fun or(operand: Variable): VariableBoolean {
+        println("ERR: or void")
+        throw Exception("Incorrect expression: you cannot perform a '||' operation with the void type")
+    }
 
-    open fun and(operand: Variable): VariableBoolean { println("ERROR: and void"); return VariableBoolean() }
+    open fun and(operand: Variable): VariableBoolean {
+        println("ERR: and void")
+        throw Exception("Incorrect expression: you cannot perform a '&&' operation with the void type")
+    }
 
-    open fun compareMore(operand: Variable): VariableBoolean { println("ERROR: compare more void"); return VariableBoolean() }
+    open fun compareMore(operand: Variable): VariableBoolean {
+        println("ERR: compare more void")
+        throw Exception("Incorrect expression: you cannot perform a '>' or '>=' operation with the void type")
+    }
 
-    open fun compareLess(operand: Variable): VariableBoolean { println("ERROR: compare less void"); return VariableBoolean() }
+    open fun compareLess(operand: Variable): VariableBoolean {
+        println("ERR: compare less void")
+        throw Exception("Incorrect expression: you cannot perform a '<' or '<=' operation with the void type")
+    }
 
-    open fun equal(operand: Variable): VariableBoolean { println("ERROR: equals void"); return VariableBoolean() }
+    open fun equal(operand: Variable): VariableBoolean {
+        println("ERR: equals void")
+        throw Exception("Incorrect expression: you cannot perform a '==' operation with the void type")
+    }
 
-    open fun not(): VariableBoolean { println("ERROR: not void"); return VariableBoolean() }
+    open fun not(): VariableBoolean {
+        println("ERR: not void")
+        throw Exception("Incorrect expression: you cannot perform a '!' operation with the void type")
+    }
 
-    open fun toInt(): VariableInt { println("ERROR: void to int"); return VariableInt(0) }
+    open fun toInt(): VariableInt {
+        println("ERR: void to int")
+        throw Exception("Incorrect expression: you cannot perform a 'toInt' operation with the void type")
+    }
 
-    open fun toDouble(): VariableDouble { println("ERROR: void to double"); return VariableDouble(0.0) }
+    open fun toDouble(): VariableDouble {
+        println("ERR: void to double")
+        throw Exception("Incorrect expression: you cannot perform a 'toDouble' operation with the void type")
+    }
 
-    open fun toBoolean(): VariableBoolean { println("ERROR: void to boolean"); return VariableBoolean(false) }
+    open fun toBoolean(): VariableBoolean {
+        println("ERR: void to boolean")
+        throw Exception("Incorrect expression: you cannot perform a 'toBoolean' operation with the void type")
+    }
 
-    open fun setValue(operand: Variable) { println("ERROR: set value void")}
+    open fun setValue(operand: Variable) {
+        println("ERR: set value void")
+        throw Exception("Incorrect expression: you cannot perform a '=' operation with the void type")
+    }
 }
 
 class VariableInt: Variable {

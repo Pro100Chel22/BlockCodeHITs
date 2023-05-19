@@ -6,9 +6,10 @@ import android.view.View
 import com.example.myapplication.CodingActivity
 import java.util.Stack
 import java.util.concurrent.CountDownLatch
+import kotlin.Exception
 
 class Interpreter {
-    private val globalData = DataStack()
+    private var globalData = DataStack()
 
     private val callStack = Stack<StackFrame>()
     private val data = Data()
@@ -24,7 +25,7 @@ class Interpreter {
     private val blocksCode: MutableList<Block> = mutableListOf()
     private var console: Console
 
-    private val error = false
+    //private var errorController: ErrorController
     private var isActive = false
 
     constructor(_blocksView: List<View>, _context: CodingActivity, _console: Console) {
@@ -49,47 +50,55 @@ class Interpreter {
     fun run() {
         isActive = true
         Thread {
-            while (!error && isActive) {
-                if(callStack.isNotEmpty()) {
-                    // Когда вызывается функция, создается кадр стека и кладется в стек вызовов, а в памяти
-                    // выделяется помять под локальные переменные функции
-                    // Если стек вызовов не пуст, проверяется закончилась функция или нет, если закончилась,
-                    // возвращаем значение функции в место, где она вызвана (стек арифметических выражений)
-                    // и убираем ее из стека, если не закончилась, то выполняем блок, на котором она находится
-                    //
+            try {
+                while (isActive) {
+                    if (callStack.isNotEmpty()) {
+                        // Когда вызывается функция, создается кадр стека и кладется в стек вызовов, а в памяти
+                        // выделяется помять под локальные переменные функции
+                        // Если стек вызовов не пуст, проверяется закончилась функция или нет, если закончилась,
+                        // возвращаем значение функции в место, где она вызвана (стек арифметических выражений)
+                        // и убираем ее из стека, если не закончилась, то выполняем блок, на котором она находится
+                        //
 
-                    if(callStack.peek().funcIsOver) {
-                        arithmeticStack.peekArithmetic().variableStack.add(callStack.peek().returnVariable)
-                        callStack.pop()
+                        if (callStack.peek().funcIsOver) {
+                            arithmeticStack.peekArithmetic().variableStack.add(callStack.peek().returnVariable)
+                            callStack.pop()
 
-                        while (opsArithmetic("", true)) {
-                            if(arithmeticStack.size() > 1) {
-                                val index = arithmeticStack.popArithmetic().variableStack.peek()
-                                arithmeticStack.peekArithmetic().variableStack.push(index)
-                            } else {
-                                numbLine--
-                                break
+                            while (opsArithmetic("", true)) {
+                                if (arithmeticStack.size() > 1) {
+                                    val index = arithmeticStack.popArithmetic().variableStack.peek()
+                                    arithmeticStack.peekArithmetic().variableStack.push(index)
+                                } else {
+                                    numbLine--
+                                    break
+                                }
                             }
                         }
-                    }
-                } else {
-                    if(numbLine >= blocksCode.size) {
-                        isActive = false
-                        break
-                    }
-
-                    processing(blocksCode[numbLine])
-
-                    if(waitForInput) {
-                        Handler(Looper.getMainLooper()).post {
-                            context.inputRequest()
+                    } else {
+                        if (numbLine >= blocksCode.size) {
+                            isActive = false
+                            break
                         }
-                        waitForInput = false
-                        isActive = false
-                        break
-                    }
 
-                    numbLine++
+                        processing(blocksCode[numbLine])
+
+                        if (waitForInput) {
+                            Handler(Looper.getMainLooper()).post {
+                                context.inputRequest()
+                            }
+                            waitForInput = false
+                            isActive = false
+                            break
+                        }
+
+                        numbLine++
+                    }
+                }
+            } catch (e: Exception) {
+                Handler(Looper.getMainLooper()).post {
+                    context.errorRequest("Line: " + numbLine.toString() +
+                            "\nExpression: " + blocksCode[numbLine].expression +
+                            "\n" + e.message)
                 }
             }
         }.start()
@@ -102,7 +111,7 @@ class Interpreter {
 
     private fun toNext(toEnd: Boolean = true) {
         val stack = Stack<InstructionType>()
-        stack.add(blocksCode[numbLine].instructionType);
+        stack.add(blocksCode[numbLine].instructionType)
         while (stack.isNotEmpty()) {
             numbLine++
 
@@ -159,7 +168,8 @@ class Interpreter {
                        if (expressionsInput.size > i) {
                            opsInput(expressions[i], expressionsInput[i])
                        } else {
-                           println("ERROR: little input data")
+                           println("ERR: little input data")
+                           throw Exception("Little input data")
                        }
                     }
 
@@ -213,7 +223,8 @@ class Interpreter {
                     bracketStack.pop()
                 }
                 else {
-                    println("ERROR: unknown operation")
+                    println("ERR: unknown operation")
+                    throw Exception("Unknown operation")
                 }
             }
             InstructionType.WHILE -> {
@@ -253,7 +264,8 @@ class Interpreter {
                 } else if(arithmetic[i] in listOf('!', '<', '>')) {
                     add(arithmetic[i].toString())
                 } else {
-                    println("ERROR: incorrect expression")
+                    println("ERR: incorrect expression")
+                    throw Exception("Incorrect expression: unknown operator")
                 }
             } else if(!foundFunOrArray && arithmetic[i] == '.' && i < arithmetic.length - 1 && arithmetic[i + 1].isLetter()) {
                 if(i < arithmetic.length - 5 && arithmetic.substring(i, i + 6) == ".toInt") {
@@ -266,11 +278,13 @@ class Interpreter {
                     add(arithmetic.substring(i, i + 10))
                     i += 10
                 } else {
-                    println("ERROR: incorrect expression")
+                    println("ERR: incorrect expression")
+                    throw Exception("Incorrect expression: unknown transformation")
                 }
 
                 if(i < arithmetic.length && arithmetic[i].isLetter()) {
-                    println("ERROR: incorrect expression")
+                    println("ERR: incorrect expression")
+                    throw Exception("Incorrect expression")
                 } else if(i < arithmetic.length && arithmetic[i] == '(') {
                     list.add(arithmetic[i].toString())
                 }
@@ -293,7 +307,8 @@ class Interpreter {
                         expression += arithmetic[i].toString()
                         bracketStack.pop()
                     } else {
-                        println("ERROR: incorrect expression")
+                        println("ERR: incorrect expression")
+                        throw Exception("Incorrect expression: missing brackets")
                     }
 
                     if(bracketStack.isEmpty()) {
@@ -339,8 +354,9 @@ class Interpreter {
                     ".toBoolean" -> var1.toBoolean()
                     "!" -> var1.not()
                     else -> {
-                        println("ERROR: incorrect expression")
+                        println("ERR: incorrect expression")
                         Variable()
+                        throw Exception("Incorrect expression: such an operation does not exist: $operator")
                     }
                 })
             } else {
@@ -361,8 +377,9 @@ class Interpreter {
                     "==" -> var2.equal(var1)
                     "!=" -> var2.equal(var1).not()
                     else -> {
-                        println("ERROR: incorrect expression")
+                        println("ERR: incorrect expression")
                         Variable()
+                        throw Exception("Incorrect expression: such an operation does not exist: $operator")
                     }
                 })
             }
@@ -407,7 +424,8 @@ class Interpreter {
                 }
                 arithmeticStack.peekArithmetic().curIdSplit--
             } else if(next in listOf("[", "]")) {
-                println("ERROR: incorrect expression")
+                println("ERR: incorrect expression")
+                throw Exception("Incorrect expression: false brackets: []")
             } else if(VariableType.isConstant(next)){
                 println(next + " isConstant")
                 arithmeticStack.peekArithmetic().variableStack.push(VariableType.toVariable(next))
@@ -415,7 +433,8 @@ class Interpreter {
                 println(next + " isFunction")
 
                 if(doNotCallFunc) {
-                    println("ERROR: the function cannot be called in this expression")
+                    println("ERR: the function cannot be called in this expression")
+                    throw Exception("The function cannot be called in this expression")
                 } else {
                     arithmeticStack.peekArithmetic().curIdSplit++
                     callStack.add(StackFrame())
@@ -528,7 +547,8 @@ class Interpreter {
                     val countElement = arithmeticStack.popArithmetic().variableStack.peek()
                     globalData.intArray(name, countElement, VariableType.getType(type))
                 } else {
-                    println("ERROR: incorrect expression")
+                    println("ERR: incorrect expression")
+                    throw Exception("Incorrect expression: $partTwo")
                 }
             } else if(partTwo.contains("=")) {
                 val exp = partTwo.split("=")
@@ -545,16 +565,19 @@ class Interpreter {
                         newVar.setValue(arithmeticStack.popArithmetic().variableStack.peek())
                         globalData.initVariable(name, newVar)
                     } else {
-                        println("ERROR: incorrect expression")
+                        println("ERR: incorrect expression")
+                        throw Exception("Incorrect expression")
                     }
                 } else {
-                    println("ERROR: to variable incorrect expression")
+                    println("ERR: to variable incorrect expression")
+                    throw Exception("Incorrect expression: there must be one assignment operator =")
                 }
             } else {
                 globalData.initVariable(partTwo, VariableType.getType(type))
             }
         } else {
-            println("ERROR: to variable incorrect expression")
+            println("ERR: to variable incorrect expression")
+            throw Exception("Incorrect expression: too few operands")
         }
     }
 
@@ -576,7 +599,8 @@ class Interpreter {
                         val index = arithmeticStack.popArithmetic().variableStack.peek()
                         globalData.setArrayElement(name, index, value)
                     } else {
-                        println("ERROR: incorrect expression")
+                        println("ERR: incorrect expression")
+                        throw Exception("Incorrect expression")
                     }
                 } else {
                     globalData.setVariable(variable, value)
@@ -595,13 +619,16 @@ class Interpreter {
                         setOperation(variable)
                     }
                 } else {
-                    println("ERROR: arithmetic stack")
+                    println("ERR: arithmetic stack")
+                    throw Exception("Incorrect expression: arithmetic stack error")
                 }
             } else {
-                println("ERROR: incorrect expression")
+                println("ERR: incorrect expression")
+                throw Exception("Incorrect expression: there must be one assignment operator =")
             }
         } else {
-            println("ERROR: incorrect expression")
+            println("ERR: incorrect expression")
+            throw Exception("Incorrect expression: the expression does not contain the operator =")
         }
     }
 
@@ -609,28 +636,34 @@ class Interpreter {
         val exp = expression.replace(" ", "")
 
         if(exp.isNotEmpty()) {
-            arithmeticStack.addArithmetic(Arithmetic())
-            if (opsArithmetic(exp, false, true) &&
-                arithmeticStack.size() == 1 &&
-                arithmeticStack.peekArithmetic().variableStack.size == 1
-            ) {
-                val out = arithmeticStack.popArithmetic().variableStack.peek()
-
-                val latch = CountDownLatch(1)
-                val handler = Handler(Looper.getMainLooper())
-
-                handler.post {
-                    console.println(out)
-
-                    latch.countDown()
-                }
-
-                latch.await()
+            if(globalData.checkArray(exp)) {
+                console.println(globalData.getArray(exp))
             } else {
-                println("ERROR: incorrect expression")
+                arithmeticStack.addArithmetic(Arithmetic())
+                if (opsArithmetic(exp, false, true) &&
+                    arithmeticStack.size() == 1 &&
+                    arithmeticStack.peekArithmetic().variableStack.size == 1
+                ) {
+                    val out = arithmeticStack.popArithmetic().variableStack.peek()
+
+                    val latch = CountDownLatch(1)
+                    val handler = Handler(Looper.getMainLooper())
+
+                    handler.post {
+                        console.println(out)
+
+                        latch.countDown()
+                    }
+
+                    latch.await()
+                } else {
+                    println("ERR: incorrect expression")
+                    throw Exception("Incorrect expression")
+                }
             }
         } else {
-            println("ERROR: incorrect expression output")
+            println("ERR: incorrect expression output")
+            throw Exception("Incorrect expression: empty expression")
         }
     }
 
@@ -641,9 +674,11 @@ class Interpreter {
         if(variableName.size == 1 && inputConstant.size == 1) {
             globalData.getVariable(variableName[0]).setValue(VariableType.toVariable(inputConstant[0]))
         } else if(variableName.size != 1) {
-            println("ERROR: incorrect expression")
+            println("ERR: incorrect expression")
+            throw Exception("Incorrect expression")
         } else {
-            println("ERROR: invalid input data")
+            println("ERR: invalid input data")
+            throw Exception("Incorrect expression: invalid input data")
         }
     }
 
@@ -671,10 +706,12 @@ class Interpreter {
                     }
                 }
             } else {
-                println("ERROR: arithmetic stack")
+                println("ERR: arithmetic stack")
+                throw Exception("Incorrect expression: arithmetic stack error")
             }
         } else {
-            println("ERROR: incorrect expression")
+            println("ERR: incorrect expression")
+            throw Exception("Incorrect expression: empty expression")
         }
     }
 
@@ -702,10 +739,12 @@ class Interpreter {
                     }
                 }
             } else {
-                println("ERROR: arithmetic stack")
+                println("ERR: arithmetic stack")
+                throw Exception("Incorrect expression: arithmetic stack error")
             }
         } else {
-            println("ERROR: incorrect expression")
+            println("ERR: incorrect expression")
+            throw Exception("Incorrect expression: empty expression")
         }
     }
 }

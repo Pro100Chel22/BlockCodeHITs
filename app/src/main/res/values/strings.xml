@@ -29,4 +29,6 @@
     <string name="logical_and">&#x0026;&#x0026;</string>
     <string name="logical_or">&#x007C;&#x007C;</string>
     <string name="logical_not">&#x0021;</string>
+    <string name="ok">OK</string>
+    <string name="error">ERROR</string>
 </resources>

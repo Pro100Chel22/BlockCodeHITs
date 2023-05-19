@@ -10,23 +10,17 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.DragEvent
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnDragListener
 import android.view.ViewGroup
-import android.view.ViewParent
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.constraintlayout.widget.ConstraintSet.Motion
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.get
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,7 +37,6 @@ import com.example.myapplication.modules.getListBlocksNotHaveText
 import com.example.myapplication.modules.recycler_view_logic.DataSource
 import com.example.myapplication.modules.recycler_view_logic.ItemsDecoration
 import com.example.myapplication.modules.recycler_view_logic.OperatorAdapter
-import com.example.myapplication.modules.recycler_view_logic.Operators
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlin.math.max
 import kotlin.math.min
@@ -150,13 +143,29 @@ class CodingActivity : AppCompatActivity() {
         }
 
         binding.buttonDebug.setOnClickListener{
-            interpreter.deactivate()
+            if(::interpreter.isInitialized) interpreter.deactivate()
         }
+    }
+
+    fun errorRequest(string: String) {
+        val builder = AlertDialog.Builder(this)
+        val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_error, null)
+        builder.setView(dialogLayout)
+
+        val dialog = builder.create()
+
+        dialogLayout.findViewById<Button>(R.id.buttonOk).setOnClickListener { dialog.dismiss() }
+        dialogLayout.findViewById<TextView>(R.id.errorInformation).text = string
+
+        dialog.show()
+
+        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
+        dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (400 * scaleDp + 0.5).toInt())
     }
 
     fun inputRequest() {
         val builder = AlertDialog.Builder(this)
-        val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert, null)
+        val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_input, null)
         builder.setView(dialogLayout)
 
         val dialog = builder.create()

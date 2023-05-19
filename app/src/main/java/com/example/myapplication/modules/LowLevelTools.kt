@@ -46,7 +46,7 @@ class ArithmeticStack {
     }
 }
 class Data {
-    private val globalData = DataStack()
+    //private val globalData = DataStack()
     private val funcLocalData = Stack<DataStack>()
 
     fun addFuncLocalData() {
@@ -82,22 +82,39 @@ class DataStack {
     private val variables: MutableMap<String, Variable> = mutableMapOf()
     private val arrays: MutableMap<String, Array<Variable>> = mutableMapOf()
     private val deleteStack: Stack<MutableList<String>> = Stack()
+   // private var errorController: ErrorController = _errorController
 
     init {
         deleteStack.push(mutableListOf())
     }
 
+    fun checkArray(name: String): Boolean {
+        if(name in arrays) {
+            return true
+        }
+        return false
+    }
+
+    fun getArray(name: String): Array<Variable> {
+        return arrays[name]!!
+    }
+
     fun initVariable(name: String, variable: Variable) {
         if(variables[name] == null && arrays[name] == null) {
+            VariableType.isName(name)
+
             deleteStack.peek().add(name)
             variables[name] = variable
         } else {
-            println("ERROR: name already exist")
+            println("ERR: name already exist")
+            throw Exception("The name already exist: $name")
         }
     }
 
     fun intArray(name: String, countElement: Variable, initValue: Variable) {
         if(variables[name] == null && arrays[name] == null) {
+            VariableType.isName(name)
+
             deleteStack.peek().add(name)
             if(countElement is VariableInt) {
                 if(countElement.getValue() in 1..1000) {
@@ -109,76 +126,95 @@ class DataStack {
                         } else if(initValue is VariableBoolean) {
                             VariableBoolean(initValue.getValue())
                         } else {
-                            println("ERROR: incorrect data type!!!!!!!!")
+                            println("ERR: incorrect data type!!!!!!!!")
                             Variable()
+                            throw Exception("Incorrect data type: this type does not exist, $name")
                         }
                     }
                 } else {
-                    println("ERROR: the array can contain from 1 to 1000 elements")
+                    val i = countElement.getValue()
+                    println("ERR: the array can contain from 1 to 1000 elements")
+                    throw Exception("Incorrect data type: there is no such element, $name[$i]")
                 }
             } else {
-                println("ERROR: incorrect data type")
+                throw Exception("Incorrect data type: the number of elements must be integer, $name")
             }
         } else {
-            println("ERROR: name already exist")
+            println("ERR: name already exist")
+            throw Exception("The name already exist: $name[]")
         }
     }
 
     fun getVariable(name: String): Variable {
-        val variable = variables[name]
+        VariableType.isName(name)
 
+        val variable = variables[name]
         return if(variable != null) {
             variable
         } else {
-            println("ERROR: variable not exist")
+            println("ERR: variable not exist")
             Variable()
+            throw Exception("The variable not exist: $name")
         }
     }
 
     fun getArrayElement(name: String, index: Variable): Variable {
-        val array = arrays[name]
+        VariableType.isName(name)
 
+        val array = arrays[name]
         return if(array != null) {
             if(index is VariableInt) {
-                if(index.getValue() in (array.indices)) {
-                    array[index.getValue()]
+                val i = index.getValue()
+                if(i in (array.indices)) {
+                    array[i]
                 } else {
-                    println("there is no such element")
+                    println("ERR: there is no such element")
                     Variable()
+                    throw Exception("Incorrect data type: there is no such element, $name[$i]")
                 }
             } else {
-                println("ERROR: incorrect data type")
+                println("ERR: incorrect data type")
                 Variable()
+                throw Exception("Incorrect data type: the array index must be an integer, $name")
             }
         } else {
-            println("ERROR: array not exist")
+            println("ERR: array not exist")
             Variable()
+            throw Exception("The array not exist: $name[]")
         }
     }
 
     fun setVariable(name: String, variable: Variable) {
+        VariableType.isName(name)
+
         if(variables[name] != null) {
             variables[name]?.setValue(variable)
         } else {
-            println("ERROR: variable not exist")
+            println("ERR: variable not exist")
+            throw Exception("The variable not exist: $name")
         }
     }
 
     fun setArrayElement (name: String, index: Variable, value: Variable) {
-        val array = arrays[name]
+        VariableType.isName(name)
 
+        val array = arrays[name]
         if(array != null) {
             if(index is VariableInt) {
-                if(index.getValue() in (array.indices)) {
-                    arrays[name]!![index.getValue()].setValue(value)
+                val i = index.getValue()
+                if(i in (array.indices)) {
+                    arrays[name]!![i].setValue(value)
                 } else {
-                    println("there is no such element")
+                    println("ERR: there is no such element")
+                    throw Exception("Incorrect data type: there is no such element, $name[$i]")
                 }
             } else {
-                println("ERROR: incorrect data type")
+                println("ERR: incorrect data type")
+                throw Exception("Incorrect data type: the array index must be an integer, $name")
             }
         } else {
-            println("ERROR: array not exist")
+            println("ERR: array not exist")
+            throw Exception("The array not exist: $name[]")
         }
     }
 
@@ -208,6 +244,7 @@ class Console(_consoleContainer: LinearLayout, _context: CodingActivity, _resour
     fun clear() {
         consoleContainer.removeAllViewsInLayout()
         addLine()
+        countLine = 0
     }
 
     fun print(variable: Variable) {
@@ -220,9 +257,6 @@ class Console(_consoleContainer: LinearLayout, _context: CodingActivity, _resour
 
         if(consoleContainer.childCount > 100 || countLine >  100) {
             clear()
-            countLine = 0
-        } else {
-            //addLine()
         }
 
         when (variable) {
@@ -239,9 +273,40 @@ class Console(_consoleContainer: LinearLayout, _context: CodingActivity, _resour
                 countLine++
             }
             else -> {
-                println("ERROR: incorrect expression output")
+                println("ERR: incorrect expression output")
+                throw Exception("Incorrect expression output")
             }
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun println(array: Array<Variable>) {
+        val currentLine = consoleContainer.getChildAt(consoleContainer.childCount - 1) as TextView
+
+        if(consoleContainer.childCount > 100 || countLine >  100) {
+            clear()
+        }
+
+        currentLine.text = currentLine.text.toString() + "["
+        for(element in array) {
+            when (element) {
+                is VariableInt -> {
+                    currentLine.text = currentLine.text.toString() + element.getValue() + ", "
+                }
+                is VariableDouble -> {
+                    currentLine.text = currentLine.text.toString() + element.getValue() + ", "
+                }
+                is VariableBoolean -> {
+                    currentLine.text = currentLine.text.toString() + element.getValue() + ", "
+                }
+                else -> {
+                    println("ERR: incorrect expression output")
+                    throw Exception("Incorrect expression output")
+                }
+            }
+        }
+        countLine++
+        currentLine.text = currentLine.text.toString().substring(0, currentLine.text.toString().length - 2) + "]\n"
     }
 
     private fun addLine() {
