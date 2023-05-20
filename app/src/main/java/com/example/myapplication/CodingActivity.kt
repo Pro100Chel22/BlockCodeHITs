@@ -5,39 +5,62 @@ import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.util.Log
 import android.view.DragEvent
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnDragListener
 import android.view.ViewGroup
+import android.view.ViewParent
 import android.view.WindowManager
 import android.widget.*
+import android.widget.LinearLayout.LayoutParams
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.constraintlayout.widget.ConstraintSet.Motion
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.get
+import androidx.core.view.marginBottom
+import androidx.core.view.marginLeft
+import androidx.core.view.marginRight
+import androidx.core.view.marginTop
+import androidx.core.view.size
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityCodingBinding
 import com.example.myapplication.databinding.LayoutConsoleBinding
 import com.example.myapplication.databinding.LayoutNewBlocksBinding
+import com.example.myapplication.modules.Block
 import com.example.myapplication.modules.BlockView
 import com.example.myapplication.modules.Console
 import com.example.myapplication.modules.InstructionType
 import com.example.myapplication.modules.Interpreter
 import com.example.myapplication.modules.getListBlocks
+import com.example.myapplication.modules.getListBlocksContainers
 import com.example.myapplication.modules.getListBlocksEnds
 import com.example.myapplication.modules.getListBlocksNotHaveText
 import com.example.myapplication.modules.recycler_view_logic.DataSource
 import com.example.myapplication.modules.recycler_view_logic.ItemsDecoration
 import com.example.myapplication.modules.recycler_view_logic.OperatorAdapter
+import com.example.myapplication.modules.recycler_view_logic.Operators
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import org.json.JSONArray
+import org.json.JSONObject
+import org.w3c.dom.Text
+import java.io.File
+import java.io.FileOutputStream
+import java.util.Collections
 import kotlin.math.max
 import kotlin.math.min
 
@@ -45,16 +68,26 @@ import kotlin.math.min
 class CodingActivity : AppCompatActivity() {
     private var scaleDp: Float = 1f
     private val scrollSpeed : Float = 20.0f
-    private val leftPadding : Int = 40
-    private val marginForRecyclerViewItems : Int = (30 * scaleDp).toInt();
+    private val leftPadding : Int = 30
+    private val marginForRecyclerViewItems : Int = 30
+    private val marginForEveryNonContainerBlock : Int = 15
+    private val marginForEveryContainerBlock : Int = 10
+    private val additionalWidth : Int = 0
+
+
 
     private var listBlocks = getListBlocks()
     private var listBlocksNotHaveText = getListBlocksNotHaveText()
     private var listBlocksEnds = getListBlocksEnds()
-    private var checkedBlocks = mutableMapOf<ViewGroup, Boolean>()
+    private var listContainersBlocks = getListBlocksContainers()
+
+
     private var editTextsFocuses = mutableMapOf<EditText, Boolean>()
-    private var connectorsMap = mutableMapOf<ViewGroup, ViewGroup>()
-    private var fieldList = mutableListOf<ViewGroup>()
+    private var instructionList = mutableListOf<InstructionType>()
+    private var blockList = mutableListOf<View>()
+    private var tempViewList = mutableListOf<View>()
+    private var previousMargins = mutableListOf<Int>()
+    private var previousWidths = mutableListOf<Int>()
 
     private lateinit var bottomSheetDialogNewBlock: BottomSheetDialog
     private lateinit var bottomSheetDialogConsole: BottomSheetDialog
@@ -73,7 +106,7 @@ class CodingActivity : AppCompatActivity() {
     private lateinit var interpreter: Interpreter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState) // посмотреть
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_coding)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
@@ -92,8 +125,6 @@ class CodingActivity : AppCompatActivity() {
 
         val itemDecoration = ItemsDecoration(this, (40 * scaleDp).toInt());
         operatorsRecycler.addItemDecoration(itemDecoration)
-
-        fieldList.add(binding.blockField)
 
         initBottomSheetViewNewBlock()
         initBottomSheetConsole()
@@ -124,16 +155,23 @@ class CodingActivity : AppCompatActivity() {
         binding.lowerBoundContainer.setOnDragListener { view, dragEvent ->
             scrollBlocks(view, dragEvent, -scrollSpeed);
         }
-        binding.deleteBlock.setOnLongClickListener { binding.blockField.removeAllViews();
-            connectorsMap.clear(); numberOfBlockFieldChildren = 0; true
+        binding.deleteBlock.setOnLongClickListener {
+            binding.blockField.removeAllViews();
+            blockList.clear()
+            instructionList.clear()
+            true
         }
-
+        binding.buttonSaveCode.setOnLongClickListener {
+            saveButton()
+            Toast.makeText(this, "button saves", Toast.LENGTH_SHORT).show()
+            true
+        }
         console = Console(bottomSheetViewConsoleBinding.consoleOutput, this, R.layout.layout_console_line)
 
         binding.buttonCompiler.setOnClickListener {
             if(::interpreter.isInitialized) interpreter.deactivate()
 
-            val blocksView = recurBlockParser(binding.blockField)
+            val blocksView = blockList
 
             console.clear()
 
@@ -145,6 +183,25 @@ class CodingActivity : AppCompatActivity() {
         binding.buttonDebug.setOnClickListener{
             if(::interpreter.isInitialized) interpreter.deactivate()
         }
+    }
+
+    private fun createButton() : Button{
+        val button = Button(this);
+        button.text = "BEBRA"
+        return button;
+    }
+    private fun saveButton(){
+        val button = createButton()
+        val jsonArray = JSONArray()
+        val jsonObject = JSONObject()
+        jsonObject.put("button_text", button.text.toString())
+        jsonArray.put(jsonObject)
+
+        val fileName = "button.json"
+        val file = File(filesDir, fileName)
+        val fos = FileOutputStream(file)
+        fos.write(jsonArray.toString().toByteArray())
+        fos.close()
     }
 
     fun errorRequest(string: String) {
@@ -191,19 +248,6 @@ class CodingActivity : AppCompatActivity() {
     /////////////////////////////////
     /////////////////////////////////
     /////////////////////////////////
-    /*private fun startSelectiveErasing(){
-        val keys : Set<View> = checkedBlocks.keys
-        for(key in keys){
-            if(checkedBlocks[key] == true){
-                val keyContainer = key.parent.parent as? ViewGroup;
-                val keyHolder = key.parent as? ViewGroup;
-                connectorsMap.remove(keyHolder)
-                keyContainer?.removeView(keyHolder)
-                numberOfBlockFieldChildren--
-            }
-        }
-    }*/
-
 
     private val deleteBlock = View.OnDragListener { view, dragEvent ->
         when(dragEvent.action){
@@ -222,23 +266,10 @@ class CodingActivity : AppCompatActivity() {
             }
             DragEvent.ACTION_DROP -> {
                 view.invalidate()
-                val v = dragEvent.localState as ViewGroup
-                val owner = v.parent as ViewGroup
-                val ownerParent = owner.parent as ViewGroup
-
-                ownerParent.removeView(owner)
-                connectorsMap.remove(owner)
-                val keys = connectorsMap.keys;
-                for(key in keys){
-                    val connector = key.getChildAt(1) as ViewGroup;
-                    connector.layoutParams.height -= v.height;
-                    connector.requestLayout()
-                }
                 numberOfBlockFieldChildren--
                 true
             }
             DragEvent.ACTION_DRAG_ENDED -> {
-                val v = dragEvent.localState as ViewGroup
                 view.invalidate()
                 view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_close, null)
                 true
@@ -246,7 +277,6 @@ class CodingActivity : AppCompatActivity() {
             else -> false
         }
     }
-
     private fun scrollBlocks(view : View, event : DragEvent, speed: Float) : Boolean {
         return when(event.action){
             DragEvent.ACTION_DRAG_STARTED -> {
@@ -262,69 +292,8 @@ class CodingActivity : AppCompatActivity() {
         }
     }
 
-    private val swapDragListener = View.OnDragListener{view, event ->
-        when(event.action){
-            DragEvent.ACTION_DRAG_STARTED -> {
-                event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
-            }
-            DragEvent.ACTION_DRAG_ENTERED -> {
-                view.invalidate()
-                true
-            }
-            DragEvent.ACTION_DRAG_LOCATION -> true
-            DragEvent.ACTION_DRAG_EXITED -> {
-                view.invalidate()
-                true
-            }
-            DragEvent.ACTION_DROP -> {
-                view.invalidate()
-                val v = event.localState as ViewGroup; val owner = v.parent as ViewGroup; val ownerParent = owner.parent as ViewGroup;
-                val destination = view as ViewGroup; val destinationParent = destination.parent as ViewGroup; val destinationChild = destination.getChildAt(0) as ViewGroup;
-
-                for((key, value) in connectorsMap){
-                    value.layoutParams.height = 0
-                    value.requestLayout()
-                }
-
-                if(owner.parent != destination.parent){
-                    ownerParent.removeView(owner); destinationParent.addView(owner);
-                    v.visibility = View.VISIBLE
-                    return@OnDragListener true
-                }
-                if(destination == owner){
-                    return@OnDragListener false
-                }
-                if(v.getChildAt(0).height > destinationChild.getChildAt(0).height || owner.parent != destination.parent){
-                    val ownerParams = owner.layoutParams; val destinationParams = destination.layoutParams
-
-                    destination.layoutParams = ownerParams; owner.layoutParams = destinationParams
-                }
-                val connectorOwner = connectorsMap[owner] as ViewGroup; val connectorDestination = connectorsMap[destination] as ViewGroup
-                owner.removeView(v); owner.removeView(connectorOwner);
-                destination.removeView(destinationChild); destination.removeView(connectorDestination);
-                connectorsMap.remove(owner); connectorsMap.remove(destination)
-
-                owner.addView(destinationChild); owner.addView(connectorDestination)
-                destination.addView(v); destination.addView(connectorOwner);
-                connectorsMap[owner] = connectorDestination; connectorsMap[destination] = connectorOwner
-
-                v.visibility = View.VISIBLE
-                true
-            }
-            DragEvent.ACTION_DRAG_ENDED -> {
-                val v = event.localState as ViewGroup; v.visibility = View.VISIBLE
-                updateConnectors()
-                view.invalidate()
-                true
-            }
-            else -> false
-        }
-    }
-
-
-
-    private val shiftBlocks = View.OnDragListener { view, dragEvent ->
-        when(dragEvent.action){
+    private fun shiftBlocks(view : View, dragEvent : DragEvent, instruction : InstructionType) : Boolean{
+        return when (dragEvent.action) {
             DragEvent.ACTION_DRAG_STARTED -> {
                 dragEvent.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
             }
@@ -332,291 +301,306 @@ class CodingActivity : AppCompatActivity() {
                 view.invalidate()
                 true
             }
+
             DragEvent.ACTION_DRAG_LOCATION -> true
             DragEvent.ACTION_DRAG_EXITED -> {
                 view.invalidate()
                 true
             }
             DragEvent.ACTION_DROP -> {
-                var v = dragEvent.localState as ViewGroup; var owner = v.parent as ViewGroup;  val commonFather = owner.parent as ViewGroup
-
-                val targetView = view as ViewGroup; val targetViewOwner = targetView.parent.parent as ViewGroup
-
-                val connectorOwner = connectorsMap[owner] as ViewGroup;
-
-                for((key, value) in connectorsMap){
-                    value.layoutParams.height = 0
-                    value.requestLayout()
-                }
-
-                if(owner.parent != targetViewOwner.parent){
-                    return@OnDragListener false;
-                }
-
-                var vInd : Int = commonFather.indexOfChild(owner);
-                val targetViewOwnerInd : Int = commonFather.indexOfChild(targetViewOwner);
-
-                if(targetViewOwnerInd == vInd - 1){
-                    return@OnDragListener false
-                }
-
-                owner.removeView(v); owner.removeView(connectorOwner); connectorsMap.remove(owner)
-                val originalOwnerParams = owner.layoutParams
-
-                var minInd = min(vInd, targetViewOwnerInd); var maxInd = max(vInd, targetViewOwnerInd)
-
-                var finalView : ViewGroup;
-
-                if(vInd < targetViewOwnerInd){
-                    for(i in minInd until maxInd){
-                        val viewToShiftParent = commonFather.getChildAt(i + 1) as ViewGroup; val viewToShift = viewToShiftParent.getChildAt(0); val shiftConnector = connectorsMap[viewToShiftParent] as ViewGroup
-
-                        viewToShiftParent.removeView(viewToShift); viewToShiftParent.removeView(shiftConnector)
-
-                        owner.addView(viewToShift); owner.addView(shiftConnector);
-                        connectorsMap.remove(viewToShiftParent); connectorsMap[owner] = shiftConnector
-
-                        val destinationParams = viewToShiftParent.layoutParams;
-                        owner.layoutParams = destinationParams;
-
-                        owner = viewToShiftParent
-                    }
-
-                    finalView = commonFather.getChildAt(maxInd) as ViewGroup
-
-                }
-                else{
-                    for(i in maxInd downTo minInd + 2){
-                        val viewToShiftParent = commonFather.getChildAt(i - 1) as ViewGroup; val viewToShift = viewToShiftParent.getChildAt(0) as ViewGroup; val shiftConnector = connectorsMap[viewToShiftParent] as ViewGroup
-
-                        viewToShiftParent.removeView(viewToShift); viewToShiftParent.removeView(shiftConnector)
-
-                        owner.addView(viewToShift); owner.addView(shiftConnector)
-                        connectorsMap.remove(viewToShiftParent); connectorsMap[owner] = shiftConnector
-
-                        val destinationParams = viewToShiftParent.layoutParams
-                        owner.layoutParams = destinationParams
-
-                        owner = viewToShiftParent
-                    }
-
-                    finalView = commonFather.getChildAt(minInd + 1) as ViewGroup
-
-                }
-                finalView.addView(v); finalView.addView(connectorOwner)
-                connectorsMap[finalView] = connectorOwner
-                finalView.layoutParams = originalOwnerParams
-                true
-            }
-            DragEvent.ACTION_DRAG_ENDED -> {
-                val v = dragEvent.localState as ViewGroup; v.visibility = View.VISIBLE
-                view.invalidate()
-                true
-            }
-            else -> false
-        }
-    }
-    private fun moveBlocksToNewOriginListener(origin : ViewGroup, view : View, dragEvent : DragEvent) : Boolean{
-        return when(dragEvent.action){
-            DragEvent.ACTION_DRAG_STARTED -> {
-                dragEvent.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
-            }
-            DragEvent.ACTION_DRAG_ENTERED -> {
-                view.invalidate()
-                true
-            }
-            DragEvent.ACTION_DRAG_LOCATION -> true
-            DragEvent.ACTION_DRAG_EXITED -> {
-                view.invalidate()
-                true
-            }
-            DragEvent.ACTION_DROP -> {
-                view.invalidate()
-                val v = dragEvent.localState as ViewGroup;
-                val owner = v.parent as ViewGroup;
-                val ownerParent = owner.parent as ViewGroup;
-
-                if(ownerParent == origin){
+                if(view.alpha < 1.0f){
+                    makeViewsVisible()
+                    tempViewList.clear()
                     return OnDragListener@false
                 }
 
-                for((key, value) in connectorsMap){
-                    value.layoutParams.height = 0
-                    value.requestLayout()
+                val v = dragEvent.localState as View
+                val vY = dragEvent.y
+                val targetViewHalf = view.height / 2
+
+                val vInd: Int = blockList.indexOf(v)
+                val targetViewOwnerInd: Int = blockList.indexOf(view)
+
+                val minInd = min(vInd, targetViewOwnerInd);
+                val maxInd = max(vInd, targetViewOwnerInd)
+
+                var flagForMainBlocks : Boolean = false
+                var flagForEndBlocks : Boolean = false
+
+                updateListOfMargins()
+                updateListOfWidths()
+
+                val mainParams = v.layoutParams as LinearLayout.LayoutParams
+                var closeParams : LinearLayout.LayoutParams? = null
+                val marg = mainParams.leftMargin
+                mainParams.setMargins(view.marginLeft, v.marginTop, v.marginRight, v.marginBottom)
+                if(tempViewList.size > 1){
+                    closeParams = tempViewList[tempViewList.size - 2].layoutParams as LinearLayout.LayoutParams
+                    closeParams.setMargins(view.marginLeft, v.marginTop, v.marginRight, v.marginBottom)
+                    for(i in 0 until tempViewList.size - 2){
+                        val innerParams = tempViewList[i].layoutParams as LinearLayout.LayoutParams
+                        innerParams.setMargins(v.marginLeft + tempViewList[i].marginLeft - marg,
+                            tempViewList[i].marginTop, tempViewList[i].marginRight, tempViewList[i].marginBottom)
+                    }
                 }
 
-                ownerParent.removeView(owner)
+                if(instruction in listContainersBlocks || instruction == InstructionType.ELIF || instruction == InstructionType.ELSE){
+                    flagForMainBlocks = true
+                }
+                else if(instruction in listBlocksEnds){
+                    flagForEndBlocks = true
+                }
 
-                origin.addView(owner)
+                if (vY > targetViewHalf) {
+                    if(flagForMainBlocks){
+                        mainParams.setMargins(view.marginLeft + (leftPadding * scaleDp).toInt(), v.marginTop, v.marginRight, v.marginBottom)
+
+                        closeParams?.setMargins(view.marginLeft + (leftPadding * scaleDp).toInt(), v.marginTop, v.marginRight, v.marginBottom)
+                        for(i in 0 until tempViewList.size - 2){
+                            val innerParams = tempViewList[i].layoutParams as LinearLayout.LayoutParams
+                            innerParams.setMargins(tempViewList[i].marginLeft + (leftPadding * scaleDp).toInt(),
+                                tempViewList[i].marginTop, tempViewList[i].marginRight, tempViewList[i].marginBottom)
+                        }
+                    }
+                    if (vInd < targetViewOwnerInd) {
+                        for(i in minInd until minInd + tempViewList.size){
+                            blockList.add(maxInd + 1, binding.blockField.getChildAt(minInd))
+                            instructionList.add(maxInd + 1, instructionList[minInd])
+                            blockList.removeAt(minInd)
+                            instructionList.removeAt(minInd)
+                            binding.blockField.removeViewAt(minInd)
+                        }
+                        addViewsToBlockField()
+                    }
+                    else {
+                        for (i in maxInd downTo minInd + 2) {
+                            blockList.add(maxInd + tempViewList.size, binding.blockField.getChildAt(minInd + 1))
+                            instructionList.add(maxInd + tempViewList.size, instructionList[minInd + 1])
+                            blockList.removeAt(minInd + 1)
+                            instructionList.removeAt(minInd + 1)
+                            binding.blockField.removeViewAt(minInd + 1)
+                        }
+                        addViewsToBlockField()
+                    }
+                }
+                else {
+                    if(flagForEndBlocks || instruction == InstructionType.ELIF || instruction == InstructionType.ELSE){
+                        mainParams.setMargins(view.marginLeft + (leftPadding * scaleDp).toInt(), view.marginTop ,view.marginRight, view.marginBottom)
+
+                        closeParams?.setMargins(view.marginLeft + (leftPadding * scaleDp).toInt(), view.marginTop ,view.marginRight, view.marginBottom)
+                        for(i in 0 until tempViewList.size - 2){
+                            val innerParams = tempViewList[i].layoutParams as LinearLayout.LayoutParams
+                            innerParams.setMargins(tempViewList[i].marginLeft + (leftPadding * scaleDp).toInt(),
+                                tempViewList[i].marginTop, tempViewList[i].marginRight, tempViewList[i].marginBottom)
+                        }
+                    }
+                    if (vInd < targetViewOwnerInd) {
+                        for(i in minInd until minInd + tempViewList.size){
+                            blockList.add(maxInd, binding.blockField.getChildAt(minInd))
+                            instructionList.add(maxInd, instructionList[minInd])
+                            blockList.removeAt(minInd)
+                            instructionList.removeAt(minInd)
+                            binding.blockField.removeViewAt(minInd)
+                        }
+                        addViewsToBlockField()
+                    }
+                    else {
+                        for (i in maxInd downTo minInd + 1) {
+                            blockList.add(maxInd + tempViewList.size, binding.blockField.getChildAt(minInd))
+                            instructionList.add(maxInd + tempViewList.size, instructionList[minInd])
+                            blockList.removeAt(minInd)
+                            instructionList.removeAt(minInd)
+                            binding.blockField.removeViewAt(minInd)
+                        }
+                        addViewsToBlockField()
+                    }
+                }
+                updateMargins()
+                setAllConnectorsZero()
+                callUpdate()
+                alignStringNumbers()
                 true
             }
             DragEvent.ACTION_DRAG_ENDED -> {
-                view.invalidate(); val v = dragEvent.localState as ViewGroup; v.visibility = View.VISIBLE
-                true
-            }
-            else -> false
-        }
-    }
-    private fun addElseOrElifByClick(container : ViewGroup, elifOrElse : String,  motion : MotionEvent) : Boolean{
-        return when(motion.action){
-            MotionEvent.ACTION_DOWN -> {
-                val haveToBeReplaced = mutableListOf(container.getChildAt(container.childCount - 2),
-                    container.getChildAt(container.childCount - 1))
-
-                container.removeViewAt(container.childCount - 2); container.removeViewAt(container.childCount - 1)
-
-                var requiredBlock : View? = null
-                if(elifOrElse == "Elif"){
-                    requiredBlock = listBlocks[InstructionType.ELIF]?.let { buildBlock(it, InstructionType.ELIF) } as ConstraintLayout
-                }
-                else{
-                    requiredBlock = listBlocks[InstructionType.ELSE]?.let { buildBlock(it, InstructionType.ELSE) } as ConstraintLayout
-                    haveToBeReplaced[0] = listBlocks[InstructionType.ENDIF]?.let { buildBlock(it, InstructionType.ENDIF) } as ConstraintLayout
-                }
-
-                val elifChildOrigin = createOriginContainer("LinearLayout",1); val innerLay = createInnerLay(regularBlockWidth, regularBlockHeight)
-                fieldList.add(elifChildOrigin)
-
-                innerLay.setOnDragListener { view, dragEvent ->
-                    moveBlocksToNewOriginListener(elifChildOrigin, view, dragEvent)
-                }
-                container.addView(requiredBlock); container.addView(innerLay)
-                container.addView(elifChildOrigin)
-                container.addView(haveToBeReplaced[0]); container.addView(haveToBeReplaced[1])
-                true
-            }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_BUTTON_PRESS -> {
-                updateConnectors()
-                true
+                view.invalidate()
+                makeViewsVisible()
+                tempViewList.clear()
+                return true
             }
             else -> {
-                updateConnectors()
                 false
             }
         }
     }
 
-    private fun createOriginContainer(nameOfLayout : String, layerLevel : Int) : ViewGroup {
-        var originContainer : ViewGroup? = null
-        when(nameOfLayout){
-            "LinearLayout" -> {
-                originContainer = LinearLayout(this)
-                originContainer.orientation = LinearLayout.VERTICAL
-            }
-            "RelativeLayout" -> {
-                originContainer = RelativeLayout(this);
-            }
+    private fun updateListOfMargins(){
+        for(i in 0 until blockList.size){
+            previousMargins[i] = blockList[i].marginLeft
         }
-        val contParamsLinear = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        originContainer!!.setPadding((leftPadding * scaleDp * layerLevel).toInt(), 0, 0, 0)
-        originContainer.layoutParams = contParamsLinear
-        originContainer.id = View.generateViewId()
-        return originContainer
     }
-    private fun createInnerLay(widthParams : Int, heightParams : Int) : ConstraintLayout{
-        val innerLay = ConstraintLayout(this);
-        val innerLayParams = ConstraintLayout.LayoutParams((widthParams * scaleDp + 0.5).toInt(), (heightParams / 2 * scaleDp).toInt())
-        innerLay.layoutParams = innerLayParams;
-        innerLay.id = View.generateViewId();
-        return innerLay
+    private fun updateListOfWidths(){
+        for(i in 0 until blockList.size){
+            previousWidths[i] = blockList[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
+        }
     }
 
-    private val makeContainerDraggable = View.OnLongClickListener {
+    private fun alignStringNumbers(){
+        for(i in 0 until blockList.size){
+            val nextNumber = blockList[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder)
+            nextNumber.layoutParams.width += (blockList[i].marginLeft - previousMargins[i] - (nextNumber.width - previousWidths[i]))
+            blockList[i].requestLayout()
+            nextNumber.requestLayout()
+        }
+    }
+
+    private fun addViewsToBlockField(){
+        binding.blockField.removeAllViews()
+        for(i in blockList){
+            binding.blockField.addView(i)
+        }
+    }
+
+    private fun updateMargins(){
+        for(i in 0 until blockList.size){
+            val params = blockList[i].layoutParams as LayoutParams
+            params.setMargins(blockList[i].marginLeft, blockList[i].marginTop,
+                blockList[i].marginRight, (marginForEveryNonContainerBlock * scaleDp).toInt())
+            blockList[i].findViewById<TextView>(R.id.string_number).text = (i + 1).toString()
+        }
+    }
+
+    private fun setAllConnectorsZero(){
+        for(i in 0 until blockList.size){
+            blockList[i].findViewById<ConstraintLayout>(R.id.connector).layoutParams.height = 0
+            blockList[i].findViewById<ConstraintLayout>(R.id.connector).requestLayout()
+        }
+    }
+
+    private fun callUpdate(){
+        for(i in 0 until blockList.size){
+            updateConnectors(i)
+        }
+    }
+
+    private fun updateConnectors(index : Int){
+        var sizeOfConnector : Int = 0
+        for(i in index + 1 until blockList.size){
+            sizeOfConnector += blockList[i].height + (marginForEveryNonContainerBlock * scaleDp).toInt()
+            if(blockList[i].marginLeft < blockList[index].marginLeft)
+                break
+            if(blockList[i].marginLeft == blockList[index].marginLeft){
+                blockList[index].findViewById<ConstraintLayout>(R.id.connector).layoutParams.height = sizeOfConnector
+                blockList[index].findViewById<ConstraintLayout>(R.id.connector).requestLayout()
+                //blockList[i].findViewById<ConstraintLayout>(R.id.connector).requestLayout()
+                break
+            }
+        }
+    }
+
+    private fun addElseOrElif(elifOrElse: String, motion : MotionEvent, indexInList : Int, _ifIndex : Int) : Boolean{
+        val handler = Handler()
+        return when(motion.action){
+            MotionEvent.ACTION_DOWN -> {
+                var requiredBlock : View? = null
+                var endBlock : View? = null
+
+                var params : LinearLayout.LayoutParams
+
+                if(elifOrElse == "Elif"){
+                    requiredBlock = listBlocks[InstructionType.ELIF]?.let { buildBlock(it, InstructionType.ELIF, additionalWidth) } as View
+
+                    requiredBlock.setOnDragListener { view, dragEvent ->
+                        shiftBlocks(view, dragEvent, InstructionType.ELIF)
+                    }
+
+                    blockList.add(indexInList, requiredBlock)
+                    instructionList.add(indexInList, InstructionType.ELIF)
+                    previousMargins.add(0)
+                    previousWidths.add(0)
+                    requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).layoutParams.width = blockList[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
+                    requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).requestLayout()
+
+                    params = requiredBlock.layoutParams as LayoutParams
+                    params.setMargins(blockList[_ifIndex].marginLeft, blockList[_ifIndex].marginTop,
+                        blockList[_ifIndex].marginRight, blockList[_ifIndex].marginBottom)
+                }
+                else{
+                    requiredBlock = listBlocks[InstructionType.ELSE]?.let { buildBlock(it, InstructionType.ELSE, 0) } as View
+
+                    requiredBlock.setOnDragListener { view, dragEvent ->
+                        shiftBlocks(view, dragEvent, InstructionType.ELSE)
+                    }
+                    endBlock = listBlocks[InstructionType.ENDIF]?.let { buildBlock(it, InstructionType.ENDIF, 0) } as View
+                    endBlock.setOnDragListener { view, dragEvent ->
+                        shiftBlocks(view, dragEvent, InstructionType.ENDIF)
+                    }
+
+                    blockList.add(indexInList + 1, requiredBlock);
+                    blockList.add(indexInList + 2, endBlock)
+                    requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).layoutParams.width = blockList[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
+                    requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).requestLayout()
+
+                    endBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).layoutParams.width = blockList[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
+                    endBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).requestLayout()
+                    blockList.removeAt(indexInList)
+                    previousMargins.add(0); previousMargins.add(0)
+                    previousWidths.add(0); previousWidths.add(0)
+
+                    for(i in 0 until 2){
+                        params = blockList[indexInList + i].layoutParams as LinearLayout.LayoutParams
+                        params.setMargins(blockList[_ifIndex].marginLeft, blockList[_ifIndex].marginTop,
+                            blockList[_ifIndex].marginRight, blockList[_ifIndex].marginBottom)
+                    }
+
+                    instructionList.add(indexInList + 1, InstructionType.ELSE);
+                    instructionList.add(indexInList + 2, InstructionType.ENDIF)
+                    instructionList.removeAt(indexInList)
+                }
+                addViewsToBlockField()
+                updateMargins()
+                handler.postDelayed({
+                    callUpdate()
+                }, 10)
+                true
+            }
+            else -> {
+                handler.postDelayed({
+                    callUpdate()
+                }, 10)
+                false
+            }
+        }
+    }
+
+    private fun makeContainerDraggable(instruction : InstructionType, view : View) : Boolean{
         val clipText = ""
         val item = ClipData.Item(clipText)
         val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
         val data = ClipData(clipText, mimeTypes, item)
 
-        val firstChild = (it as ViewGroup).getChildAt(0);
+        val dragShadowBuilder = View.DragShadowBuilder(view)
+        view.startDragAndDrop(data, dragShadowBuilder, view, 0)
+        view.alpha = 0.3f
 
-        val dragShadowBuilder = View.DragShadowBuilder(firstChild)
-        it.startDragAndDrop(data, dragShadowBuilder, it, 0)
-        it.visibility = View.INVISIBLE
-        updateConnectors()
-        true
+        makeViewsInvisible(blockList.indexOf(view), instruction)
+        return true
     }
 
-    private fun recurBlockParser(field: ViewGroup): MutableList<View> {
-        val viewList: MutableList<View> = mutableListOf()
-
-        for(i in 0 until field.childCount){
-            val parent = field.getChildAt(i)
-
-            val blockName = getViewBlock(parent).findViewById<TextView>(R.id.instructionType).text.toString()
-            if(blockName == listBlocks[InstructionType.IF]?.instruction) {
-                val blockContainer = getViewBlockContainer(parent)
-
-                for(j in 0 until blockContainer.childCount step 3) {
-                    val nestBlockView = blockContainer.getChildAt(j) as View
-                    val nestBlockName = nestBlockView.findViewById<TextView>(R.id.instructionType).text.toString()
-
-                    if(nestBlockName == listBlocks[InstructionType.IF]?.instruction ||
-                        nestBlockName == listBlocks[InstructionType.ELIF]?.instruction ||
-                        nestBlockName == listBlocks[InstructionType.ELSE]?.instruction) {
-
-                        viewList.add(nestBlockView)
-                        viewList.addAll(recurBlockParser(blockContainer.getChildAt(j + 2) as ViewGroup))
-                    } else {
-                        viewList.add(nestBlockView)
-                    }
+    private fun makeViewsInvisible(indexInList : Int, instruction : InstructionType){
+        if(instruction in listContainersBlocks){
+            for(i in indexInList + 1 until blockList.size){
+                tempViewList.add(blockList[i])
+                blockList[i].alpha = 0.3f
+                if(instructionList[i] in listBlocksEnds && blockList[i].marginLeft == blockList[indexInList].marginLeft){
+                    break
                 }
-
-            } else if(blockName == listBlocks[InstructionType.WHILE]?.instruction ||
-                blockName == listBlocks[InstructionType.FOR]?.instruction ||
-                blockName == listBlocks[InstructionType.FUNC]?.instruction) {
-
-                val blockContainer = getViewBlockContainer(parent)
-                viewList.add(blockContainer.getChildAt(0) as View)
-                viewList.addAll(recurBlockParser(blockContainer.getChildAt(2) as ViewGroup))
-                viewList.add(blockContainer.getChildAt(3) as View)
-            } else {
-                viewList.add(getViewBlock(parent))
             }
         }
-
-        return viewList
+        tempViewList.add(blockList[indexInList])
     }
-
-    private fun getViewBlock(parent: View): View {
-        return ((parent as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0) as View
-    }
-
-    private fun getViewBlockContainer(parent: View): ViewGroup {
-        return (parent as ViewGroup).getChildAt(0) as ViewGroup
-    }
-    private fun createConnector() : ConstraintLayout{
-        val connector : ConstraintLayout = ConstraintLayout(this);
-        val connectorParams = LinearLayout.LayoutParams((4 * scaleDp).toInt(), ConstraintLayout.LayoutParams.MATCH_PARENT)
-        connector.layoutParams = connectorParams;
-        connector.setBackgroundColor(resources.getColor(R.color.white))
-        return connector
-    }
-
-    private fun setPropertiesForConnector(connector : ViewGroup, container : ViewGroup, block : View, breakPoint : Button){
-        val pointCenterX = (breakPoint.right - breakPoint.left) / 2
-        val pointCenterY = container.top
-
-        connector.x = pointCenterX.toFloat() + breakPoint.left; connector.y = pointCenterY.toFloat();
-        connector.translationZ = block.translationZ - 1
-        connector.layoutParams.height = container.height - (regularBlockHeight * scaleDp).toInt()
-        connector.requestLayout()
-    }
-
-    private fun updateConnectors(){
-        for((key, value) in connectorsMap){
-            key.requestLayout(); key.invalidate()
-            value.layoutParams.height = key.height
-            value.requestLayout()
-            value.invalidate()
-        }
-        for(i in 0 until fieldList.size){
-            val field = fieldList[i];
-            if(field.childCount > 0){
-                val child = field.getChildAt(field.childCount - 1) as ViewGroup
-                val connector = child.getChildAt(1) as ViewGroup; connector.layoutParams.height = child.height - (regularBlockHeight * scaleDp).toInt()
-                child.requestLayout()
-                child.invalidate()
-            }
+    private fun makeViewsVisible(){
+        for(i in 0 until tempViewList.size){
+            tempViewList[i].alpha = 1.0f
         }
     }
     /////////////////////////////////
@@ -656,22 +640,20 @@ class CodingActivity : AppCompatActivity() {
 
         for ((key, blockView) in listBlocks) {
             if(key !in listBlocksEnds && key != InstructionType.ELSE && key != InstructionType.ELIF){
-                val block = buildBlock(blockView, key)
+                val block = buildBlock(blockView, key, 0)
 
                 val addBlocks = { v: View ->
                     if(key in listBlocksNotHaveText && numberOfBlockFieldChildren == 0){
                         Toast.makeText(this, "You cant place it as first element", Toast.LENGTH_SHORT).show()
                     }
                     else{
-                        val originContainer = createOriginContainer("RelativeLayout", 0)
-
-                        val container = createOriginContainer("LinearLayout",0); checkedBlocks[container] = false
-
-                        val newBlock = buildBlock(blockView, key)
-
-                        val innerLay = createInnerLay(regularBlockWidth, regularBlockHeight); innerLay.setOnDragListener(shiftBlocks)
-
-
+                        val newBlock = buildBlock(blockView, key, additionalWidth); newBlock.id = numberOfBlockFieldChildren
+                        newBlock.setOnLongClickListener {
+                            makeContainerDraggable(key, it)
+                        }
+                        newBlock.setOnDragListener { view, dragEvent ->
+                            shiftBlocks(view, dragEvent, key)
+                        }
                         if(key !in listBlocksNotHaveText){
                             val newBlockEditText = newBlock.findViewById<EditText>(R.id.inputExpression); editTextsFocuses[newBlockEditText] = false
                             newBlockEditText.setOnFocusChangeListener { _, b ->
@@ -679,73 +661,73 @@ class CodingActivity : AppCompatActivity() {
                             }
                         }
 
+                        val newBlockParams  = newBlock.layoutParams as LayoutParams
+                        newBlockParams.setMargins(0, 0, 0, (marginForEveryNonContainerBlock * scaleDp).toInt())
 
-                        container.addView(newBlock); container.addView(innerLay)
+                        binding.blockField.addView(newBlock)
+                        blockList.add(newBlock)
+                        instructionList.add(key)
+                        previousMargins.add(0)
+                        previousWidths.add(0)
 
-
-                        if(key == InstructionType.IF || key == InstructionType.FOR || key == InstructionType.WHILE || key == InstructionType.FUNC){
-                            val origin = createOriginContainer("LinearLayout", 1)
-
-                            container.addView(origin); fieldList.add(origin)
-
-                            val newInnerLay = createInnerLay(specificBlockWidth, regularBlockHeight); newInnerLay.setOnDragListener(shiftBlocks);
-
-                            innerLay.setOnDragListener { view, dragEvent ->
-                                moveBlocksToNewOriginListener(origin, view, dragEvent)
-                            }
-
+                        var endBlock : View? = null
+                        if(key in listContainersBlocks){
                             when(key){
                                 InstructionType.IF -> {
-                                    val endChoiceIfBlock = listBlocks[InstructionType.ENDCHOICEIF]?.let { buildBlock(it, InstructionType.ENDCHOICEIF) } as ConstraintLayout
-                                    container.addView(endChoiceIfBlock);
-                                    val buttonElif = endChoiceIfBlock.getViewById(R.id.buttonElif);
-                                    val buttonElse = endChoiceIfBlock.getViewById(R.id.buttonElse);
+                                    endBlock = listBlocks[InstructionType.ENDCHOICEIF]?.let { buildBlock(it, InstructionType.ENDCHOICEIF, 0) } as ConstraintLayout
+                                    instructionList.add(InstructionType.ENDCHOICEIF)
+
+                                    val buttonElif = endBlock.getViewById(R.id.buttonElif);
+                                    val buttonElse = endBlock.getViewById(R.id.buttonElse);
 
                                     buttonElif.setOnTouchListener { _, motionEvent ->
-                                        addElseOrElifByClick(container, "Elif", motionEvent)
+                                        addElseOrElif("Elif", motionEvent, blockList.indexOf(endBlock),
+                                            blockList.indexOf(newBlock))
                                     }
                                     buttonElse.setOnTouchListener { _, motionEvent ->
-                                        addElseOrElifByClick(container, "Else", motionEvent)
+                                        addElseOrElif("Else", motionEvent, blockList.indexOf(endBlock),
+                                            blockList.indexOf(newBlock))
                                     }
                                 }
                                 InstructionType.WHILE -> {
-                                    val endWhileBlock = listBlocks[InstructionType.ENDWHILE]?.let { buildBlock(it, InstructionType.ENDWHILE) } as ConstraintLayout
-                                    container.addView(endWhileBlock)
+                                    endBlock = listBlocks[InstructionType.ENDWHILE]?.let { buildBlock(it, InstructionType.ENDWHILE, 0) } as ConstraintLayout
+                                    instructionList.add(InstructionType.ENDWHILE)
                                 }
                                 InstructionType.FUNC -> {
-                                    val endFuncBlock = listBlocks[InstructionType.ENDFUNC]?.let { buildBlock(it, InstructionType.ENDFUNC) } as ConstraintLayout
-                                    container.addView(endFuncBlock)
+                                    endBlock = listBlocks[InstructionType.ENDFUNC]?.let { buildBlock(it, InstructionType.ENDFUNC, 0) } as ConstraintLayout
+                                    instructionList.add(InstructionType.ENDFUNC)
                                 }
                                 InstructionType.FOR -> {
-                                    val endFuncBlock = listBlocks[InstructionType.ENDFOR]?.let { buildBlock(it, InstructionType.ENDFOR) } as ConstraintLayout
-                                    container.addView(endFuncBlock)
+                                    endBlock = listBlocks[InstructionType.ENDFOR]?.let { buildBlock(it, InstructionType.ENDFOR, 0) } as ConstraintLayout
+                                    instructionList.add(InstructionType.ENDFOR)
                                 }
                                 else -> {}
                             }
-
-                            container.addView(newInnerLay);
-                        }
-                        originContainer.setOnDragListener(swapDragListener)
-                        container.setOnLongClickListener(makeContainerDraggable)
-
-                        val connector = createConnector();
-
-                        val breakPoint = newBlock.findViewById<Button>(R.id.buttonBreakPoint);
-                        breakPoint.post{
-                            setPropertiesForConnector(connector, container, block, breakPoint)
                         }
 
-                        originContainer.addView(container); originContainer.addView(connector);
-                        originContainer.requestLayout()
+                        /*for(i in 0 until instructionList.size){
+                            Toast.makeText(this, instructionList[i].name, Toast.LENGTH_SHORT).show()
+                        }*/
 
-                        binding.blockField.addView(originContainer)
-                        binding.blockField.requestLayout()
-
-                        connectorsMap[originContainer] = connector
-
-                        updateConnectors()
+                        if(endBlock != null){
+                            endBlock.id = numberOfBlockFieldChildren + 1; numberOfBlockFieldChildren++
+                            endBlock.setOnDragListener { view, dragEvent ->
+                                shiftBlocks(view, dragEvent, InstructionType.ENDFOR)
+                            }
+                            binding.blockField.addView(endBlock)
+                            blockList.add(endBlock)
+                            previousMargins.add(0)
+                            previousWidths.add(0)
+                        }
 
                         numberOfBlockFieldChildren++
+                        updateMargins()
+                        setAllConnectorsZero()
+                        callUpdate()
+                        /*if(numberOfBlockFieldChildren > 0){
+                            alignStringNumbers()
+                        }*/
+
                         Toast.makeText(this, blockView.instruction, Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -809,7 +791,7 @@ class CodingActivity : AppCompatActivity() {
         bottomSheetDialogConsole.setContentView(bottomSheetViewConsoleBinding.root)
     }
 
-    private fun buildBlock(blockView: BlockView, instructionType: InstructionType): View {
+    private fun buildBlock(blockView: BlockView, instructionType: InstructionType, additionalWidth : Int): View {
         val block = layoutInflater.inflate(blockView.layout, null)
 
         val shapeBlock = block.background as GradientDrawable
@@ -819,7 +801,7 @@ class CodingActivity : AppCompatActivity() {
             val shapeText = block.findViewById<EditText>(R.id.inputExpression).background as GradientDrawable
             shapeText.setColor(ContextCompat.getColor(this, R.color.color_window_text_block))
             shapeText.setStroke((2 * scaleDp + 0.5).toInt(), ContextCompat.getColor(this, blockView.colorStroke))
-            LinearLayout.LayoutParams((regularBlockWidth * scaleDp + 0.5).toInt(), (regularBlockHeight * scaleDp + 0.5).toInt())
+            LinearLayout.LayoutParams(((regularBlockWidth + additionalWidth) * scaleDp + 0.5).toInt(), (regularBlockHeight * scaleDp + 0.5).toInt())
         } else {
             LinearLayout.LayoutParams((specificBlockWidth * scaleDp + 0.5).toInt(), (specificBlockHeight * scaleDp + 0.5).toInt())
         }

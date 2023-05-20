@@ -44,6 +44,17 @@ fun getListBlocksEnds(): List<InstructionType> {
     )
 }
 
+fun getListBlocksContainers() : List<InstructionType>{
+    return listOf(
+        InstructionType.FUNC,
+        InstructionType.WHILE,
+        InstructionType.FOR,
+        InstructionType.IF,
+        InstructionType.ELIF,
+        InstructionType.ELSE,
+    )
+}
+
 fun getListBlocks() : Map<InstructionType, BlockView> {
     return mapOf(
         InstructionType.VAR to BlockView(InstructionType.VAR,"Var", R.layout.block_instruction_text, R.color.color_stroke_block, R.color.color_block_var),
