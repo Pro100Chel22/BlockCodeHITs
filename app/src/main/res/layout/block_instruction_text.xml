@@ -56,7 +56,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="5dp"
         android:layout_height="0dp"
-        android:background="#000000"
+        android:background="@color/connector"
         android:id="@+id/connector"
         app:layout_constraintRight_toRightOf="@id/buttonBreakPoint"
         app:layout_constraintLeft_toLeftOf="@id/buttonBreakPoint"
@@ -75,6 +75,7 @@
             android:layout_height="wrap_content"
             android:textSize="30sp"
             android:textStyle="bold"
+            android:textColor="@color/line_row_numb_default"
             android:id="@+id/string_number"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -3,7 +3,11 @@ package com.example.myapplication.modules
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.example.myapplication.CodingActivity
+import com.example.myapplication.R
 import java.util.EmptyStackException
 import java.util.Stack
 import java.util.concurrent.CountDownLatch
@@ -36,6 +40,8 @@ class Interpreter {
         for(blockView in blocksView) {
             val block = blockViewToBlock(blockView, context)
             blocksCode.add(block)
+
+            blockView.findViewById<TextView>(R.id.string_number).setTextColor(ContextCompat.getColor(context, R.color.line_row_numb_default))
         }
     }
 
@@ -53,6 +59,11 @@ class Interpreter {
             try {
                 while (isActive) {
                     if (callStack.isNotEmpty()) {
+                        // Добавить проверку скобок,
+                        // Запретить подряд использовать == >= <= !=
+                        // Добавить унарные + и -
+                        // Добавить проверку, что перед ! идет операнд
+
                         // Когда вызывается функция, создается кадр стека и кладется в стек вызовов, а в памяти
                         // выделяется помять под локальные переменные функции
                         // Если стек вызовов не пуст, проверяется закончилась функция или нет, если закончилась,
@@ -95,14 +106,17 @@ class Interpreter {
                     }
                 }
             } catch (e: Exception) {
+                blocksView[numbLine].findViewById<TextView>(R.id.string_number)
+                    .setTextColor(ContextCompat.getColor(context, R.color.error_default))
+
                 Handler(Looper.getMainLooper()).post {
-                    context.errorRequest("Line: " + numbLine.toString() +
+                    context.errorRequest("Line: " + (numbLine + 1).toString() +
                             "\nExpression: " + blocksCode[numbLine].expression +
                             "\n" + e.message)
                 }
             } catch (e: EmptyStackException) {
                 Handler(Looper.getMainLooper()).post {
-                    context.errorRequest("Line: " + numbLine.toString() +
+                    context.errorRequest("Line: " + (numbLine + 1).toString() +
                             "\nExpression: " + blocksCode[numbLine].expression +
                             "\nStack error: " + e.message)
                 }
@@ -233,12 +247,26 @@ class Interpreter {
                         globalData.deleteNesting()
                     }
                     bracketStack.pop()
-                }
-                else {
+                } else if(bracketStack.isNotEmpty() &&
+                            bracketStack.peek().bracket == InstructionType.FOR) {
+
+                    if(bracketStack.peek().into) {
+                        numbLine = bracketStack.peek().line - 1
+                        bracketStack.peek().doArithmeticBlock = true
+                    } else {
+                        bracketStack.pop()
+                    }
+                    globalData.deleteNesting()
+                } else {
                     println("ERR: unknown operation")
 
                     throw Exception("Unknown operation")
                 }
+            }
+            InstructionType.FOR-> {
+                println("for " + block.expression)
+
+                opsFor(block.expression)
             }
             InstructionType.WHILE -> {
                 println("while " + block.expression)
@@ -248,44 +276,12 @@ class Interpreter {
             InstructionType.BREAK -> {
                 println("break " + block.expression)
 
-                if(bracketStack.isEmpty()) {
-                    throw Exception("The break instruction must be inside for or while")
-                }
-
-                while (bracketStack.peek().bracket != InstructionType.WHILE) {
-                    bracketStack.pop()
-                    if(bracketStack.isEmpty()) {
-                        throw Exception("The break instruction must be inside for or while")
-                    }
-                }
-
-                bracketStack.peek().into = false
-
-                while (blocksCode[numbLine].instructionType != InstructionType.WHILE) {
-                    numbLine--
-                }
-
-                toNext(true)
+                opsCycleOperator(true)
             }
             InstructionType.CONTINUE -> {
                 println("continue " + block.expression)
 
-                if(bracketStack.isEmpty()) {
-                    throw Exception("The continue instruction must be inside for or while")
-                }
-
-                while (bracketStack.peek().bracket != InstructionType.WHILE) {
-                    bracketStack.pop()
-                    if(bracketStack.isEmpty()) {
-                        throw Exception("The continue instruction must be inside for or while")
-                    }
-                }
-
-                while (blocksCode[numbLine].instructionType != InstructionType.WHILE) {
-                    numbLine--
-                }
-
-                toNext(true)
+                opsCycleOperator(false)
             }
             else -> 0
         }
@@ -489,7 +485,7 @@ class Interpreter {
 
                 if(doNotCallFunc) {
                     println("ERR: the function cannot be called in this expression")
-                    throw Exception("The function cannot be called in this expression")
+                    throw Exception("The function cannot be called in this expression, \"$expression\"")
                 } else {
                     arithmeticStack.peekArithmetic().curIdSplit++
                     callStack.add(StackFrame())
@@ -636,7 +632,7 @@ class Interpreter {
         }
     }
 
-    private fun opsSet(expression: String) {
+    private fun opsSet(expression: String): Boolean {
         if(expression.contains("=")) {
             val expressions = expression.split("=")
 
@@ -672,6 +668,8 @@ class Interpreter {
                     arithmeticStack.addArithmetic(Arithmetic())
                     if (opsArithmetic(arithmeticExpression)) {
                         setOperation(variable)
+                    } else {
+                        return false
                     }
                 } else {
                     println("ERR: arithmetic stack")
@@ -685,6 +683,8 @@ class Interpreter {
             println("ERR: incorrect expression")
             throw Exception("Incorrect expression: the expression does not contain the operator =")
         }
+
+        return true
     }
 
     private fun opsPrint(expression: String) {
@@ -772,6 +772,69 @@ class Interpreter {
         }
     }
 
+    private fun opsFor(expression: String) {
+        if(expression.isNotEmpty()) {
+            val operationBlocks = expression.split(";")
+            if(expression.contains(";") && operationBlocks.size == 3) {
+                if (!(bracketStack.isNotEmpty() &&
+                    bracketStack.peek().bracket == InstructionType.FOR &&
+                    bracketStack.peek().line == numbLine)
+                ) {
+                    bracketStack.push(BracketCondition(InstructionType.FOR, false, numbLine))
+                    globalData.createNesting()
+                    val expressions = operationBlocks[0].split(",")
+
+                    for (exp in expressions) {
+                        opsVar(exp)
+                    }
+                }
+
+                if(bracketStack.peek().doArithmeticBlock) {
+                    if(operationBlocks[2].isNotEmpty()) {
+                        if(!opsSet(operationBlocks[2])) {
+                            return
+                        }
+                        bracketStack.peek().doArithmeticBlock = false
+                    }
+                }
+
+                if(operationBlocks[1].isNotEmpty()) {
+                    if(arithmeticStack.size() == 1 && arithmeticStack.peekArithmetic().variableStack.size == 1) {
+                        val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
+                        if (value.getValue()) {
+                            bracketStack.peek().into = true
+                            globalData.createNesting()
+                        } else {
+                            bracketStack.peek().into = false
+                            toNext(true)
+                        }
+                    } else if(arithmeticStack.size() == 0) {
+                        arithmeticStack.addArithmetic(Arithmetic())
+                        if (opsArithmetic(operationBlocks[1].replace(" ", ""))) {
+                            val value = arithmeticStack.popArithmetic().variableStack.peek().toBoolean()
+                            if (value.getValue()) {
+                                bracketStack.peek().into = true
+                                globalData.createNesting()
+                            } else {
+                                bracketStack.peek().into = false
+                                toNext(true)
+                            }
+                        }
+                    }
+                } else {
+                    bracketStack.peek().into = true
+                    globalData.createNesting()
+                }
+            } else {
+                println("ERR: incorrect expression")
+                throw Exception("Incorrect expression: the for block must contain two delimiters ';'")
+            }
+        } else {
+            println("ERR: incorrect expression")
+            throw Exception("Incorrect expression: empty expression")
+        }
+    }
+
     private fun opsWhile(expression: String) {
         if(expression.isNotEmpty()) {
             if(arithmeticStack.size() == 1 && arithmeticStack.peekArithmetic().variableStack.size == 1) {
@@ -805,4 +868,31 @@ class Interpreter {
         }
     }
 
+    private fun opsCycleOperator(exitTheLoop: Boolean) {
+        if(bracketStack.isEmpty()) {
+            throw Exception("The break instruction must be inside for or while")
+        }
+
+        while (!(bracketStack.peek().bracket == InstructionType.WHILE ||
+                    bracketStack.peek().bracket == InstructionType.FOR)
+        ) {
+            bracketStack.pop()
+            if (bracketStack.isEmpty()) {
+                throw Exception("The break instruction must be inside for or while")
+            }
+        }
+
+        if(exitTheLoop) {
+            bracketStack.peek().into = false
+            globalData.deleteNesting()
+        }
+
+        while (!(blocksCode[numbLine].instructionType == InstructionType.WHILE ||
+                    blocksCode[numbLine].instructionType == InstructionType.FOR)
+        ) {
+            numbLine--
+        }
+
+        toNext(true)
+    }
 }

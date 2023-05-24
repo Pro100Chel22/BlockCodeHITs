@@ -23,7 +23,8 @@ data class Arithmetic(
 data class BracketCondition (
         val bracket: InstructionType,
         var into: Boolean = false,
-        val line: Int
+        val line: Int,
+        var doArithmeticBlock: Boolean = false
 )
 
 class ArithmeticStack {
@@ -46,35 +47,47 @@ class ArithmeticStack {
     }
 }
 class Data {
-    //private val globalData = DataStack()
+    private val globalData = DataStack()
     private val funcLocalData = Stack<DataStack>()
 
-    fun addFuncLocalData() {
-
+    fun checkArray(name: String): Boolean {
+        throw Exception("checkArray")
     }
 
-    fun popFuncLocalData() {
-
+    fun getArray(name: String): Array<Variable> {
+        throw Exception("getArray")
     }
 
     fun initVariable(name: String, variable: Variable) {
+        throw Exception("initVariable")
+    }
 
+    fun intArray(name: String, countElement: Variable, initValue: Variable) {
+        throw Exception("intArray")
     }
 
     fun getVariable(name: String): Variable {
-       return Variable()
+        throw Exception("getVariable")
+    }
+
+    fun getArrayElement(name: String, index: Variable): Variable {
+        throw Exception("getArrayElement")
     }
 
     fun setVariable(name: String, variable: Variable) {
+        throw Exception("setVariable")
+    }
 
+    fun setArrayElement (name: String, index: Variable, value: Variable) {
+        throw Exception("setArrayElement")
     }
 
     fun createNesting() {
-
+        throw Exception("createNesting")
     }
 
     fun deleteNesting() {
-
+        throw Exception("deleteNesting")
     }
 }
 
@@ -82,7 +95,6 @@ class DataStack {
     private val variables: MutableMap<String, Variable> = mutableMapOf()
     private val arrays: MutableMap<String, Array<Variable>> = mutableMapOf()
     private val deleteStack: Stack<MutableList<String>> = Stack()
-   // private var errorController: ErrorController = _errorController
 
     init {
         deleteStack.push(mutableListOf())
