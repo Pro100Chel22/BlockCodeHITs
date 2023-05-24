@@ -5,44 +5,34 @@ import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.os.PersistableBundle
-import android.util.Log
 import android.view.DragEvent
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnDragListener
-import android.view.ViewGroup
-import android.view.ViewParent
 import android.view.WindowManager
 import android.widget.*
 import android.widget.LinearLayout.LayoutParams
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.constraintlayout.widget.ConstraintSet.Motion
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.get
 import androidx.core.view.marginBottom
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.marginTop
-import androidx.core.view.size
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityCodingBinding
 import com.example.myapplication.databinding.LayoutConsoleBinding
 import com.example.myapplication.databinding.LayoutNewBlocksBinding
-import com.example.myapplication.modules.Block
 import com.example.myapplication.modules.BlockView
 import com.example.myapplication.modules.Console
 import com.example.myapplication.modules.InstructionType
@@ -55,15 +45,11 @@ import com.example.myapplication.modules.getMapOfCorrespondence
 import com.example.myapplication.modules.recycler_view_logic.DataSource
 import com.example.myapplication.modules.recycler_view_logic.ItemsDecoration
 import com.example.myapplication.modules.recycler_view_logic.OperatorAdapter
-import com.example.myapplication.modules.recycler_view_logic.Operators
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.json.JSONArray
 import org.json.JSONObject
-import org.w3c.dom.Text
 import java.io.File
 import java.io.FileOutputStream
-import java.util.Collections
-import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
 
@@ -74,7 +60,6 @@ class CodingActivity : AppCompatActivity() {
     private val leftPadding : Int = 30
     private val marginForRecyclerViewItems : Int = 30
     private val bottomMarginForEveryBlock : Int = 15
-    private val additionalWidth : Int = 0
 
 
 
@@ -189,12 +174,6 @@ class CodingActivity : AppCompatActivity() {
             if(::interpreter.isInitialized) interpreter.deactivate()
         }
 
-        binding.buttonConsole.setOnLongClickListener {
-            Toast.makeText(this,
-                listOfBlocksOnField[0].findViewById<EditText>(R.id.inputExpression).text.toString(), Toast.LENGTH_SHORT).show()
-            true
-        }
-
         if(savedInstanceState != null){
             val instructionArray = savedInstanceState.getSerializable("instructions") as? Array<InstructionType>
             val expressions = mutableListOf<String>(); expressions.addAll(savedInstanceState.getStringArrayList("expressions") ?: emptyList())
@@ -233,39 +212,42 @@ class CodingActivity : AppCompatActivity() {
 
     private fun recreateViewList(expressions : List<String>, margins : List<Int>, widths : List<Int>){
         val handler = Handler()
-        var count : Int = 0
+        var count : Int
         for(i in 0 until instructionList.size){
-            if(instructionList[i] !in listBlocksEnds)
+            if(instructionList[i] !in listBlocksEnds &&
+                instructionList[i] != InstructionType.ELIF &&
+                instructionList[i] != InstructionType.ELSE)
                 listOfBlocksOnField.add(createNewBlockAndSetItsProperties(instructionList[i], listBlocks[instructionList[i]]!!))
-            else if(instructionList[i] == InstructionType.ELSE ||
-                instructionList[i] == InstructionType.ENDIF ||
-                instructionList[i] in listBlocksEnds){
 
-                var block : View? = null
-
+            else{
                 count = i - 1
-                while(instructionList[count] != correspondence[instructionList[i]] || widths[count] != widths[i]){
-                    count--
+                if(instructionList[i] != InstructionType.ELIF){
+                    while(instructionList[count] != correspondence[instructionList[i]] || widths[count] != widths[i]){
+                        count--
+                    }
                 }
 
-                block = when(instructionList[i]){
+                val block = when(instructionList[i]){
                     InstructionType.ELSE -> {
                         createElse()
                     }
                     InstructionType.ENDIF -> {
                         createEndIf()
                     }
+                    InstructionType.ELIF -> {
+                        createElif()
+                    }
                     else -> {
-                        createAndAddEndBlock(instructionList[count], listOfBlocksOnField[count], true)
+                        createEndBlock(instructionList[count], listOfBlocksOnField[count], true)
                     }
                 }
 
                 listOfBlocksOnField.add(block)
             }
+            val numPlaceHolder = listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder)
 
-
-            listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).layoutParams.width = widths[i]
-            listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).requestLayout()
+            numPlaceHolder.layoutParams.width = widths[i]
+            numPlaceHolder.requestLayout()
 
             val params = listOfBlocksOnField[i].layoutParams as LayoutParams
             params.leftMargin = margins[i]
@@ -303,7 +285,7 @@ class CodingActivity : AppCompatActivity() {
     }
 
     private fun createNewBlockAndSetItsProperties(key : InstructionType, blockView : BlockView) : View{
-        val newBlock = buildBlock(blockView, key, additionalWidth); newBlock.id = numberOfBlockFieldChildren
+        val newBlock = buildBlock(blockView, key); newBlock.id = numberOfBlockFieldChildren
 
         newBlock.setOnLongClickListener {
             makeContainerDraggable(key, it)
@@ -328,12 +310,12 @@ class CodingActivity : AppCompatActivity() {
 
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun createAndAddEndBlock(key : InstructionType, newBlock : View, isRecreating : Boolean) : View{
+    private fun createEndBlock(key : InstructionType, newBlock : View, isRecreating : Boolean) : View{
         var endBlock : View? = null
         var instruction : InstructionType? = null
         when(key){
             InstructionType.IF -> {
-                endBlock = listBlocks[InstructionType.ENDCHOICEIF]?.let { buildBlock(it, InstructionType.ENDCHOICEIF, 0) } as ConstraintLayout
+                endBlock = listBlocks[InstructionType.ENDCHOICEIF]?.let { buildBlock(it, InstructionType.ENDCHOICEIF) } as ConstraintLayout
                 instruction = InstructionType.ENDCHOICEIF
 
                 val buttonElif = endBlock.getViewById(R.id.buttonElif)
@@ -349,15 +331,15 @@ class CodingActivity : AppCompatActivity() {
                 }
             }
             InstructionType.WHILE -> {
-                endBlock = listBlocks[InstructionType.ENDWHILE]?.let { buildBlock(it, InstructionType.ENDWHILE, 0) } as ConstraintLayout
+                endBlock = listBlocks[InstructionType.ENDWHILE]?.let { buildBlock(it, InstructionType.ENDWHILE) } as ConstraintLayout
                 instruction = InstructionType.ENDWHILE
             }
             InstructionType.FUNC -> {
-                endBlock = listBlocks[InstructionType.ENDFUNC]?.let { buildBlock(it, InstructionType.ENDFUNC, 0) } as ConstraintLayout
+                endBlock = listBlocks[InstructionType.ENDFUNC]?.let { buildBlock(it, InstructionType.ENDFUNC) } as ConstraintLayout
                 instruction = InstructionType.ENDFUNC
             }
             InstructionType.FOR -> {
-                endBlock = listBlocks[InstructionType.ENDFOR]?.let { buildBlock(it, InstructionType.ENDFOR, 0) } as ConstraintLayout
+                endBlock = listBlocks[InstructionType.ENDFOR]?.let { buildBlock(it, InstructionType.ENDFOR) } as ConstraintLayout
                 instruction = InstructionType.ENDFOR
             }
             else -> {}
@@ -367,8 +349,8 @@ class CodingActivity : AppCompatActivity() {
         endBlock?.setOnDragListener { view, dragEvent ->
             shiftBlocks(view, dragEvent, InstructionType.ENDFOR)
         }
-        previousMargins.add(0);previousWidths.add(0)
 
+        previousMargins.add(0);previousWidths.add(0)
 
         if(!isRecreating){
             instructionList.add(instruction!!)
@@ -379,7 +361,7 @@ class CodingActivity : AppCompatActivity() {
 
 
     private fun createElse() : View{
-        val elseBlock = listBlocks[InstructionType.ELSE]?.let { buildBlock(it, InstructionType.ELSE, 0) } as View
+        val elseBlock = listBlocks[InstructionType.ELSE]?.let { buildBlock(it, InstructionType.ELSE) } as View
         elseBlock.setOnDragListener { view, dragEvent ->
             shiftBlocks(view, dragEvent, InstructionType.ELSE)
         }
@@ -387,13 +369,22 @@ class CodingActivity : AppCompatActivity() {
         return elseBlock
     }
     private fun createEndIf() : View{
-        val endifBlock = listBlocks[InstructionType.ENDIF]?.let { buildBlock(it, InstructionType.ENDIF, 0) } as View
+        val endifBlock = listBlocks[InstructionType.ENDIF]?.let { buildBlock(it, InstructionType.ENDIF) } as View
         endifBlock.setOnDragListener { view, dragEvent ->
             shiftBlocks(view, dragEvent, InstructionType.ENDIF)
         }
         previousMargins.add(0); previousWidths.add(0)
         return endifBlock
     }
+    private fun createElif() : View{
+        val elifBlock = listBlocks[InstructionType.ELIF]?.let { buildBlock(it, InstructionType.ELIF) } as View
+        elifBlock.setOnDragListener { view, dragEvent ->
+            shiftBlocks(view, dragEvent, InstructionType.ELIF)
+        }
+        previousMargins.add(0); previousWidths.add(0)
+        return elifBlock
+    }
+
 
     private fun createButton() : Button{
         val button = Button(this)
@@ -715,18 +706,16 @@ class CodingActivity : AppCompatActivity() {
                 var params : LayoutParams
 
                 if(elifOrElse == "Elif"){
-                    requiredBlock = listBlocks[InstructionType.ELIF]?.let { buildBlock(it, InstructionType.ELIF, additionalWidth) } as View
-
-                    requiredBlock.setOnDragListener { view, dragEvent ->
-                        shiftBlocks(view, dragEvent, InstructionType.ELIF)
-                    }
+                    requiredBlock = createElif()
 
                     listOfBlocksOnField.add(indexInList, requiredBlock)
                     instructionList.add(indexInList, InstructionType.ELIF)
-                    previousMargins.add(0)
-                    previousWidths.add(0)
-                    requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).layoutParams.width = listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
-                    requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).requestLayout()
+
+                    val requiredBlockNumPlaceHolder = requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder)
+
+                    requiredBlockNumPlaceHolder.layoutParams.width =
+                        listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
+                    requiredBlockNumPlaceHolder.requestLayout()
 
                     params = requiredBlock.layoutParams as LayoutParams
                     params.setMargins(listOfBlocksOnField[_ifIndex].marginLeft, listOfBlocksOnField[_ifIndex].marginTop,
@@ -736,14 +725,19 @@ class CodingActivity : AppCompatActivity() {
                     requiredBlock = createElse()
                     endBlock = createEndIf()
 
+                    val requiredBlockNumPlaceHolder = requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder)
+                    val endBlockNumPlaceHolder = endBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder)
 
-                    listOfBlocksOnField.add(indexInList + 1, requiredBlock)
-                    listOfBlocksOnField.add(indexInList + 2, endBlock)
-                    requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).layoutParams.width = listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
-                    requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).requestLayout()
+                    listOfBlocksOnField.add(indexInList + 1, requiredBlock);listOfBlocksOnField.add(indexInList + 2, endBlock)
 
-                    endBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).layoutParams.width = listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
-                    endBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder).requestLayout()
+                    requiredBlockNumPlaceHolder.layoutParams.width =
+                        listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
+                    requiredBlockNumPlaceHolder.requestLayout()
+
+                    endBlockNumPlaceHolder.layoutParams.width =
+                        listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
+                    endBlockNumPlaceHolder.requestLayout()
+
                     listOfBlocksOnField.removeAt(indexInList)
 
                     for(i in 0 until 2){
@@ -752,8 +746,7 @@ class CodingActivity : AppCompatActivity() {
                             listOfBlocksOnField[_ifIndex].marginRight, listOfBlocksOnField[_ifIndex].marginBottom)
                     }
 
-                    instructionList.add(indexInList + 1, InstructionType.ELSE)
-                    instructionList.add(indexInList + 2, InstructionType.ENDIF)
+                    instructionList.add(indexInList + 1, InstructionType.ELSE);instructionList.add(indexInList + 2, InstructionType.ENDIF)
                     instructionList.removeAt(indexInList)
                 }
                 addViewsToBlockField()
@@ -840,7 +833,7 @@ class CodingActivity : AppCompatActivity() {
 
         for ((key, blockView) in listBlocks) {
             if(key !in listBlocksEnds && key != InstructionType.ELSE && key != InstructionType.ELIF){
-                val block = buildBlock(blockView, key, 0)
+                val block = buildBlock(blockView, key)
 
                 val addBlocks = { _: View ->
                     if(key in listBlocksNotHaveText && numberOfBlockFieldChildren == 0){
@@ -854,7 +847,7 @@ class CodingActivity : AppCompatActivity() {
 
 
                         if(key in listContainersBlocks){
-                            listOfBlocksOnField.add(createAndAddEndBlock(key, newBlock, false))
+                            listOfBlocksOnField.add(createEndBlock(key, newBlock, false))
                         }
 
 
@@ -926,7 +919,7 @@ class CodingActivity : AppCompatActivity() {
         bottomSheetDialogConsole.setContentView(bottomSheetViewConsoleBinding.root)
     }
 
-    private fun buildBlock(blockView: BlockView, instructionType: InstructionType, additionalWidth : Int): View {
+    private fun buildBlock(blockView: BlockView, instructionType: InstructionType): View {
         val block = layoutInflater.inflate(blockView.layout, null)
 
         val shapeBlock = block.background as GradientDrawable
@@ -936,7 +929,7 @@ class CodingActivity : AppCompatActivity() {
             val shapeText = block.findViewById<EditText>(R.id.inputExpression).background as GradientDrawable
             shapeText.setColor(ContextCompat.getColor(this, R.color.color_window_text_block))
             shapeText.setStroke((2 * scaleDp + 0.5).toInt(), ContextCompat.getColor(this, blockView.colorStroke))
-            LayoutParams(((regularBlockWidth + additionalWidth) * scaleDp + 0.5).toInt(), (regularBlockHeight * scaleDp + 0.5).toInt())
+            LayoutParams((regularBlockWidth * scaleDp + 0.5).toInt(), (regularBlockHeight * scaleDp + 0.5).toInt())
         } else {
             LayoutParams((specificBlockWidth * scaleDp + 0.5).toInt(), (specificBlockHeight * scaleDp + 0.5).toInt())
         }

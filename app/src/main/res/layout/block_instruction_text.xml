@@ -54,7 +54,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="5dp"
+        android:layout_width="4dp"
         android:layout_height="0dp"
         android:background="@color/connector"
         android:id="@+id/connector"
