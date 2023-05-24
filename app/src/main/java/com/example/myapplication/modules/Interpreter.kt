@@ -383,9 +383,9 @@ class Interpreter {
             }
 
             if(list[i] == "-" || list[i] == "+") {
-                if ((i == 0 || (list[i - 1][0] in listMathOperation ||
-                              list[i - 1][0] in listLogicOperationPartOne || list[i - 1] == "(")) &&
-                              VariableType.isConstant(list[i + 1])
+                if ((i == 0 || (list[i - 1].length == 1 && list[i - 1][0] in listMathOperation ||
+                    list[i - 1].length == 2 &&  list[i - 1][0] in listLogicOperationPartOne ||
+                    list[i - 1] == "(")) && VariableType.isConstant(list[i + 1])
                 ) {
                     if(list[i] == "-") {
                         list[i + 1] = list[i] + list[i + 1]
