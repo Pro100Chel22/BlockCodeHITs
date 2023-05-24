@@ -79,6 +79,19 @@ fun getListBlocks() : Map<InstructionType, BlockView> {
     )
 }
 
+
+fun getMapOfCorrespondence() : Map<InstructionType, InstructionType>{
+    return mapOf(
+        InstructionType.ENDCHOICEIF to InstructionType.IF,
+        InstructionType.ENDIF to InstructionType.IF,
+        InstructionType.ELSE to InstructionType.IF,
+        InstructionType.ENDFUNC to InstructionType.FUNC,
+        InstructionType.ENDFOR to InstructionType.FOR,
+        InstructionType.ENDWHILE to InstructionType.WHILE
+    )
+}
+
+
 fun blockViewToBlock(view: View, context: CodingActivity): Block {
     val instruction = view.findViewById<TextView>(R.id.instructionType).text
 
