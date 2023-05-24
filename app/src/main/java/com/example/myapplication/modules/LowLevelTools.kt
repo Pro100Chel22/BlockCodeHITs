@@ -6,11 +6,13 @@ import android.widget.TextView
 import com.example.myapplication.CodingActivity
 import java.util.Stack
 
-class StackFrame {
-    val returnVariable = VariableInt(10)
-    var numbLine = 0
-    val funcIsOver = true
-}
+data class CallStackFrame (
+    val startNumLine: Int = 0,
+    var curNmbLine: Int = 0,
+    val funcIsOver: Boolean = true,
+    val returnVariable: Variable = VariableDouble(10.0),
+    val arithmeticStack: ArithmeticStack = ArithmeticStack()
+)
 
 data class Arithmetic(
     var split: List<String> = listOf(),
@@ -20,11 +22,11 @@ data class Arithmetic(
     var functionCall: Boolean = false
 )
 
-data class BracketCondition (
-        val bracket: InstructionType,
-        var into: Boolean = false,
-        val line: Int,
-        var doArithmeticBlock: Boolean = false
+data class BracketCondition(
+    val bracket: InstructionType,
+    var into: Boolean = false,
+    val line: Int,
+    var doArithmeticBlock: Boolean = false
 )
 
 class ArithmeticStack {
@@ -46,58 +48,150 @@ class ArithmeticStack {
         return arithmeticStack.size
     }
 }
+
 class Data {
     private val globalData = DataStack()
     private val funcLocalData = Stack<DataStack>()
 
+//    init {
+//        funcLocalData.push(DataStack())
+//    }
+
     fun checkArray(name: String): Boolean {
-        throw Exception("checkArray")
-    }
+        //throw Exception("checkArray")
+
+        if(globalData.checkArray(name) || funcLocalData.isNotEmpty() && funcLocalData.peek().checkArray(name)) {
+            return true
+        }
+        return false
+    } // YES
 
     fun getArray(name: String): Array<Variable> {
-        throw Exception("getArray")
-    }
+        //throw Exception("getArray")
+
+        return if (funcLocalData.isNotEmpty() && funcLocalData.peek().checkArray(name)) {
+            funcLocalData.peek().getArray(name)
+        } else if(globalData.checkArray(name)) {
+            globalData.getArray(name)
+        } else {
+            throw Exception("The array not exist: $name[]")
+        }
+    } // YES
 
     fun initVariable(name: String, variable: Variable) {
-        throw Exception("initVariable")
-    }
+        //throw Exception("initVariable")
 
-    fun intArray(name: String, countElement: Variable, initValue: Variable) {
-        throw Exception("intArray")
-    }
+        if(funcLocalData.isEmpty()) {
+            globalData.initVariable(name, variable)
+        } else {
+            funcLocalData.peek().initVariable(name, variable)
+        }
+    } // YES
+
+    fun initArray(name: String, countElement: Variable, initValue: Variable) {
+        //throw Exception("intArray")
+
+        if(funcLocalData.isEmpty()) {
+            globalData.initArray(name, countElement, initValue)
+        } else {
+            funcLocalData.peek().initArray(name, countElement, initValue)
+        }
+    } // YES
 
     fun getVariable(name: String): Variable {
-        throw Exception("getVariable")
-    }
+        //throw Exception("getVariable")
+        val global = globalData.getVariable(name)
+
+        return if(funcLocalData.isEmpty()) {
+            if(global !is VariableInt && global !is VariableDouble && global !is VariableBoolean) {
+                throw Exception(globalData.getErrorText())
+            }
+            global
+        } else {
+            val local = funcLocalData.peek().getVariable(name)
+            if(local !is VariableInt && local !is VariableDouble && local !is VariableBoolean) {
+                if(global !is VariableInt && global !is VariableDouble && global !is VariableBoolean) {
+                    throw Exception(globalData.getErrorText())
+                }
+                global
+            } else {
+                local
+            }
+        }
+    } // YES
 
     fun getArrayElement(name: String, index: Variable): Variable {
-        throw Exception("getArrayElement")
-    }
+        // throw Exception("getArrayElement")
+
+        return if (funcLocalData.isNotEmpty() && funcLocalData.peek().checkArray(name)) {
+            funcLocalData.peek().getArrayElement(name, index)
+        } else if(globalData.checkArray(name)) {
+            globalData.getArrayElement(name, index)
+        } else {
+            throw Exception("The array not exist: $name[]")
+        }
+    } // YES
 
     fun setVariable(name: String, variable: Variable) {
-        throw Exception("setVariable")
-    }
+        // throw Exception("setVariable")
+
+        if(funcLocalData.isEmpty()) {
+            if(!globalData.setVariable(name, variable)) {
+                throw Exception(globalData.getErrorText())
+            }
+        } else {
+            if(!funcLocalData.peek().setVariable(name, variable) && !globalData.setVariable(name, variable)) {
+                throw Exception(globalData.getErrorText())
+            }
+        }
+    } // YES
 
     fun setArrayElement (name: String, index: Variable, value: Variable) {
-        throw Exception("setArrayElement")
-    }
+        // throw Exception("setArrayElement")
+
+        if (funcLocalData.isNotEmpty() && funcLocalData.peek().checkArray(name)) {
+            funcLocalData.peek().setArrayElement(name, index, value)
+        } else if(globalData.checkArray(name)) {
+            globalData.setArrayElement(name, index, value)
+        } else {
+            throw Exception("The array not exist: $name[]")
+        }
+    } // YES
 
     fun createNesting() {
-        throw Exception("createNesting")
-    }
+        // throw Exception("createNesting")
+
+        if(funcLocalData.isEmpty()) {
+            globalData.createNesting()
+        } else {
+            funcLocalData.peek().createNesting()
+        }
+
+    } // YES
 
     fun deleteNesting() {
-        throw Exception("deleteNesting")
-    }
+        // throw Exception("deleteNesting")
+
+        if(funcLocalData.isEmpty()) {
+            globalData.deleteNesting()
+        } else {
+            funcLocalData.peek().deleteNesting()
+        }
+    } // YES
 }
 
 class DataStack {
     private val variables: MutableMap<String, Variable> = mutableMapOf()
     private val arrays: MutableMap<String, Array<Variable>> = mutableMapOf()
     private val deleteStack: Stack<MutableList<String>> = Stack()
+    private var errorText: String = ""
 
     init {
         deleteStack.push(mutableListOf())
+    }
+
+    fun getErrorText(): String {
+        return errorText
     }
 
     fun checkArray(name: String): Boolean {
@@ -123,7 +217,7 @@ class DataStack {
         }
     }
 
-    fun intArray(name: String, countElement: Variable, initValue: Variable) {
+    fun initArray(name: String, countElement: Variable, initValue: Variable) {
         if(variables[name] == null && arrays[name] == null) {
             VariableType.isName(name)
 
@@ -165,8 +259,9 @@ class DataStack {
             variable
         } else {
             println("ERR: variable not exist")
+            errorText = "The variable not exist: $name"
             Variable()
-            throw Exception("The variable not exist: $name")
+           // throw Exception("The variable not exist: $name")
         }
     }
 
@@ -182,29 +277,36 @@ class DataStack {
                 } else {
                     println("ERR: there is no such element")
                     Variable()
+                    // errorText = "Incorrect data type: there is no such element, $name[$i]"
                     throw Exception("Incorrect data type: there is no such element, $name[$i]")
                 }
             } else {
                 println("ERR: incorrect data type")
                 Variable()
+                // errorText = "Incorrect data type: the array index must be an integer, $name"
                 throw Exception("Incorrect data type: the array index must be an integer, $name")
             }
         } else {
             println("ERR: array not exist")
             Variable()
+            // errorText = "The array not exist: $name[]"
             throw Exception("The array not exist: $name[]")
         }
     }
 
-    fun setVariable(name: String, variable: Variable) {
+    fun setVariable(name: String, variable: Variable): Boolean {
         VariableType.isName(name)
 
         if(variables[name] != null) {
             variables[name]?.setValue(variable)
         } else {
             println("ERR: variable not exist")
-            throw Exception("The variable not exist: $name")
+            errorText = "The variable not exist: $name"
+            //throw Exception("The variable not exist: $name")
+            return false
         }
+
+        return true
     }
 
     fun setArrayElement (name: String, index: Variable, value: Variable) {

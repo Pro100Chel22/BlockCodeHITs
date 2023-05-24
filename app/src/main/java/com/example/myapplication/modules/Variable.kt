@@ -51,11 +51,12 @@ enum class VariableType {
                 return true
             }
 
-            for(ch in string) {
-                if(!(ch.isDigit() || ch == '.')) {
+            for (i in string.indices) {
+                if(!(string[i].isDigit() || string[i] == '.' || string[i] == '-' && i == 0)) {
                     return false
                 }
             }
+
 
             return true
         }
