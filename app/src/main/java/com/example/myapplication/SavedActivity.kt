@@ -7,18 +7,16 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.ContextThemeWrapper
+import android.view.DragEvent
 import android.view.View
+import android.view.View.OnDragListener
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.LinearLayout.LayoutParams
-import android.widget.ScrollView
-import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
+import androidx.databinding.DataBindingUtil
 import com.example.myapplication.databinding.ActivitySavedBinding
-import com.example.myapplication.modules.InstructionType
 import org.json.JSONArray
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
 @Suppress("DEPRECATION")
 class SavedActivity : AppCompatActivity() {
@@ -29,12 +27,19 @@ class SavedActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_saved)
 
-        getDataFromFile()
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_saved)
+
+        startFunction()
+
+        binding.deleteBlock.setOnDragListener(deleteBlock)
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 
-
-    private fun getDataFromFile(){
+    private fun startFunction(){
+        val list = getDataFromFile()
+        fillFieldWithButtons(list)
+    }
+    private fun getDataFromFile() : List<String>{
         val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
         val list = mutableListOf<String>()
         if(file.exists() && file.length() > 0){
@@ -47,12 +52,12 @@ class SavedActivity : AppCompatActivity() {
             }
         }
 
-        fillFieldWithButtons(list)
+        return list
     }
     private fun fillFieldWithButtons(list : List<String>){
         for(i in list.indices){
             val button = createButton(list[i])
-            findViewById<LinearLayout>(R.id.parent).addView(button)
+            binding.parent.addView(button)
         }
     }
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -76,11 +81,14 @@ class SavedActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+        button.setOnLongClickListener {
+            makeButtonDraggable(it)
+        }
         return button
     }
 
 
-    private fun makeButtonDraggable(button : Button) : Boolean{
+    private fun makeButtonDraggable(button : View) : Boolean{
         val clipText = ""
         val item = ClipData.Item(clipText)
         val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
@@ -92,9 +100,53 @@ class SavedActivity : AppCompatActivity() {
         return true
     }
 
-    /*private fun setListenersToButtons(){
-        for(i in 0 until )
-    }*/
+
+    private val deleteBlock = OnDragListener { view, dragEvent ->
+        when(dragEvent.action){
+            DragEvent.ACTION_DRAG_STARTED -> {
+                view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_open, null)
+                dragEvent.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
+            }
+            DragEvent.ACTION_DRAG_ENTERED -> {
+                view.invalidate()
+                true
+            }
+            DragEvent.ACTION_DRAG_LOCATION -> true
+            DragEvent.ACTION_DRAG_EXITED -> {
+                view.invalidate()
+                true
+            }
+            DragEvent.ACTION_DROP -> {
+                view.invalidate()
+
+                val v = dragEvent.localState as Button
+
+                val text = v.text.toString()
+                deleteSavedCode(text)
+
+                binding.parent.removeView(v)
+
+                true
+            }
+            DragEvent.ACTION_DRAG_ENDED -> {
+                view.invalidate()
+                val v = dragEvent.localState as Button
+                v.alpha = 1.0f
+                view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_close, null)
+                true
+            }
+            else -> false
+        }
+    }
+
+
+    private fun deleteSavedCode(fileName : String){
+        val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
+        val list = getDataFromFile().toMutableList()
+        list.remove(fileName)
+        val jsonArray = JSONArray(list)
+        file.writeText(jsonArray.toString())
+    }
 
 
     override fun finish() {

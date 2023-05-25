@@ -48,8 +48,6 @@ import com.example.myapplication.modules.recycler_view_logic.OperatorAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.File
-import java.io.FileOutputStream
 import kotlin.math.max
 import kotlin.math.min
 
@@ -57,7 +55,7 @@ import kotlin.math.min
 class CodingActivity : AppCompatActivity() {
     private var scaleDp: Float = 1f
     private val scrollSpeed : Float = 30.0f
-    private val leftPadding : Int = 30
+    private val leftMarginValue : Int = 30
     private val marginForRecyclerViewItems : Int = 30
     private val bottomMarginForEveryBlock : Int = 15
 
@@ -219,7 +217,24 @@ class CodingActivity : AppCompatActivity() {
 
         saveBlockSequence(json)
     }
-    private fun readAndWriteButtons(fileName : String){
+    private fun readAndWriteButtons(fileName : String) : Boolean{
+        val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
+        val list = getDataList().toMutableList()
+
+        for(i in 0 until list.size){
+            if(list[i] == fileName){
+                Toast.makeText(this, "the data in file {${fileName}} was overwritten", Toast.LENGTH_LONG).show()
+                return false
+            }
+        }
+
+        list.add(fileName)
+        val jsonArray = JSONArray(list)
+        file.writeText(jsonArray.toString())
+        return true
+    }
+
+    private fun getDataList() : List<String> {
         val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
         val list = mutableListOf<String>()
         if(file.exists() && file.length() > 0){
@@ -231,15 +246,9 @@ class CodingActivity : AppCompatActivity() {
                 list.add(item)
             }
         }
-        for(i in 0 until list.size){
-            if(list[i] == fileName){
-                return
-            }
-        }
-        list.add(fileName)
-        val jsonArray = JSONArray(list)
-        file.writeText(jsonArray.toString())
+        return list
     }
+
     private fun saveBlockSequence(json : JSONObject){
         val builder = AlertDialog.Builder(this)
         val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_input, null)
@@ -249,10 +258,16 @@ class CodingActivity : AppCompatActivity() {
 
         val writeInFileText = {
             val fileName = dialogLayout.findViewById<EditText>(R.id.inputExpression).text.toString()
-            readAndWriteButtons(fileName)
+
+            val fileNotExistsYet = readAndWriteButtons(fileName)
+
             val fos = this.openFileOutput("$fileName.json", Context.MODE_PRIVATE)
             fos.write(json.toString().toByteArray())
             fos.close()
+
+            if(fileNotExistsYet)
+                Toast.makeText(this, "file with name {${fileName}} was saved", Toast.LENGTH_LONG).show()
+
             dialog.dismiss()
         }
 
@@ -297,7 +312,7 @@ class CodingActivity : AppCompatActivity() {
 
         fis.close()
 
-        instructionList = enums.toMutableList() ?: mutableListOf()
+        instructionList = enums.toMutableList()
 
         recreateViewList(expressions, margins, widths)
     }
@@ -365,7 +380,7 @@ class CodingActivity : AppCompatActivity() {
         }, 200)
     }
     private fun recreateExpressions(expressions : List<String>){
-        var count : Int = 0
+        var count = 0
         for(i in 0 until listOfBlocksOnField.size){
             if(instructionList[i] !in listBlocksNotHaveText){
                 listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression).append(expressions[count++])
@@ -617,7 +632,7 @@ class CodingActivity : AppCompatActivity() {
             }
             DragEvent.ACTION_DROP -> {
                 if(view.alpha < 1.0f){
-                    return OnDragListener@false
+                    return false
                 }
 
                 val v = dragEvent.localState as View
@@ -696,12 +711,12 @@ class CodingActivity : AppCompatActivity() {
     }
 
     private fun updateSwapMargins(mainParams : LayoutParams, closeParams : LayoutParams?, view : View, v : View){
-        mainParams.setMargins(view.marginLeft + (leftPadding * scaleDp).toInt(), v.marginTop, v.marginRight, v.marginBottom)
+        mainParams.setMargins(view.marginLeft + (leftMarginValue * scaleDp).toInt(), v.marginTop, v.marginRight, v.marginBottom)
 
-        closeParams?.setMargins(view.marginLeft + (leftPadding * scaleDp).toInt(), v.marginTop, v.marginRight, v.marginBottom)
+        closeParams?.setMargins(view.marginLeft + (leftMarginValue * scaleDp).toInt(), v.marginTop, v.marginRight, v.marginBottom)
         for(i in 1 until listOfIndices.size - 1){
             val innerParams = listOfBlocksOnField[listOfIndices[i]].layoutParams as LayoutParams
-            innerParams.setMargins(listOfBlocksOnField[listOfIndices[i]].marginLeft + (leftPadding * scaleDp).toInt(),
+            innerParams.setMargins(listOfBlocksOnField[listOfIndices[i]].marginLeft + (leftMarginValue * scaleDp).toInt(),
                 listOfBlocksOnField[listOfIndices[i]].marginTop,
                 listOfBlocksOnField[listOfIndices[i]].marginRight,
                 listOfBlocksOnField[listOfIndices[i]].marginBottom)
@@ -759,7 +774,8 @@ class CodingActivity : AppCompatActivity() {
             val params = listOfBlocksOnField[i].layoutParams as LayoutParams
             params.setMargins(listOfBlocksOnField[i].marginLeft, listOfBlocksOnField[i].marginTop,
                 listOfBlocksOnField[i].marginRight, (bottomMarginForEveryBlock * scaleDp).toInt())
-            listOfBlocksOnField[i].findViewById<TextView>(R.id.string_number).text = (i + 1).toString()
+            val value = i + 1
+            listOfBlocksOnField[i].findViewById<TextView>(R.id.string_number).text = (value).toString()
         }
     }
 
@@ -777,7 +793,7 @@ class CodingActivity : AppCompatActivity() {
     }
 
     private fun updateConnectors(index : Int){
-        var sizeOfConnector : Int = 0
+        var sizeOfConnector = 0
         for(i in index + 1 until listOfBlocksOnField.size){
             sizeOfConnector += listOfBlocksOnField[i].height + (bottomMarginForEveryBlock * scaleDp).toInt()
             if(listOfBlocksOnField[i].marginLeft < listOfBlocksOnField[index].marginLeft)
