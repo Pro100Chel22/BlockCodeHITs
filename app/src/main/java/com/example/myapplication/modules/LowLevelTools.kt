@@ -11,7 +11,7 @@ data class CallStackFrame (
     var curNmbLine: Int = 0,
     var funcIsOver: Boolean = true,
     val returnVariable: Variable = VariableDouble(10.0),
-    val inputVariables: Map<String, Variable> = mapOf(),
+    val inputVariables: List<ParametersFuncCondition> = listOf(),
     val arithmeticStack: ArithmeticStack = ArithmeticStack()
 )
 
@@ -28,6 +28,12 @@ data class BracketCondition(
     var into: Boolean = false,
     val line: Int,
     var doArithmeticBlock: Boolean = false
+)
+
+data class ParametersFuncCondition(
+    val name: String,
+    val value: Variable,
+    val inited: Boolean = false
 )
 
 class ArithmeticStack {
@@ -179,6 +185,14 @@ class Data {
             funcLocalData.peek().deleteNesting()
         }
     } // YES
+
+    fun createFuncNesting() {
+        funcLocalData.push(DataStack())
+    }
+
+    fun deleteFuncNesting() {
+        funcLocalData.pop()
+    }
 }
 
 class DataStack {

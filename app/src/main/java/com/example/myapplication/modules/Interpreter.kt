@@ -58,12 +58,6 @@ class Interpreter {
         // Проверить изменяет ли значение переменной в локальной памяти, если присваиваем новое значение переменной объявленной в локальной памяти функции
         // Добавить инициализацию массива стартовым значением
 
-        // Когда вызывается функция, создается кадр стека и кладется в стек вызовов, а в памяти
-        // выделяется помять под локальные переменные функции
-        // Если стек вызовов не пуст, проверяется закончилась функция или нет, если закончилась,
-        // возвращаем значение функции в место, где она вызвана (стек арифметических выражений)
-        // и убираем ее из стека, если не закончилась, то выполняем блок, на котором она находится
-
         isActive = true
         Thread {
             try {
@@ -234,48 +228,6 @@ class Interpreter {
                     data.createNesting()
                 }
             }
-            InstructionType.END -> {
-                println("end " + block.expression)
-
-                if (bracketStack.isNotEmpty() &&
-                    (bracketStack.peek().bracket == InstructionType.IF ||
-                     bracketStack.peek().bracket == InstructionType.ELIF ||
-                     bracketStack.peek().bracket == InstructionType.ELSE ||
-                     bracketStack.peek().bracket == InstructionType.ELSE)
-                ) {
-                    if (bracketStack.peek().into) data.deleteNesting()
-                    bracketStack.pop()
-                } else if (bracketStack.isNotEmpty() &&
-                    bracketStack.peek().bracket == InstructionType.WHILE
-                ) {
-                    if (bracketStack.peek().into) {
-                        callStack.peek().curNmbLine = bracketStack.peek().line - 1
-                        data.deleteNesting()
-                    }
-                    bracketStack.pop()
-                } else if (bracketStack.isNotEmpty() &&
-                    bracketStack.peek().bracket == InstructionType.FOR
-                ) {
-                    if (bracketStack.peek().into) {
-                        callStack.peek().curNmbLine = bracketStack.peek().line - 1
-                        bracketStack.peek().doArithmeticBlock = true
-                    } else {
-                        bracketStack.pop()
-                    }
-                    data.deleteNesting()
-                } else if (bracketStack.isNotEmpty() &&
-                    bracketStack.peek().bracket == InstructionType.FUNC
-                ) {
-                    bracketStack.pop()
-                    callStack.peek().funcIsOver = true
-
-                    throw Exception("The function should return the value")
-                } else {
-                    println("ERR: unknown operation")
-
-                    throw Exception("Unknown operation")
-                }
-            }
             InstructionType.FOR-> {
                 println("for " + block.expression)
 
@@ -304,53 +256,12 @@ class Interpreter {
             InstructionType.RETURN -> {
                 println("return " + block.expression)
 
-                if(callStack.size > 1) {
-                    if(block.expression.isNotEmpty()) {
-                        val exp = block.expression.split(" ")
-                        var partTwo = ""
-                        for(i in 0 until exp.size) {
-                            partTwo += exp[i]
+               opsReturn(block.expression)
+            }
+            InstructionType.END -> {
+                println("end " + block.expression)
 
-                            if(i < exp.size - 1 && exp[i].isNotEmpty() && exp[i + 1].isNotEmpty()) {
-                                val cur = exp[i][exp[i].length - 1]
-                                val next = exp[i + 1][0]
-                                if ((cur.isLetter() || cur.isDigit() || cur == '_') &&
-                                    (next.isLetter() || next.isDigit() || next == '_')
-                                ) {
-                                    throw Exception("Incorrect expression: ${exp[i]} ${exp[i + 1]}")
-                                }
-                            }
-                        }
-
-                        if (callStack.peek().arithmeticStack.size() == 1 && callStack.peek().arithmeticStack.peekArithmetic().variableStack.size == 1) {
-                            val value = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
-                            callStack.peek().returnVariable.setValue(value)
-                            callStack.peek().funcIsOver = true
-                            while (bracketStack.peek().bracket != InstructionType.FUNC) {
-                                bracketStack.pop()
-                            }
-                            bracketStack.pop()
-                        } else if (callStack.peek().arithmeticStack.size() == 0) {
-                            callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
-                            if (opsArithmetic(partTwo)) {
-                                val value = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
-                                callStack.peek().returnVariable.setValue(value)
-                                callStack.peek().funcIsOver = true
-                                while (bracketStack.peek().bracket != InstructionType.FUNC) {
-                                    bracketStack.pop()
-                                }
-                                bracketStack.pop()
-                            }
-                        } else {
-                            println("ERR: arithmetic stack")
-                            throw Exception("Incorrect expression: arithmetic stack error")
-                        }
-                    } else {
-                        throw Exception("Incorrect expression: empty expression")
-                    }
-                } else {
-                    throw Exception("The return block can only be inside functions")
-                }
+                opsEnd()
             }
             else -> {
                 throw Exception("Unknown instruction")
@@ -590,9 +501,9 @@ class Interpreter {
                             if(funcCall) templeFrame.curNmbLine else templeFrame.curNmbLine - 1,
                             false,
                             templeFrame.returnVariable.clone(),
-                            templeFrame.inputVariables.toMap()
+                            templeFrame.inputVariables.toList()
                         )
-
+                        data.createFuncNesting()
                         callStack.add(frame)
                     } else {
                         throw Exception("The function not exist: $nameFunc()")
@@ -659,6 +570,10 @@ class Interpreter {
 
         return false
     }
+
+//    private fun normalExpressionFunc(expression: String): String {
+//
+//    }
 
     private fun getName(string: String, bracket: Char): String {
         for(i in string.indices) {
@@ -809,8 +724,15 @@ class Interpreter {
         val exp = expression.replace(" ", "")
 
         if(exp.isNotEmpty()) {
+            val latch = CountDownLatch(1)
+            val handler = Handler(Looper.getMainLooper())
+
             if(data.checkArray(exp)) {
-                console.println(data.getArray(exp))
+                handler.post {
+                    if(isActive) console.println(data.getArray(exp))
+                    latch.countDown()
+                }
+                latch.await()
             } else {
                 callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
                 if (opsArithmetic(exp, false, true) &&
@@ -818,18 +740,10 @@ class Interpreter {
                     callStack.peek().arithmeticStack.peekArithmetic().variableStack.size == 1
                 ) {
                     val out = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
-
-                    val latch = CountDownLatch(1)
-                    val handler = Handler(Looper.getMainLooper())
-
                     handler.post {
-                        if(isActive) {
-                            console.println(out)
-                        }
-
+                        if(isActive) console.println(out)
                         latch.countDown()
                     }
-
                     latch.await()
                 } else {
                     println("ERR: incorrect expression")
@@ -1016,26 +930,12 @@ class Interpreter {
 
     private fun opsFunc(expression: String) {
         if(expression.isNotEmpty()) {
-            val exp = expression.split(" ")
-
-            val returnVariable = exp[0]
-            var partTwo = ""
-            for(i in 1 until exp.size) {
-                partTwo += exp[i]
-
-                if(i < exp.size - 1 && exp[i].isNotEmpty() && exp[i + 1].isNotEmpty()) {
-                    val cur = exp[i][exp[i].length - 1]
-                    val next = exp[i+1][0]
-                    if ((cur.isLetter() || cur.isDigit() || cur == '_') &&
-                        (next.isLetter() || next.isDigit() || next == '_')
-                    ) {
-                        throw Exception("Incorrect expression: ${exp[i]} ${exp[i + 1]}")
-                    }
-                }
-            }
+            val exp = expression.trim().replace("\\s+".toRegex(), " ")
+            val returnVariable = exp.split(" ")[0]
+            val partTwo = exp.substring(returnVariable.length + 1)
 
             if(isFunction(partTwo)) {
-                val nameFunc: String = getName(partTwo, '(')
+                val nameFunc: String = getName(partTwo, '(').trim()
                 VariableType.isName(nameFunc)
 
                 if(initFunc[nameFunc] != null) {
@@ -1049,12 +949,33 @@ class Interpreter {
                         throw Exception("Incorrect expression: you cannot initialize functions inside nesting")
                     }
 
+                    val listParameters = mutableListOf<ParametersFuncCondition>()
+                    val parameters = getExpressionBetween(partTwo, '(').split(",")
+                    if(parameters.isNotEmpty()) {
+                        for(i in parameters.indices) {
+                            if(parameters[i].isNotEmpty()) {
+                                val exp2 = parameters[i].trim().split(" ")
+
+                                if(exp2.size == 2) {
+                                    VariableType.isName(exp2[1])
+                                    listParameters.add(ParametersFuncCondition(exp2[1], VariableType.getType(exp2[0])))
+                                } else {
+                                    throw Exception("Incorrect expression: the type and name of the variable must be specified in the parameters of the function")
+                                }
+                            } else if(!(parameters.size == 1 && parameters[0].isEmpty())) {
+                                throw Exception("Incorrect expression: empty expression")
+                            }
+                        }
+                    }
+
                     initFunc[nameFunc] = CallStackFrame(
                         callStack.peek().curNmbLine,
                         callStack.peek().curNmbLine,
                         true,
                         VariableType.getType(returnVariable, true),
-                        mapOf("x" to VariableDouble(3.0)))
+                        listParameters
+                    )
+
                     bracketStack.add(BracketCondition(InstructionType.FUNC, false, callStack.peek().curNmbLine))
                     toNext(true)
                     bracketStack.pop()
@@ -1062,14 +983,105 @@ class Interpreter {
                 } else {
                     throw Exception("Incorrect expression: you cannot initialize functions inside nesting")
                 }
-
-                //throw Exception("Correct: $partTwo $nameFunc")
             } else {
                 throw Exception("Incorrect expression: $partTwo")
             }
         } else {
             println("ERR: incorrect expression func")
             throw Exception("Incorrect expression: empty expression")
+        }
+    }
+
+    private fun opsReturn(expression: String) {
+        if(callStack.size > 1) {
+            if(expression.isNotEmpty()) {
+                val exp = expression.split(" ")
+                var partTwo = ""
+                for(i in 0 until exp.size) {
+                    partTwo += exp[i]
+
+                    if(i < exp.size - 1 && exp[i].isNotEmpty() && exp[i + 1].isNotEmpty()) {
+                        val cur = exp[i][exp[i].length - 1]
+                        val next = exp[i + 1][0]
+                        if ((cur.isLetter() || cur.isDigit() || cur == '_') &&
+                            (next.isLetter() || next.isDigit() || next == '_')
+                        ) {
+                            throw Exception("Incorrect expression: ${exp[i]} ${exp[i + 1]}")
+                        }
+                    }
+                }
+
+                if (callStack.peek().arithmeticStack.size() == 1 && callStack.peek().arithmeticStack.peekArithmetic().variableStack.size == 1) {
+                    val value = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
+                    callStack.peek().returnVariable.setValue(value)
+                    callStack.peek().funcIsOver = true
+                    while (bracketStack.peek().bracket != InstructionType.FUNC) {
+                        bracketStack.pop()
+                    }
+                    bracketStack.pop()
+                    data.deleteFuncNesting()
+                } else if (callStack.peek().arithmeticStack.size() == 0) {
+                    callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
+                    if (opsArithmetic(partTwo)) {
+                        val value = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
+                        callStack.peek().returnVariable.setValue(value)
+                        callStack.peek().funcIsOver = true
+                        while (bracketStack.peek().bracket != InstructionType.FUNC) {
+                            bracketStack.pop()
+                        }
+                        bracketStack.pop()
+                        data.deleteFuncNesting()
+                    }
+                } else {
+                    println("ERR: arithmetic stack")
+                    throw Exception("Incorrect expression: arithmetic stack error")
+                }
+            } else {
+                throw Exception("Incorrect expression: empty expression")
+            }
+        } else {
+            throw Exception("The return block can only be inside functions")
+        }
+    }
+
+    private fun opsEnd() {
+        if (bracketStack.isNotEmpty() &&
+            (bracketStack.peek().bracket == InstructionType.IF ||
+                    bracketStack.peek().bracket == InstructionType.ELIF ||
+                    bracketStack.peek().bracket == InstructionType.ELSE ||
+                    bracketStack.peek().bracket == InstructionType.ELSE)
+        ) {
+            if (bracketStack.peek().into) data.deleteNesting()
+            bracketStack.pop()
+        } else if (bracketStack.isNotEmpty() &&
+            bracketStack.peek().bracket == InstructionType.WHILE
+        ) {
+            if (bracketStack.peek().into) {
+                callStack.peek().curNmbLine = bracketStack.peek().line - 1
+                data.deleteNesting()
+            }
+            bracketStack.pop()
+        } else if (bracketStack.isNotEmpty() &&
+            bracketStack.peek().bracket == InstructionType.FOR
+        ) {
+            if (bracketStack.peek().into) {
+                callStack.peek().curNmbLine = bracketStack.peek().line - 1
+                bracketStack.peek().doArithmeticBlock = true
+            } else {
+                bracketStack.pop()
+            }
+            data.deleteNesting()
+        } else if (bracketStack.isNotEmpty() &&
+            bracketStack.peek().bracket == InstructionType.FUNC
+        ) {
+            bracketStack.pop()
+            callStack.peek().funcIsOver = true
+
+            throw Exception("The function should return the value")
+        } else {
+            println("ERR: unknown operation")
+
+            throw Exception("Unknown operation")
         }
     }
 }
