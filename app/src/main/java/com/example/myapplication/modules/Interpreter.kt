@@ -489,22 +489,53 @@ class Interpreter {
                     println("ERR: the function cannot be called in this expression")
                     throw Exception("The function cannot be called in this expression, \"$expression\"")
                 } else {
-                    callStack.peek().arithmeticStack.peekArithmetic().curIdSplit++
-
                     val nameFunc = getName(next, '(')
                     VariableType.isName(nameFunc)
 
                     if(initFunc[nameFunc] != null) {
-                        val templeFrame = initFunc[nameFunc]!!
-                        val frame = CallStackFrame(
-                            templeFrame.startNumLine,
-                            if(funcCall) templeFrame.curNmbLine else templeFrame.curNmbLine - 1,
-                            false,
-                            templeFrame.returnVariable.clone(),
-                            templeFrame.inputVariables.toList()
-                        )
+                        if(callStack.peek().arithmeticStack.peekArithmetic().callFrame.size == 0) {
+                            val cloneFuncFrame = getCloneCallStackFrame(initFunc[nameFunc]!!, funcCall)
+                            callStack.peek().arithmeticStack.peekArithmetic().callFrame.add(cloneFuncFrame)
+                        } else if(callStack.peek().arithmeticStack.peekArithmetic().callFrame.size != 1) {
+                            throw Exception("Arithmetic stack: wrong call frame")
+                        }
+
+                        var inputs = getExpressionBetween(next, '(').split(",")
+                        if(inputs.size == 1 && inputs[0].isEmpty()) inputs = listOf()
+
+                        if(inputs.size < callStack.peek().arithmeticStack.peekArithmetic().callFrame.peek().inputVariables.size) {
+                            throw Exception("There are few arguments when calling the function: $next")
+                        } else if(inputs.size > callStack.peek().arithmeticStack.peekArithmetic().callFrame.peek().inputVariables.size){
+                            throw Exception("Many arguments when calling a function: $next")
+                        }
+
+                        for(i in inputs.indices) {
+                            if(!callStack.peek().arithmeticStack.peekArithmetic().callFrame.peek().inputVariables[i].inited) {
+                                if(fC) {
+                                    val value = callStack.peek().arithmeticStack.peekArithmetic().variableStack.pop()
+                                    callStack.peek().arithmeticStack.peekArithmetic().callFrame.peek().inputVariables[i].value.setValue(value)
+                                    callStack.peek().arithmeticStack.peekArithmetic().callFrame.peek().inputVariables[i].inited = true
+                                    callStack.peek().arithmeticStack.peekArithmetic().callFrame.peek().curNmbLine = callStack.peek().arithmeticStack.peekArithmetic().callFrame.peek().startNumLine
+                                    fC = false
+                                } else {
+                                    callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
+                                    if(opsArithmetic(inputs[i].replace(" ", ""), funcCall)) {
+                                        val value = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
+                                        callStack.peek().arithmeticStack.peekArithmetic().callFrame.peek().inputVariables[i].value.setValue(value)
+                                        callStack.peek().arithmeticStack.peekArithmetic().callFrame.peek().inputVariables[i].inited = true
+                                    } else {
+                                        return false
+                                    }
+                                }
+                            }
+                        }
+
                         data.createFuncNesting()
-                        callStack.add(frame)
+                        for(input in callStack.peek().arithmeticStack.peekArithmetic().callFrame.peek().inputVariables) {
+                            data.initVariable(input.name, input.value)
+                        }
+                        callStack.peek().arithmeticStack.peekArithmetic().curIdSplit++
+                        callStack.add(callStack.peek().arithmeticStack.peekArithmetic().callFrame.pop())
                     } else {
                         throw Exception("The function not exist: $nameFunc()")
                     }
@@ -570,10 +601,6 @@ class Interpreter {
 
         return false
     }
-
-//    private fun normalExpressionFunc(expression: String): String {
-//
-//    }
 
     private fun getName(string: String, bracket: Char): String {
         for(i in string.indices) {
