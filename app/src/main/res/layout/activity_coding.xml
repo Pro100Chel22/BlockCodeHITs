@@ -97,7 +97,7 @@
             android:clipChildren="false"
             android:clipToPadding="false"
             app:minZoom="0.25"
-            app:maxZoom="10.0"
+            app:maxZoom="25.0"
             app:hasClickableChildren="true"
             app:zoomEnabled="true"
             app:layout_constraintBottom_toTopOf="@id/operator_recycler"

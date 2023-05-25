@@ -151,9 +151,12 @@ class CodingActivity : AppCompatActivity() {
             numberOfBlockFieldChildren = 0
             true
         }
-        binding.buttonSaveCode.setOnLongClickListener {
-            saveButton()
-            Toast.makeText(this, "button saves", Toast.LENGTH_SHORT).show()
+        binding.buttonSaveCode.setOnClickListener {
+            saveList()
+        }
+        binding.buttonConsole.setOnLongClickListener {
+            val file = this.getFileStreamPath(R.string.saved_buttons.toString())
+            file.writeText("")
             true
         }
         console = Console(bottomSheetViewConsoleBinding.consoleOutput, this, R.layout.layout_console_line)
@@ -174,6 +177,13 @@ class CodingActivity : AppCompatActivity() {
             if(::interpreter.isInitialized) interpreter.deactivate()
         }
 
+        val intent = intent
+        if(intent != null && intent.hasExtra("fileName")){
+            val fileName = intent.getStringExtra("fileName").toString()
+            intent.removeExtra("fileName")
+            readData(fileName)
+        }
+
         if(savedInstanceState != null){
             val instructionArray = savedInstanceState.getSerializable("instructions") as? Array<InstructionType>
             val expressions = mutableListOf<String>(); expressions.addAll(savedInstanceState.getStringArrayList("expressions") ?: emptyList())
@@ -185,31 +195,112 @@ class CodingActivity : AppCompatActivity() {
         }
     }
 
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        val instructionArray = instructionList.toTypedArray()
-        val expressions = mutableListOf<String>()
-        val margins = ArrayList<Int>()
-        val widthsOfNumbersContainers = ArrayList<Int>()
-
+    private fun saveList(){
+        val json = JSONObject()
+        val enumJsonArray = JSONArray()
+        val marginJsonArray = JSONArray()
+        val widthJsonArray = JSONArray()
         for(i in 0 until instructionList.size){
-            if(instructionList[i] !in listBlocksNotHaveText){
-                val itemExpression = listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression)
-                expressions.add(itemExpression.text.toString())
-            }
-            margins.add(listOfBlocksOnField[i].marginLeft)
-            widthsOfNumbersContainers.add(listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width)
+            enumJsonArray.put(instructionList[i].toString())
+            marginJsonArray.put(listOfBlocksOnField[i].marginLeft.toString())
+            widthJsonArray.put(listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width.toString())
+        }
+        val stringJSONArray = JSONArray()
+        for(i in 0 until listOfBlocksOnField.size){
+            if(instructionList[i] !in listBlocksNotHaveText)
+                stringJSONArray.put(listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression).text.toString())
         }
 
-        outState.putSerializable("instructions", instructionArray)
-        outState.putSerializable("margins", margins)
-        outState.putSerializable("widths", widthsOfNumbersContainers)
-        outState.putStringArrayList("expressions", ArrayList(expressions))
+
+        json.put("enums", enumJsonArray)
+        json.put("strings", stringJSONArray)
+        json.put("margins", marginJsonArray)
+        json.put("widths", widthJsonArray)
+
+        saveBlockSequence(json)
     }
+    private fun readAndWriteButtons(fileName : String){
+        val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
+        val list = mutableListOf<String>()
+        if(file.exists() && file.length() > 0){
+            val jsonString = file.readText()
+            val jsonArray = JSONArray(jsonString)
+
+            for(i in 0 until jsonArray.length()){
+                val item = jsonArray.get(i).toString()
+                list.add(item)
+            }
+        }
+        for(i in 0 until list.size){
+            if(list[i] == fileName){
+                return
+            }
+        }
+        list.add(fileName)
+        val jsonArray = JSONArray(list)
+        file.writeText(jsonArray.toString())
+    }
+    private fun saveBlockSequence(json : JSONObject){
+        val builder = AlertDialog.Builder(this)
+        val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_input, null)
+        builder.setView(dialogLayout)
+
+        val dialog = builder.create()
+
+        val writeInFileText = {
+            val fileName = dialogLayout.findViewById<EditText>(R.id.inputExpression).text.toString()
+            readAndWriteButtons(fileName)
+            val fos = this.openFileOutput("$fileName.json", Context.MODE_PRIVATE)
+            fos.write(json.toString().toByteArray())
+            fos.close()
+            dialog.dismiss()
+        }
+
+        dialogLayout.findViewById<Button>(R.id.buttonEnter).setOnClickListener { writeInFileText() }
+        dialog.setOnCancelListener {  }
+
+        dialog.show()
+
+        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
+        dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (200 * scaleDp + 0.5).toInt())
+    }
+    private fun readData(fileName : String){
+        val expressions = mutableListOf<String>()
+        val margins = mutableListOf<Int>()
+        val widths = mutableListOf<Int>()
+        val enums = mutableListOf<InstructionType>()
 
 
+        val fis = this.openFileInput("$fileName.json")
+        val jsonString = fis.bufferedReader().use{it.readText()}
+        val json = JSONObject(jsonString)
 
+        val enumJSONArray = json.getJSONArray("enums")
+        val marginJSONArray = json.getJSONArray("margins")
+        val widthsJSONArray = json.getJSONArray("widths")
+        for(i in 0 until enumJSONArray.length()){
+            val enumValue = InstructionType.valueOf(enumJSONArray.getString(i))
+            val marginValue = marginJSONArray.getString(i).toInt()
+            val widthValue = widthsJSONArray.getString(i).toInt()
+
+            enums.add(enumValue)
+            margins.add(marginValue)
+            widths.add(widthValue)
+        }
+
+        val stringJSONArray = json.getJSONArray("strings")
+        for(i in 0 until stringJSONArray.length()){
+            val value = stringJSONArray.getString(i)
+            expressions.add(value)
+        }
+
+
+        fis.close()
+
+        instructionList = enums.toMutableList() ?: mutableListOf()
+
+        recreateViewList(expressions, margins, widths)
+    }
     private fun recreateViewList(expressions : List<String>, margins : List<Int>, widths : List<Int>){
         val handler = Handler()
         var count : Int
@@ -273,7 +364,6 @@ class CodingActivity : AppCompatActivity() {
             callUpdate()
         }, 200)
     }
-
     private fun recreateExpressions(expressions : List<String>){
         var count : Int = 0
         for(i in 0 until listOfBlocksOnField.size){
@@ -283,6 +373,69 @@ class CodingActivity : AppCompatActivity() {
             }
         }
     }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val instructionArray = instructionList.toTypedArray()
+        val expressions = mutableListOf<String>()
+        val margins = ArrayList<Int>()
+        val widthsOfNumbersContainers = ArrayList<Int>()
+
+        for(i in 0 until instructionList.size){
+            if(instructionList[i] !in listBlocksNotHaveText){
+                val itemExpression = listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression)
+                expressions.add(itemExpression.text.toString())
+            }
+            margins.add(listOfBlocksOnField[i].marginLeft)
+            widthsOfNumbersContainers.add(listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width)
+        }
+
+        outState.putSerializable("instructions", instructionArray)
+        outState.putSerializable("margins", margins)
+        outState.putSerializable("widths", widthsOfNumbersContainers)
+        outState.putStringArrayList("expressions", ArrayList(expressions))
+    }
+
+
+
+    fun errorRequest(string: String) {
+        val builder = AlertDialog.Builder(this)
+        val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_error, null)
+        builder.setView(dialogLayout)
+
+        val dialog = builder.create()
+
+        dialogLayout.findViewById<Button>(R.id.buttonOk).setOnClickListener { dialog.dismiss() }
+        dialogLayout.findViewById<TextView>(R.id.errorInformation).text = string
+
+        dialog.show()
+
+        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
+        dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (400 * scaleDp + 0.5).toInt())
+    }
+    fun inputRequest() {
+        val builder = AlertDialog.Builder(this)
+        val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_input, null)
+        builder.setView(dialogLayout)
+
+        val dialog = builder.create()
+
+        val enter = {
+            interpreter.input(dialogLayout.findViewById<EditText>(R.id.inputExpression).text.toString())
+            interpreter.run()
+            dialog.dismiss()
+        }
+
+        dialogLayout.findViewById<Button>(R.id.buttonEnter).setOnClickListener { enter() }
+        dialog.setOnCancelListener { enter() }
+
+        dialog.show()
+
+        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
+        dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (200 * scaleDp + 0.5).toInt())
+    }
+
+
+
 
     private fun createNewBlockAndSetItsProperties(key : InstructionType, blockView : BlockView) : View{
         val newBlock = buildBlock(blockView, key); newBlock.id = numberOfBlockFieldChildren
@@ -307,8 +460,6 @@ class CodingActivity : AppCompatActivity() {
         numberOfBlockFieldChildren++
         return newBlock
     }
-
-
     @SuppressLint("ClickableViewAccessibility")
     private fun createEndBlock(key : InstructionType, newBlock : View, isRecreating : Boolean) : View{
         var endBlock : View? = null
@@ -381,73 +532,18 @@ class CodingActivity : AppCompatActivity() {
         elifBlock.setOnDragListener { view, dragEvent ->
             shiftBlocks(view, dragEvent, InstructionType.ELIF)
         }
+
+        val elifBlockEditText = elifBlock.findViewById<EditText>(R.id.inputExpression); editTextsFocuses[elifBlockEditText] = false
+        elifBlock.findViewById<EditText>(R.id.inputExpression).setOnFocusChangeListener { _, b ->
+            editTextsFocuses[elifBlockEditText] = b
+        }
+
         previousMargins.add(0); previousWidths.add(0)
         return elifBlock
     }
 
 
-    private fun createButton() : Button{
-        val button = Button(this)
-        button.text = "BEBRA"
-        return button
-    }
-    private fun saveButton(){
-        val button = createButton()
-        val jsonArray = JSONArray()
-        val jsonObject = JSONObject()
-        jsonObject.put("button_text", button.text.toString())
-        jsonArray.put(jsonObject)
 
-        val fileName = "button.json"
-        val file = File(filesDir, fileName)
-        val fos = FileOutputStream(file)
-        fos.write(jsonArray.toString().toByteArray())
-        fos.close()
-    }
-
-    fun errorRequest(string: String) {
-        val builder = AlertDialog.Builder(this)
-        val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_error, null)
-        builder.setView(dialogLayout)
-
-        val dialog = builder.create()
-
-        dialogLayout.findViewById<Button>(R.id.buttonOk).setOnClickListener { dialog.dismiss() }
-        dialogLayout.findViewById<TextView>(R.id.errorInformation).text = string
-
-        dialog.show()
-
-        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
-        dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (400 * scaleDp + 0.5).toInt())
-    }
-
-    fun inputRequest() {
-        val builder = AlertDialog.Builder(this)
-        val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_input, null)
-        builder.setView(dialogLayout)
-
-        val dialog = builder.create()
-
-        val enter = {
-            interpreter.input(dialogLayout.findViewById<EditText>(R.id.inputExpression).text.toString())
-            interpreter.run()
-            dialog.dismiss()
-        }
-
-        dialogLayout.findViewById<Button>(R.id.buttonEnter).setOnClickListener { enter() }
-        dialog.setOnCancelListener { enter() }
-
-        dialog.show()
-
-        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
-        dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (200 * scaleDp + 0.5).toInt())
-    }
-    /////////////////////////////////
-    /////////////////////////////////
-    /////////////////////////////////
-    /////////////////////////////////
-    /////////////////////////////////
-    /////////////////////////////////
 
     private val deleteBlock = OnDragListener { view, dragEvent ->
         when(dragEvent.action){
@@ -521,8 +617,6 @@ class CodingActivity : AppCompatActivity() {
             }
             DragEvent.ACTION_DROP -> {
                 if(view.alpha < 1.0f){
-                    makeViewsVisible()
-                    listOfIndices.clear()
                     return OnDragListener@false
                 }
 
@@ -796,12 +890,9 @@ class CodingActivity : AppCompatActivity() {
             listOfBlocksOnField[i].alpha = 1.0f
         }
     }
-    /////////////////////////////////
-    /////////////////////////////////
-    /////////////////////////////////
-    /////////////////////////////////
-    /////////////////////////////////
-    /////////////////////////////////
+
+
+
     override fun finish() {
         super.finish()
         overridePendingTransition(androidx.appcompat.R.anim.abc_slide_in_top, androidx.appcompat.R.anim.abc_slide_out_bottom)

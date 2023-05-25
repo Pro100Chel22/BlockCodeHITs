@@ -31,4 +31,5 @@
     <string name="logical_not">&#x0021;</string>
     <string name="ok">OK</string>
     <string name="error">ERROR</string>
+    <string name="saved_buttons">buttons</string>
 </resources>
