@@ -4,7 +4,7 @@ enum class VariableType {
     VOID, INT, DOUBLE, BOOLEAN;
 
     companion object {
-        fun getType(name: String): Variable {
+        fun getType(name: String, func: Boolean = false): Variable {
             return when(name) {
                 "int" -> VariableInt(0)
                 "double" -> VariableDouble(0.0)
@@ -12,7 +12,11 @@ enum class VariableType {
                 else -> {
                     println("ERR: you cannot create a variable of this type")
                     Variable()
-                    throw Exception("You cannot create a variable of this type: $name")
+                    if(!func) {
+                        throw Exception("You cannot create a variable of this type: $name")
+                    } else {
+                        throw Exception("Functions can't return this type: $name")
+                    }
                 }
             }
         }
@@ -56,8 +60,6 @@ enum class VariableType {
                     return false
                 }
             }
-
-
             return true
         }
 
@@ -83,6 +85,10 @@ open class Variable(_type: VariableType = VariableType.VOID) {
     private var type: VariableType = _type
 
     fun getType(): VariableType { return type }
+
+    open fun clone(): Variable {
+        throw Exception("Incorrect expression")
+    }
 
     open operator fun plus(operand: Variable): Variable {
         println("ERR: plus void")
@@ -175,6 +181,10 @@ class VariableInt: Variable {
         return value
     }
 
+    override fun clone(): Variable {
+        return VariableInt(value)
+    }
+
     override fun plus(operand: Variable): Variable {
         return VariableInt(value + operand.toInt().getValue())
     }
@@ -255,6 +265,10 @@ class VariableDouble: Variable {
         return value
     }
 
+    override fun clone(): Variable {
+        return VariableDouble(value)
+    }
+
     override fun plus(operand: Variable): Variable {
         return VariableDouble(value + operand.toDouble().getValue())
     }
@@ -333,6 +347,10 @@ class VariableBoolean: Variable {
 
     fun getValue(): Boolean {
         return value
+    }
+
+    override fun clone(): Variable {
+        return VariableBoolean(value)
     }
 
     override fun plus(operand: Variable): Variable {

@@ -9,8 +9,9 @@ import java.util.Stack
 data class CallStackFrame (
     val startNumLine: Int = 0,
     var curNmbLine: Int = 0,
-    val funcIsOver: Boolean = true,
+    var funcIsOver: Boolean = true,
     val returnVariable: Variable = VariableDouble(10.0),
+    val inputVariables: Map<String, Variable> = mapOf(),
     val arithmeticStack: ArithmeticStack = ArithmeticStack()
 )
 
