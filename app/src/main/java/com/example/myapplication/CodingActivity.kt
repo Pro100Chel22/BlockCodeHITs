@@ -46,8 +46,12 @@ import com.example.myapplication.modules.getMapOfCorrespondence
 import com.example.myapplication.modules.recycler_view_logic.DataSource
 import com.example.myapplication.modules.recycler_view_logic.OperatorAdapter
 import com.example.myapplication.modules.saved_list.bubbleSort
+import com.example.myapplication.modules.saved_list.fastEuclidAlgorithm
+import com.example.myapplication.modules.saved_list.fibonacci
 import com.example.myapplication.modules.saved_list.harp
 import com.example.myapplication.modules.saved_list.oneThousandBlocks
+import com.example.myapplication.modules.saved_list.pow
+import com.example.myapplication.modules.vibro.Vibration
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.json.JSONArray
 import org.json.JSONObject
@@ -57,7 +61,7 @@ import kotlin.math.min
 @Suppress("DEPRECATION")
 class CodingActivity : AppCompatActivity() {
     private var scaleDp: Float = 1f
-    private val scrollSpeed : Float = 30.0f
+    private val scrollSpeed : Float = 40.0f
     private val leftMarginValue : Int = 30
     private val marginForRecyclerViewItems : Int = 30
     private val bottomMarginForEveryBlock : Int = 15
@@ -68,6 +72,7 @@ class CodingActivity : AppCompatActivity() {
     private val specificBlockWidth : Int = 200; private val specificBlockHeight: Int = 55
     private val dialogWindowInputWidth : Int = 300; private val dialogWindowInputHeight : Int = 200
     private val dialogWindowErrorWidth : Int = 300; private val dialogWindowErrorHeight : Int = 400
+    private val vibrator = Vibration
 
 
 
@@ -284,6 +289,24 @@ class CodingActivity : AppCompatActivity() {
                 intent.hasExtra("harp")->{
                     intent.removeExtra("harp")
                     val(enums, expressions, newMargins, newWidths) = harp()
+                    instructionList = enums.toMutableList()
+                    recreateBlockList(expressions, newMargins, newWidths)
+                }
+                intent.hasExtra("fibonacci")->{
+                    intent.removeExtra("fibonacci")
+                    val(enums, expressions, newMargins, newWidths) = fibonacci()
+                    instructionList = enums.toMutableList()
+                    recreateBlockList(expressions, newMargins, newWidths)
+                }
+                intent.hasExtra("pow")->{
+                    intent.removeExtra("pow")
+                    val(enums, expressions, newMargins, newWidths) = pow()
+                    instructionList = enums.toMutableList()
+                    recreateBlockList(expressions, newMargins, newWidths)
+                }
+                intent.hasExtra("fastEuclid")->{
+                    intent.removeExtra("fastEuclid")
+                    val(enums, expressions, newMargins, newWidths) = fastEuclidAlgorithm()
                     instructionList = enums.toMutableList()
                     recreateBlockList(expressions, newMargins, newWidths)
                 }
@@ -586,19 +609,30 @@ class CodingActivity : AppCompatActivity() {
             if(instructionList[i] !in listBlocksNotHaveText && instructionList[i] != InstructionType.ELIF){
                 val editText = listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression)
                 if(flag){
-                    listOfBlocksOnField[i].setOnLongClickListener{
-                        makeContainerDraggable(instructionList[i], it)
-                        true
-                    }
+                    listOfBlocksOnField[i].isEnabled = true
                     editText.isEnabled = true
                     binding.buttonAddNewBlock.isEnabled = true
                     binding.deleteBlock.isEnabled = true
                 }
                 else{
-                    listOfBlocksOnField[i].setOnLongClickListener { false }
+                    listOfBlocksOnField[i].isEnabled = false
                     editText.isEnabled = false
                     binding.buttonAddNewBlock.isEnabled = false
                     binding.deleteBlock.isEnabled = false
+                }
+            }
+            else if(instructionList[i] == InstructionType.ENDCHOICEIF){
+                if(flag){
+                    val elifButton = listOfBlocksOnField[i].findViewById<Button>(R.id.buttonElif)
+                    val elseButton = listOfBlocksOnField[i].findViewById<Button>(R.id.buttonElse)
+                    elifButton.isEnabled = true
+                    elseButton.isEnabled = true
+                }
+                else{
+                    val elifButton = listOfBlocksOnField[i].findViewById<Button>(R.id.buttonElif)
+                    val elseButton = listOfBlocksOnField[i].findViewById<Button>(R.id.buttonElse)
+                    elifButton.isEnabled = false
+                    elseButton.isEnabled = false
                 }
             }
         }
@@ -748,6 +782,7 @@ class CodingActivity : AppCompatActivity() {
             DragEvent.ACTION_DRAG_ENDED -> {
                 view.invalidate()
                 view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_close, null)
+                vibrator.vibrate(this, 50)
                 makeViewsVisible()
                 listOfIndices.clear()
                 true
@@ -787,6 +822,7 @@ class CodingActivity : AppCompatActivity() {
             }
             DragEvent.ACTION_DROP -> {
                 if(view.alpha < viewOpaque){
+                    vibrator.vibrate(this, 500)
                     return false
                 }
 
@@ -1032,6 +1068,8 @@ class CodingActivity : AppCompatActivity() {
         val dragShadowBuilder = View.DragShadowBuilder(view)
         view.startDragAndDrop(data, dragShadowBuilder, view, 0)
         view.alpha = viewTransparent
+
+        vibrator.vibrate(this, 100)
 
         makeViewsInvisible(listOfBlocksOnField.indexOf(view), instruction)
     }

@@ -132,3 +132,171 @@ fun harp() : Result{
 
     return Result(instructionList, expressions, margins, widths)
 }
+
+
+fun fibonacci() : Result{
+    val instructionList = mutableListOf(
+        InstructionType.FUNC,
+        InstructionType.IF,
+        InstructionType.RETURN,
+        InstructionType.ENDCHOICEIF,
+        InstructionType.IF,
+        InstructionType.SET,
+        InstructionType.ENDCHOICEIF,
+        InstructionType.RETURN,
+        InstructionType.ENDFUNC,
+        InstructionType.VAR,
+        InstructionType.INPUT,
+        InstructionType.VAR,
+        InstructionType.SET,
+        InstructionType.PRINT,
+    )
+    val expressions = mutableListOf(
+        "int f(int n)",
+        "n <= 2",
+        "1",
+        "arr[n-1]==0",
+        "arr [n-1]=f(n-1)+f(n-2)",
+        "arr[n-1]",
+        "int a, int n",
+        "n",
+        "int arr[n]",
+        "a = f(n)",
+        "a",
+    )
+    val margins = mutableListOf(
+        0,
+        84,
+        168,
+        84,
+        84,
+        168,
+        84,
+        84,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    )
+    val widths = mutableListOf(
+        253,
+        337,
+        421,
+        337,
+        337,
+        421,
+        337,
+        337,
+        253,
+        253,
+        253,
+        253,
+        253,
+        253,
+    )
+    return Result(instructionList, expressions, margins, widths)
+}
+
+fun pow() : Result{
+    val instructionList = mutableListOf(
+        InstructionType.VAR,
+        InstructionType.FUNC,
+        InstructionType.IF,
+        InstructionType.RETURN,
+        InstructionType.ELSE,
+        InstructionType.RETURN,
+        InstructionType.ENDIF,
+        InstructionType.ENDFUNC,
+        InstructionType.SET,
+        InstructionType.PRINT,
+
+    )
+    val expressions = mutableListOf(
+        "int i, int c",
+        "int f(int x, int y)",
+        "x <= 0",
+        "1",
+        "f(x-1, y) * y",
+        "i = f(2+5, 3)",
+        "i",
+    )
+    val margins = mutableListOf(
+        0,
+        0,
+        84,
+        168,
+        84,
+        168,
+        84,
+        0,
+        0,
+        0,
+    )
+    val widths = mutableListOf(
+        253,
+        253,
+        337,
+        421,
+        337,
+        421,
+        337,
+        253,
+        253,
+        253,
+    )
+    return Result(instructionList, expressions, margins, widths)
+}
+
+
+fun fastEuclidAlgorithm() : Result{
+    val instructionList = mutableListOf(
+        InstructionType.VAR,
+        InstructionType.INPUT,
+        InstructionType.INPUT,
+        InstructionType.SET,
+        InstructionType.WHILE,
+        InstructionType.SET,
+        InstructionType.SET,
+        InstructionType.SET,
+        InstructionType.ENDWHILE,
+        InstructionType.PRINT,
+    )
+    val expressions = mutableListOf(
+        "int a, int b, int temp",
+        "a",
+        "b",
+        "temp = b",
+        "a % b != 0",
+        "b = a % b",
+        "a = temp",
+        "temp = b",
+        "b"
+    )
+    val margins = mutableListOf(
+        0,
+        0,
+        0,
+        0,
+        0,
+        84,
+        84,
+        84,
+        0,
+        0,
+    )
+    val widths = mutableListOf(
+        253,
+        253,
+        253,
+        253,
+        253,
+        337,
+        337,
+        337,
+        253,
+        253,
+    )
+    return Result(instructionList, expressions, margins, widths)
+}

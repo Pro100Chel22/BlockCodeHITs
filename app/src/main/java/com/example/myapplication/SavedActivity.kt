@@ -16,13 +16,18 @@ import android.widget.LinearLayout.LayoutParams
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import com.example.myapplication.databinding.ActivitySavedBinding
+import com.example.myapplication.modules.vibro.Vibration
 import org.json.JSONArray
 
 @Suppress("DEPRECATION")
 class SavedActivity : AppCompatActivity() {
+    private val vibrator = Vibration
+
 
     private lateinit var binding : ActivitySavedBinding
     private var topMargin = 20
+    private val viewTransparent : Float = 0.3f
+    private val viewOpaque : Float = 1.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,9 +42,9 @@ class SavedActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.oneThousandBlocks.setOnClickListener {
+        binding.twozerotwothree.setOnClickListener {
             val intent = Intent(this, CodingActivity::class.java)
-            intent.putExtra("2023", binding.oneThousandBlocks.text.toString())
+            intent.putExtra("2023", binding.twozerotwothree.text.toString())
             startActivity(intent)
             finish()
         }
@@ -47,6 +52,27 @@ class SavedActivity : AppCompatActivity() {
         binding.harp.setOnClickListener {
             val intent = Intent(this, CodingActivity::class.java)
             intent.putExtra("harp", binding.harp.text.toString())
+            startActivity(intent)
+            finish()
+        }
+
+        binding.fibonacci.setOnClickListener {
+            val intent = Intent(this, CodingActivity::class.java)
+            intent.putExtra("fibonacci", binding.fibonacci.text.toString())
+            startActivity(intent)
+            finish()
+        }
+
+        binding.pow.setOnClickListener {
+            val intent = Intent(this, CodingActivity::class.java)
+            intent.putExtra("pow", binding.pow.text.toString())
+            startActivity(intent)
+            finish()
+        }
+
+        binding.fastEuclid.setOnClickListener {
+            val intent = Intent(this, CodingActivity::class.java)
+            intent.putExtra("fastEuclid", binding.fastEuclid.text.toString())
             startActivity(intent)
             finish()
         }
@@ -81,7 +107,7 @@ class SavedActivity : AppCompatActivity() {
     private fun fillFieldWithButtons(list : List<String>){
         for(i in list.indices){
             val button = createButton(list[i])
-            binding.parent.addView(button)
+            binding.secondParent.addView(button)
         }
     }
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -93,7 +119,7 @@ class SavedActivity : AppCompatActivity() {
         val styledButton = Button(contextWrapper, null, 0)
 
         button.background = styledButton.background
-        button.setTextColor(resources.getColor(R.color.black))
+        button.setTextAppearance(R.style.savedButtonStyle)
 
         button.setOnClickListener {
             val intent = Intent(this, CodingActivity::class.java)
@@ -116,7 +142,9 @@ class SavedActivity : AppCompatActivity() {
 
         val dragShadowBuilder = View.DragShadowBuilder(button)
         button.startDragAndDrop(data, dragShadowBuilder, button, 0)
-        button.alpha = 0.3f
+        button.alpha = viewTransparent
+
+        vibrator.vibrate(this, 100)
         return true
     }
 
@@ -143,14 +171,14 @@ class SavedActivity : AppCompatActivity() {
 
                 val text = v.text.toString()
                 deleteSavedCode(text)
-                binding.parent.removeView(v)
+                binding.secondParent.removeView(v)
 
                 true
             }
             DragEvent.ACTION_DRAG_ENDED -> {
                 view.invalidate()
                 val v = dragEvent.localState as Button
-                v.alpha = 1.0f
+                v.alpha = viewOpaque
                 view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_close, null)
                 true
             }
@@ -173,8 +201,8 @@ class SavedActivity : AppCompatActivity() {
 
 
     private fun setParams(){
-        for(i in 0 until binding.parent.childCount){
-            val button = binding.parent.getChildAt(i) as Button
+        for(i in 0 until binding.secondParent.childCount){
+            val button = binding.secondParent.getChildAt(i) as Button
 
             val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
             params.topMargin = topMargin

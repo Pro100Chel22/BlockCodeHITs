@@ -218,4 +218,8 @@
     <dimen name="coding_button_text_size">30sp</dimen>
     <dimen name="saved_button_width">340dp</dimen>
     <dimen name="saved_button_height">55dp</dimen>
+
+    <dimen name="user_saved_code_parent_layout_top_margin">20dp</dimen>
+    <dimen name="template_button_top_margin">10dp</dimen>
+    <dimen name="template_text_view_size">30sp</dimen>
 </resources>

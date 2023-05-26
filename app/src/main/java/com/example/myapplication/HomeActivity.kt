@@ -5,18 +5,24 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.WindowManager
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.databinding.DataBindingUtil
+import com.example.myapplication.databinding.ActivityHomeBinding
 
 @Suppress("DEPRECATION")
 class HomeActivity : AppCompatActivity() {
+
+    private lateinit var binding : ActivityHomeBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
-        findViewById<Button>(R.id.buttonHomeSwapMode).setOnClickListener {
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_home)
+
+        binding.buttonHomeSwapMode.setOnClickListener {
             val sharedPrefs = applicationContext.getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
             val editor = sharedPrefs.edit()
 
@@ -31,17 +37,17 @@ class HomeActivity : AppCompatActivity() {
             editor.apply()
         }
 
-        findViewById<Button>(R.id.buttonToCodingActivity).setOnClickListener{
-            val intent = Intent();
-            intent.setClass(this, CodingActivity::class.java);
-            startActivity(intent);
+        binding.buttonToCodingActivity.setOnClickListener{
+            val intent = Intent()
+            intent.setClass(this, CodingActivity::class.java)
+            startActivity(intent)
             overridePendingTransition(androidx.appcompat.R.anim.abc_slide_in_bottom, androidx.appcompat.R.anim.abc_slide_out_top)
         }
 
-        findViewById<Button>(R.id.buttonToSavedActivity).setOnClickListener {
-            val intent = Intent();
-            intent.setClass(this, SavedActivity::class.java);
-            startActivity(intent);
+        binding.buttonToSavedActivity.setOnClickListener {
+            val intent = Intent()
+            intent.setClass(this, SavedActivity::class.java)
+            startActivity(intent)
             overridePendingTransition(androidx.appcompat.R.anim.abc_slide_in_bottom, androidx.appcompat.R.anim.abc_slide_out_top)
         }
     }

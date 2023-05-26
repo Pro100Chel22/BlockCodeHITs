@@ -31,7 +31,6 @@
     <string name="logical_not">&#x0021;</string>
     <string name="ok">OK</string>
     <string name="error">ERROR</string>
-    <string name="two_thousand_twenty_three">2023</string>
     <string name="_int">int</string>
     <string name="_double">double</string>
     <string name="_boolean">boolean</string>
@@ -42,7 +41,13 @@
 
     <string name="saved_buttons">buttons</string>
     <string name="bubble_sort">bubble sort</string>
+    <string name="two_thousand_twenty_three">2023</string>
     <string name="harp">harp</string>
+    <string name="fibonacci">fibonacci</string>
+    <string name="pow">pow</string>
+    <string name="fast_euclid">fast euclid</string>
+
+    <string name="templates">TEMPLATES</string>
     <string name="look_vars_variables">Variables</string>
     <string name="look_vars_arrays">Arrays</string>
     <string name="look_vars_functions">Functions</string>
