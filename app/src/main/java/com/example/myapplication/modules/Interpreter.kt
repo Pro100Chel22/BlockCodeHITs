@@ -245,7 +245,7 @@ class Interpreter {
                     waitForInput = true
                 } else {
                     val expressions = block.expression.split(",")
-                    val expressionsInput = inputExpression.split(" ")
+                    val expressionsInput = inputExpression.split(",")
 
                     for (i in expressions.indices) {
                        if (expressionsInput.size > i) {
@@ -706,6 +706,10 @@ class Interpreter {
             for(i in 1 until expressions.size) {
                 partTwo += expressions[i]
 
+                if(expressions[i].isNotEmpty() && expressions[i][0] == '\"') {
+                    break
+                }
+
                 if(i < expressions.size - 1) {
                     val cur = expressions[i][expressions[i].length - 1]
                     val next = expressions[i+1][0]
@@ -717,30 +721,44 @@ class Interpreter {
                 }
             }
 
-            if(!partTwo.contains("=") && isArray(partTwo)) {
-                val name = getName(partTwo, '[')
-                val expressionBetween = getExpressionBetween(partTwo, '[')
-
-                callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
-                if (opsArithmetic(expressionBetween, false, true) &&
-                    callStack.peek().arithmeticStack.size() == 1 &&
-                    callStack.peek().arithmeticStack.peekArithmetic().variableStack.size == 1
-                ) {
-                    val countElement = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
-                    data.initArray(name, countElement, VariableType.getType(type))
-                } else {
-                    println("ERR: incorrect expression")
-                    throw Exception("Incorrect expression: $partTwo")
-                }
-            } else if(partTwo.contains("=")) {
+            if (partTwo.contains("=")) {
                 val exp = partTwo.split("=")
                 val name = exp[0]
+                val arithmetic = partTwo.substring(name.length + 1, partTwo.length)
 
-                if(exp.size == 2) {
+                if(isArray(name)) {
+                    val string = expression.substring(expression.indexOf("=") + 1, expression.length).trim()
+
+                    if (type != "char") {
+                        throw Exception("Incorrect expression: you cannot assign a value to this array, ${getName(name, '[')}[]")
+                    }
+
+                    if (!VariableType.isString(string)) {
+                        throw Exception("Incorrect expression: only a string can be assigned to an array of type char, ${getName(name, '[')}[]")
+                    }
+
+                    val expressionBetween = getExpressionBetween(name, '[')
+
+                    if(expressionBetween.isEmpty()) {
+                        data.initArray(getName(name, '['), VariableInt(-1), VariableType.getType(type), string)
+                    } else {
+                        callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
+                        if (opsArithmetic(expressionBetween, false, true) &&
+                            callStack.peek().arithmeticStack.size() == 1 &&
+                            callStack.peek().arithmeticStack.peekArithmetic().variableStack.size == 1
+                        ) {
+                            val countElement = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
+                            data.initArray(getName(name, '['), countElement, VariableType.getType(type), string)
+                        } else {
+                            println("ERR: incorrect expression")
+                            throw Exception("Incorrect expression: $partTwo")
+                        }
+                    }
+                } else {
                     val newVar = VariableType.getType(type)
 
                     callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
-                    if (opsArithmetic(exp[1], false, true) &&
+                    if (opsArithmetic(arithmetic, false, true) &&
                         callStack.peek().arithmeticStack.size() == 1 &&
                         callStack.peek().arithmeticStack.peekArithmetic().variableStack.size == 1
                     ) {
@@ -750,12 +768,26 @@ class Interpreter {
                         println("ERR: incorrect expression")
                         throw Exception("Incorrect expression")
                     }
-                } else {
-                    println("ERR: to variable incorrect expression")
-                    throw Exception("Incorrect expression: there must be one assignment operator =")
                 }
             } else {
-                data.initVariable(partTwo, VariableType.getType(type))
+                if(isArray(partTwo)) {
+                    val name = getName(partTwo, '[')
+                    val expressionBetween = getExpressionBetween(partTwo, '[')
+
+                    callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
+                    if (opsArithmetic(expressionBetween, false, true) &&
+                        callStack.peek().arithmeticStack.size() == 1 &&
+                        callStack.peek().arithmeticStack.peekArithmetic().variableStack.size == 1
+                    ) {
+                        val countElement = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
+                        data.initArray(name, countElement, VariableType.getType(type))
+                    } else {
+                        println("ERR: incorrect expression")
+                        throw Exception("Incorrect expression: $partTwo")
+                    }
+                } else {
+                    data.initVariable(partTwo, VariableType.getType(type))
+                }
             }
         } else {
             println("ERR: to variable incorrect expression")
@@ -789,16 +821,19 @@ class Interpreter {
                 }
             }
 
-            if(expressions.size == 2) {
-                val variable = expressions[0].replace(" ", "")
-                val arithmeticExpression = expressions[1].replace(" ", "")
+            val name = expressions[0].replace(" ", "")
+            var arithmetic = expression.substring(expression.indexOf("=") + 1, expression.length).trim()
+            if(data.checkArray(name)) {
+                data.setCharArray(name, arithmetic)
+            } else {
+                arithmetic = arithmetic.replace(" ", "")
 
                 if (callStack.peek().arithmeticStack.size() == 1 && callStack.peek().arithmeticStack.peekArithmetic().variableStack.size == 1) {
-                    setOperation(variable)
+                    setOperation(name)
                 } else if (callStack.peek().arithmeticStack.size() == 0) {
                     callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
-                    if (opsArithmetic(arithmeticExpression)) {
-                        setOperation(variable)
+                    if (opsArithmetic(arithmetic)) {
+                        setOperation(name)
                     } else {
                         return false
                     }
@@ -806,9 +841,6 @@ class Interpreter {
                     println("ERR: arithmetic stack")
                     throw Exception("Incorrect expression: arithmetic stack error")
                 }
-            } else {
-                println("ERR: incorrect expression")
-                throw Exception("Incorrect expression: there must be one assignment operator =")
             }
         } else {
             println("ERR: incorrect expression")
@@ -823,29 +855,36 @@ class Interpreter {
 
         if(exp.isNotEmpty()) {
             val latch = CountDownLatch(1)
-            val handler = Handler(Looper.getMainLooper())
 
-            if(data.checkArray(exp)) {
-                handler.post {
-                    if(isActive) console.println(data.getArray(exp))
+            if(VariableType.isString(expression.trim())) {
+                Handler(Looper.getMainLooper()).post {
+                    if(isActive) console.print(expression.trim())
                     latch.countDown()
                 }
                 latch.await()
             } else {
-                callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
-                if (opsArithmetic(exp, false, true) &&
-                    callStack.peek().arithmeticStack.size() == 1 &&
-                    callStack.peek().arithmeticStack.peekArithmetic().variableStack.size == 1
-                ) {
-                    val out = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
-                    handler.post {
-                        if(isActive) console.println(out)
+                if(data.checkArray(exp)) {
+                    Handler(Looper.getMainLooper()).post {
+                        if(isActive) console.println(data.getArray(exp))
                         latch.countDown()
                     }
                     latch.await()
                 } else {
-                    println("ERR: incorrect expression")
-                    throw Exception("Incorrect expression: stack is full")
+                    callStack.peek().arithmeticStack.addArithmetic(Arithmetic())
+                    if (opsArithmetic(exp, false, true) &&
+                        callStack.peek().arithmeticStack.size() == 1 &&
+                        callStack.peek().arithmeticStack.peekArithmetic().variableStack.size == 1
+                    ) {
+                        val out = callStack.peek().arithmeticStack.popArithmetic().variableStack.peek()
+                        Handler(Looper.getMainLooper()).post {
+                            if(isActive) console.println(out)
+                            latch.countDown()
+                        }
+                        latch.await()
+                    } else {
+                        println("ERR: incorrect expression")
+                        throw Exception("Incorrect expression: stack is full")
+                    }
                 }
             }
         } else {
@@ -856,16 +895,20 @@ class Interpreter {
 
     private fun opsInput(expression: String, expressionInput: String) {
         val variableName = expression.trim().split("\\s+".toRegex())
-        val inputConstant = expressionInput.trim().split("\\s+".toRegex())
 
-        if(variableName.size == 1 && inputConstant.size == 1) {
-            data.getVariable(variableName[0]).setValue(VariableType.toVariable(inputConstant[0]))
-        } else if(variableName.size != 1) {
+        if(variableName.size == 1) {
+            if(data.checkArray(variableName[0])) {
+                data.setCharArray(variableName[0], "\"" + expressionInput.trim() + "\"")
+            } else {
+                val inputConstant = expressionInput.trim().split("\\s+".toRegex())
+                if(inputConstant.size != 1) {
+                    throw Exception("Incorrect expression: invalid input data, $expressionInput")
+                }
+                data.getVariable(variableName[0]).setValue(VariableType.toVariable(inputConstant[0]))
+            }
+        } else {
             println("ERR: incorrect expression")
             throw Exception("Incorrect expression")
-        } else {
-            println("ERR: invalid input data")
-            throw Exception("Incorrect expression: invalid input data")
         }
     }
 

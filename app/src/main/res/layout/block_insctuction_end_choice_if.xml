@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/row_number_size"
             android:textStyle="bold"
-            android:textColor="@color/connector"
+            android:textColor="@color/line_row_numb_default"
             android:id="@+id/string_number"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"

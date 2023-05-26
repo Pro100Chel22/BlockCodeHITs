@@ -69,6 +69,7 @@
     <dimen name="console_nested_scroll_view_padding_start">20dp</dimen>
     <dimen name="console_nested_scroll_view_padding_end">20dp</dimen>
     <dimen name="console_nested_scroll_view_margin_top">20dp</dimen>
+    <dimen name="console_nested_scroll_view_margin_bottom">20dp</dimen>
 
 
 
@@ -203,6 +204,13 @@
     <dimen name="shape_window_text_block_corner_radius">15dp</dimen>
     <dimen name="shape_window_text_block_stroke_width">2dp</dimen>
 
+    <dimen name="drawerlayout_look_vars_width">250dp</dimen>
+    <dimen name="drawerlayout_look_vars_height">400dp</dimen>
+    <dimen name="drawerlayout_look_vars_margin_bottom_name">5dp</dimen>
+    <dimen name="drawerlayout_look_vars_margin_bottom_text">3dp</dimen>
+    <dimen name="drawerlayout_look_vars_name_size">30sp</dimen>
+    <dimen name="drawerlayout_look_vars_text_size">20sp</dimen>
+
 
 
 
@@ -216,7 +224,7 @@
     <dimen name="home_button_height">60dp</dimen>
     <dimen name="home_button_text_size">25sp</dimen>
     <dimen name="coding_button_text_size">30sp</dimen>
-    <dimen name="saved_button_width">340dp</dimen>
+    <dimen name="saved_button_width">300dp</dimen>
     <dimen name="saved_button_height">55dp</dimen>
 
     <dimen name="user_saved_code_parent_layout_top_margin">20dp</dimen>

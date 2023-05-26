@@ -216,8 +216,8 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
-            android:layout_width="250dp"
-            android:layout_height="400dp"
+            android:layout_width="@dimen/drawerlayout_look_vars_width"
+            android:layout_height="@dimen/drawerlayout_look_vars_height"
             android:layout_gravity="end|center"
             android:background="@drawable/shape_drawerlayout_look_vars"
             android:orientation="vertical">
@@ -229,7 +229,7 @@
                 android:layout_marginTop="@dimen/console_nested_scroll_view_margin_top"
                 android:paddingStart="@dimen/console_nested_scroll_view_padding_start"
                 android:paddingEnd="@dimen/console_nested_scroll_view_padding_end"
-                android:paddingBottom="20dp">
+                android:paddingBottom="@dimen/console_nested_scroll_view_margin_bottom">
 
                 <LinearLayout
                     android:id="@+id/lookVars"
@@ -240,34 +240,34 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="@dimen/drawerlayout_look_vars_margin_bottom_name"
                         android:gravity="center"
                         android:text="@string/look_vars_variables"
-                        android:textSize="30sp" />
+                        android:textSize="@dimen/drawerlayout_look_vars_name_size" />
 
                     <TextView
                         android:id="@+id/variables"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="3dp"
+                        android:layout_marginBottom="@dimen/drawerlayout_look_vars_margin_bottom_text"
                         android:text=""
-                        android:textSize="20sp" />
+                        android:textSize="@dimen/drawerlayout_look_vars_text_size" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="@dimen/drawerlayout_look_vars_margin_bottom_name"
                         android:gravity="center"
                         android:text="@string/look_vars_arrays"
-                        android:textSize="30sp" />
+                        android:textSize="@dimen/drawerlayout_look_vars_name_size" />
 
                     <TextView
                         android:id="@+id/arrays"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="3dp"
+                        android:layout_marginBottom="@dimen/drawerlayout_look_vars_margin_bottom_text"
                         android:text=""
-                        android:textSize="20sp" />
+                        android:textSize="@dimen/drawerlayout_look_vars_text_size" />
 
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
