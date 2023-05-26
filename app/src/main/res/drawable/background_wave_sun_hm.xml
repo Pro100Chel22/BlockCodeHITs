@@ -1,15 +1,15 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     xmlns:tools="http://schemas.android.com/tools"
-    android:width="100dp"
-    android:height="100dp"
-    android:viewportWidth="100"
-    android:viewportHeight="100">
+    android:width="@dimen/background_wave_sun_width"
+    android:height="@dimen/background_wave_sun_height"
+    android:viewportWidth="@dimen/background_wave_sun_viewport_width"
+    android:viewportHeight="@dimen/background_wave_sun_viewport_height">
   <path
       android:pathData="M49.95,0.07C77.48,0.07 99.82,22.44 99.82,50C99.82,77.56 77.48,99.93 49.95,99.93C22.42,99.93 0.07,77.56 0.07,50C0.07,22.44 22.42,0.07 49.95,0.07z"
       android:fillType="nonZero">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="49.95"
           android:startY="0.07"
           android:endX="49.95"

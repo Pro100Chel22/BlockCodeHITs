@@ -1,9 +1,9 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:width="100dp"
-    android:height="100dp"
-    android:viewportWidth="100"
-    android:viewportHeight="100">
+    android:width="@dimen/trash_can_width"
+    android:height="@dimen/trash_can_height"
+    android:viewportWidth="@dimen/trash_can_viewport_width"
+    android:viewportHeight="@dimen/trash_can_viewport_height">
   <path
       android:pathData="M49.99,0.06C77.54,0.06 99.91,22.43 99.91,49.99C99.91,77.54 77.54,99.91 49.99,99.91C22.43,99.91 0.06,77.54 0.06,49.99C0.06,22.43 22.43,0.06 49.99,0.06z"
       android:fillColor="@color/color_button_delete"

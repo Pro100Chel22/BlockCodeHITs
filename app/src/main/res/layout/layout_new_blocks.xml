@@ -3,25 +3,25 @@
 <LinearLayout
     android:id="@+id/modalBottomSheetContainer"
     android:layout_width="match_parent"
-    android:layout_height="500dp"
+    android:layout_height="@dimen/console_height"
     android:orientation="vertical"
     android:gravity="center|top"
     style="@style/backgroundBottomSheetStyle">
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="80dp"
-        android:layout_height="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="@dimen/console_top_line_width"
+        android:layout_height="@dimen/console_top_line_height"
+        android:layout_marginTop="@dimen/console_top_line_margin_top"
         style="@style/bottomSheetLineStyle"/>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/modalBottomSheetScroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="0dp"
-        android:paddingEnd="0dp"
-        android:layout_marginTop="15dp">
+        android:paddingStart="@dimen/zero_size"
+        android:paddingEnd="@dimen/zero_size"
+        android:layout_marginTop="@dimen/console_nested_scroll_view_margin_top">
 
         <LinearLayout
             android:id="@+id/blocks"

@@ -58,6 +58,9 @@ class CodingActivity : AppCompatActivity() {
     private val leftMarginValue : Int = 30
     private val marginForRecyclerViewItems : Int = 30
     private val bottomMarginForEveryBlock : Int = 15
+    private var numberOfBlockFieldChildren :Int = 0
+    private val regularBlockWidth : Int = 350;  private val regularBlockHeight : Int = 90
+    private val specificBlockWidth : Int = 200; private val specificBlockHeight: Int = 55
 
 
 
@@ -84,10 +87,6 @@ class CodingActivity : AppCompatActivity() {
     private lateinit var binding : ActivityCodingBinding
     private lateinit var bottomSheetViewNewBlockBinding : LayoutNewBlocksBinding
     private lateinit var bottomSheetViewConsoleBinding : LayoutConsoleBinding
-
-    private var numberOfBlockFieldChildren :Int = 0
-    private val regularBlockWidth : Int = 350;  private val regularBlockHeight : Int = 90
-    private val specificBlockWidth : Int = 200; private val specificBlockHeight: Int = 55
 
     private lateinit var console: Console
     private lateinit var interpreter: Interpreter
@@ -150,13 +149,14 @@ class CodingActivity : AppCompatActivity() {
             true
         }
         binding.buttonSaveCode.setOnClickListener {
-            saveList()
+            gatheringDataToSave()
         }
         binding.buttonConsole.setOnLongClickListener {
             val file = this.getFileStreamPath(R.string.saved_buttons.toString())
             file.writeText("")
             true
         }
+
         console = Console(bottomSheetViewConsoleBinding.consoleOutput, this, R.layout.layout_console_line)
 
         binding.buttonCompiler.setOnClickListener {
@@ -179,7 +179,7 @@ class CodingActivity : AppCompatActivity() {
         if(intent != null && intent.hasExtra("fileName")){
             val fileName = intent.getStringExtra("fileName").toString()
             intent.removeExtra("fileName")
-            readData(fileName)
+            readBlocksDataFromParticularFileAndRecreate(fileName)
         }
 
         if(savedInstanceState != null){
@@ -189,11 +189,11 @@ class CodingActivity : AppCompatActivity() {
             val widths = savedInstanceState.getSerializable("widths") as ArrayList<Int>
 
             instructionList = instructionArray?.toMutableList() ?: mutableListOf()
-            recreateViewList(expressions, margins, widths)
+            recreateBlockList(expressions, margins, widths)
         }
     }
 
-    private fun saveList(){
+    private fun gatheringDataToSave(){
         val json = JSONObject()
         val enumJsonArray = JSONArray()
         val marginJsonArray = JSONArray()
@@ -217,9 +217,9 @@ class CodingActivity : AppCompatActivity() {
 
         saveBlockSequence(json)
     }
-    private fun readAndWriteButtons(fileName : String) : Boolean{
+    private fun readAndWriteButtonsData(fileName : String) : Boolean{
         val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
-        val list = getDataList().toMutableList()
+        val list = getSavedCodeNamesList().toMutableList()
 
         for(i in 0 until list.size){
             if(list[i] == fileName){
@@ -234,7 +234,7 @@ class CodingActivity : AppCompatActivity() {
         return true
     }
 
-    private fun getDataList() : List<String> {
+    private fun getSavedCodeNamesList() : List<String> {
         val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
         val list = mutableListOf<String>()
         if(file.exists() && file.length() > 0){
@@ -259,7 +259,7 @@ class CodingActivity : AppCompatActivity() {
         val writeInFileText = {
             val fileName = dialogLayout.findViewById<EditText>(R.id.inputExpression).text.toString()
 
-            val fileNotExistsYet = readAndWriteButtons(fileName)
+            val fileNotExistsYet = readAndWriteButtonsData(fileName)
 
             val fos = this.openFileOutput("$fileName.json", Context.MODE_PRIVATE)
             fos.write(json.toString().toByteArray())
@@ -279,7 +279,7 @@ class CodingActivity : AppCompatActivity() {
         dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
         dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (200 * scaleDp + 0.5).toInt())
     }
-    private fun readData(fileName : String){
+    private fun readBlocksDataFromParticularFileAndRecreate(fileName : String){
         val expressions = mutableListOf<String>()
         val margins = mutableListOf<Int>()
         val widths = mutableListOf<Int>()
@@ -314,9 +314,9 @@ class CodingActivity : AppCompatActivity() {
 
         instructionList = enums.toMutableList()
 
-        recreateViewList(expressions, margins, widths)
+        recreateBlockList(expressions, margins, widths)
     }
-    private fun recreateViewList(expressions : List<String>, margins : List<Int>, widths : List<Int>){
+    private fun recreateBlockList(expressions : List<String>, margins : List<Int>, widths : List<Int>){
         val handler = Handler()
         var count : Int
         for(i in 0 until instructionList.size){
@@ -835,18 +835,7 @@ class CodingActivity : AppCompatActivity() {
                     requiredBlock = createElse()
                     endBlock = createEndIf()
 
-                    val requiredBlockNumPlaceHolder = requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder)
-                    val endBlockNumPlaceHolder = endBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder)
-
                     listOfBlocksOnField.add(indexInList + 1, requiredBlock);listOfBlocksOnField.add(indexInList + 2, endBlock)
-
-                    requiredBlockNumPlaceHolder.layoutParams.width =
-                        listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
-                    requiredBlockNumPlaceHolder.requestLayout()
-
-                    endBlockNumPlaceHolder.layoutParams.width =
-                        listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
-                    endBlockNumPlaceHolder.requestLayout()
 
                     listOfBlocksOnField.removeAt(indexInList)
 
@@ -854,6 +843,10 @@ class CodingActivity : AppCompatActivity() {
                         params = listOfBlocksOnField[indexInList + i].layoutParams as LayoutParams
                         params.setMargins(listOfBlocksOnField[_ifIndex].marginLeft, listOfBlocksOnField[_ifIndex].marginTop,
                             listOfBlocksOnField[_ifIndex].marginRight, listOfBlocksOnField[_ifIndex].marginBottom)
+
+                        listOfBlocksOnField[indexInList + i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).layoutParams.width =
+                            listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
+                        listOfBlocksOnField[indexInList + i].requestLayout()
                     }
 
                     instructionList.add(indexInList + 1, InstructionType.ELSE);instructionList.add(indexInList + 2, InstructionType.ENDIF)

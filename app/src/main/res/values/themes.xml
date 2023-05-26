@@ -42,7 +42,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/text_main_default</item>
-        <item name="android:textSize">60sp</item>
+        <item name="android:textSize">@dimen/splash_main_text_size</item>
         <item name="android:shadowColor">#80000000</item>
         <item name="android:shadowDx">2</item>
         <item name="android:shadowDy">6</item>
@@ -50,8 +50,8 @@
     </style>
 
     <style name="splashLogoStyle">
-        <item name="android:layout_width">170dp</item>
-        <item name="android:layout_height">170dp</item>
+        <item name="android:layout_width">@dimen/splash_logo_width</item>
+        <item name="android:layout_height">@dimen/splash_logo_height</item>
         <item name="android:background">@drawable/ic_logo</item>
     </style>
 
@@ -60,8 +60,8 @@
     </style>
 
     <style name="buttonSwapModeStyle">
-        <item name="android:layout_width">50dp</item>
-        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_width">@dimen/button_mode_width</item>
+        <item name="android:layout_height">@dimen/button_mode_height</item>
         <item name="android:background">@drawable/ic_hotline_miami</item>
     </style>
 
@@ -69,7 +69,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/text_main_default</item>
-        <item name="android:textSize">55sp</item>
+        <item name="android:textSize">@dimen/home_main_text_size</item>
         <item name="android:shadowColor">#80000000</item>
         <item name="android:shadowDx">2</item>
         <item name="android:shadowDy">6</item>
@@ -77,10 +77,10 @@
     </style>
 
     <style name="homeButtonStyle">
-        <item name="android:layout_width">200dp</item>
-        <item name="android:layout_height">60dp</item>
+        <item name="android:layout_width">@dimen/home_button_width</item>
+        <item name="android:layout_height">@dimen/home_button_height</item>
         <item name="android:textColor">@color/text_main_default</item>
-        <item name="android:textSize">25sp</item>
+        <item name="android:textSize">@dimen/home_button_text_size</item>
         <item name="android:shadowColor">#80000000</item>
         <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">3</item>
@@ -95,17 +95,17 @@
     </style>
 
     <style name="codingSaveButtonStyle">
-        <item name="android:layout_width">50dp</item>
-        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_width">@dimen/button_mode_width</item>
+        <item name="android:layout_height">@dimen/button_mode_height</item>
         <item name="android:background">@drawable/ic_code_save</item>
         <item name="android:backgroundTint">@color/button_other_default</item>
     </style>
 
     <style name="codingButtonStyle">
-        <item name="android:layout_width">100dp</item>
-        <item name="android:layout_height">100dp</item>
+        <item name="android:layout_width">@dimen/trash_can_width</item>
+        <item name="android:layout_height">@dimen/trash_can_height</item>
         <item name="android:textColor">@color/button_text_other_default</item>
-        <item name="android:textSize">30sp</item>
+        <item name="android:textSize">@dimen/coding_button_text_size</item>
         <item name="android:shadowColor">#80000000</item>
         <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">3</item>
@@ -120,10 +120,10 @@
     </style>
 
     <style name="savedButtonStyle">
-        <item name="android:layout_width">340dp</item>
-        <item name="android:layout_height">55dp</item>
+        <item name="android:layout_width">@dimen/saved_button_width</item>
+        <item name="android:layout_height">@dimen/saved_button_height</item>
         <item name="android:textColor">@color/button_text_other_default</item>
-        <item name="android:textSize">25sp</item>
+        <item name="android:textSize">@dimen/home_button_text_size</item>
         <item name="android:shadowColor">#80000000</item>
         <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">3</item>

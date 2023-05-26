@@ -2,7 +2,7 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:textSize="25sp"
+    android:textSize="@dimen/console_line_size"
     android:textColor="@color/text_block_default">
 
 </TextView>

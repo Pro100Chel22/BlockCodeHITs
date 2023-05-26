@@ -13,6 +13,7 @@ import android.view.View.OnDragListener
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout.LayoutParams
+import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import com.example.myapplication.databinding.ActivitySavedBinding
@@ -31,7 +32,7 @@ class SavedActivity : AppCompatActivity() {
 
         startFunction()
 
-        binding.deleteBlock.setOnDragListener(deleteBlock)
+        binding.deleteBlock.setOnDragListener(deleteSavedCode)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 
@@ -101,7 +102,7 @@ class SavedActivity : AppCompatActivity() {
     }
 
 
-    private val deleteBlock = OnDragListener { view, dragEvent ->
+    private val deleteSavedCode = OnDragListener { view, dragEvent ->
         when(dragEvent.action){
             DragEvent.ACTION_DRAG_STARTED -> {
                 view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_open, null)
@@ -123,7 +124,6 @@ class SavedActivity : AppCompatActivity() {
 
                 val text = v.text.toString()
                 deleteSavedCode(text)
-
                 binding.parent.removeView(v)
 
                 true
@@ -141,11 +141,15 @@ class SavedActivity : AppCompatActivity() {
 
 
     private fun deleteSavedCode(fileName : String){
-        val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
+        val fileToDelete = this.getFileStreamPath("$fileName.json")
+        val savedProgramsNames = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
         val list = getDataFromFile().toMutableList()
+
+        fileToDelete.delete()
         list.remove(fileName)
+
         val jsonArray = JSONArray(list)
-        file.writeText(jsonArray.toString())
+        savedProgramsNames.writeText(jsonArray.toString())
     }
 
 

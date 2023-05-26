@@ -6,10 +6,10 @@
 
     <TextView
         android:id="@+id/operator"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/zero_size"
         android:layout_height="wrap_content"
         android:text=""
-        android:textSize="30sp"
+        android:textSize="@dimen/operator_item_text_size"
         android:textColor="@color/color_stroke_block"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

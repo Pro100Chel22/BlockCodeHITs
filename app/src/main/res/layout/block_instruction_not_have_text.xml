@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="200dp"
-    android:layout_height="55dp"
+    android:layout_width="@dimen/specific_block_width"
+    android:layout_height="@dimen/specific_block_height"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:layout_marginBottom="10dp"
+    android:layout_marginBottom="@dimen/block_margin_bottom"
     android:background="@drawable/shape_block_background">
 
     <Button
         android:id="@+id/buttonBreakPoint"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="@dimen/break_point_width"
+        android:layout_height="@dimen/break_point_height"
+        android:layout_marginStart="@dimen/break_point_margin_start"
         android:background="@drawable/shape_break_point_flag"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,21 +20,21 @@
 
     <TextView
         android:id="@+id/instructionType"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="@dimen/zero_size"
+        android:layout_height="@dimen/block_textview_height"
+        android:layout_marginStart="@dimen/block_textview_margin_start"
         android:gravity="center|top"
         android:text=""
         android:textColor="@color/color_text_instruction_block"
-        android:textSize="37sp"
+        android:textSize="@dimen/block_textview_text_size"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonBreakPoint"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="4dp"
-        android:layout_height="0dp"
+        android:layout_width="@dimen/block_connector_width"
+        android:layout_height="@dimen/zero_size"
         android:background="@color/connector"
         android:id="@+id/connector"
         app:layout_constraintRight_toRightOf="@id/buttonBreakPoint"
@@ -43,8 +43,8 @@
         />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="90dp"
-        android:layout_height="55dp"
+        android:layout_width="@dimen/number_placeholder_width"
+        android:layout_height="@dimen/specific_block_number_placeholder_height"
         android:id="@+id/string_number_placeholder"
         android:foregroundGravity="right"
         app:layout_constraintRight_toLeftOf="parent"
@@ -52,7 +52,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="30sp"
+            android:textSize="@dimen/row_number_size"
             android:textStyle="bold"
             android:textColor="@color/line_row_numb_default"
             android:id="@+id/string_number"

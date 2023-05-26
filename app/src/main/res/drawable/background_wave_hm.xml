@@ -2,10 +2,10 @@
     <item>
         <vector xmlns:aapt="http://schemas.android.com/aapt"
             xmlns:tools="http://schemas.android.com/tools"
-            android:width="360dp"
-            android:height="640dp"
-            android:viewportWidth="360"
-            android:viewportHeight="640"
+            android:width="@dimen/background_width"
+            android:height="@dimen/background_height"
+            android:viewportWidth="@dimen/background_viewport_width"
+            android:viewportHeight="@dimen/background_viewport_height"
             tools:ignore="VectorRaster">
 
             <path
@@ -27,18 +27,18 @@
     </item>
 
     <item android:drawable="@drawable/background_wave_sun_hm"
-        android:height="300dp"
-        android:width="300dp"
+        android:height="@dimen/background_sun_height"
+        android:width="@dimen/background_sun_width"
         android:gravity="center"
-        android:bottom="280dp"/>
+        android:bottom="@dimen/background_sun_bottom"/>
 
     <item>
         <vector xmlns:aapt="http://schemas.android.com/aapt"
             xmlns:tools="http://schemas.android.com/tools"
-            android:width="360dp"
-            android:height="640dp"
-            android:viewportWidth="360"
-            android:viewportHeight="640"
+            android:width="@dimen/background_width"
+            android:height="@dimen/background_height"
+            android:viewportWidth="@dimen/background_viewport_width"
+            android:viewportHeight="@dimen/background_viewport_height"
             tools:ignore="VectorRaster">
 
             <path

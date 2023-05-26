@@ -11,7 +11,7 @@
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="@dimen/zero_size"
             android:orientation="vertical"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -26,26 +26,19 @@
                 android:orientation="vertical"
                 />
 
-            <!--<Button
-                android:id="@+id/button6"
-                style="@style/savedButtonStyle"
-                android:text="@string/test"
-                android:layout_marginTop="10dp"
-                />-->
-
         </ScrollView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="@dimen/zero_size"
             android:id="@+id/lowerBoundContainer"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="@id/lowerConstraint">
 
             <Button
                 android:id="@+id/deleteBlock"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="@dimen/lower_bound_container_button_width"
+                android:layout_height="@dimen/lower_bound_container_button_height"
                 android:background="@drawable/ic_trash_close"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -58,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.86" />
+            app:layout_constraintGuide_percent="@dimen/lower_guideline_percent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
