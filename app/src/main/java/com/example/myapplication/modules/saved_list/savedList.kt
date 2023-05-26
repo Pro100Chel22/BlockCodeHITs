@@ -300,3 +300,28 @@ fun fastEuclidAlgorithm() : Result{
     )
     return Result(instructionList, expressions, margins, widths)
 }
+
+
+fun Stirlitz() : Result{
+    val instructionList = mutableListOf(
+        InstructionType.PRINT,
+        InstructionType.PRINT,
+        InstructionType.PRINT,
+    )
+    val expressions = mutableListOf(
+        "\"Stirlitz gave the cat petrol to drink and let it go\"",
+        "\"The cat walked half a meter and fell down\"",
+        "\"Wow that's a fuel consumption, Stirlitz said\"",
+    )
+    val margins = mutableListOf(
+        0,
+        0,
+        0,
+    )
+    val widths = mutableListOf(
+        253,
+        253,
+        253,
+    )
+    return Result(instructionList, expressions, margins, widths)
+}

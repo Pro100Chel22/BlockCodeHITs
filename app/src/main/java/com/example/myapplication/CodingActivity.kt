@@ -45,6 +45,7 @@ import com.example.myapplication.modules.getListBlocksNotHaveText
 import com.example.myapplication.modules.getMapOfCorrespondence
 import com.example.myapplication.modules.recycler_view_logic.DataSource
 import com.example.myapplication.modules.recycler_view_logic.OperatorAdapter
+import com.example.myapplication.modules.saved_list.Stirlitz
 import com.example.myapplication.modules.saved_list.bubbleSort
 import com.example.myapplication.modules.saved_list.fastEuclidAlgorithm
 import com.example.myapplication.modules.saved_list.fibonacci
@@ -307,6 +308,12 @@ class CodingActivity : AppCompatActivity() {
                 intent.hasExtra("fastEuclid")->{
                     intent.removeExtra("fastEuclid")
                     val(enums, expressions, newMargins, newWidths) = fastEuclidAlgorithm()
+                    instructionList = enums.toMutableList()
+                    recreateBlockList(expressions, newMargins, newWidths)
+                }
+                intent.hasExtra("stirlitz")->{
+                    intent.removeExtra("stirlitz")
+                    val(enums, expressions, newMargins, newWidths) = Stirlitz()
                     instructionList = enums.toMutableList()
                     recreateBlockList(expressions, newMargins, newWidths)
                 }

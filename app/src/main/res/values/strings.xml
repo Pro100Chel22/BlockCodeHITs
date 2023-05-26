@@ -46,6 +46,7 @@
     <string name="fibonacci">fibonacci</string>
     <string name="pow">pow</string>
     <string name="fast_euclid">fast euclid</string>
+    <string name="stirlitz">stirlitz</string>
 
     <string name="templates">TEMPLATES</string>
     <string name="look_vars_variables">Variables</string>

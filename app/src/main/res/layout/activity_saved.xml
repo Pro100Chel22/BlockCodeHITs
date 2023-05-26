@@ -72,6 +72,14 @@
                     android:layout_marginTop="@dimen/template_button_top_margin"
                     style="@style/savedButtonStyle"
                     />
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/stirlitz"
+                    android:text="@string/stirlitz"
+                    android:layout_marginTop="@dimen/template_button_top_margin"
+                    style="@style/savedButtonStyle"
+                    />
 
 
 

@@ -77,6 +77,13 @@ class SavedActivity : AppCompatActivity() {
             finish()
         }
 
+        binding.stirlitz.setOnClickListener {
+            val intent = Intent(this, CodingActivity::class.java)
+            intent.putExtra("stirlitz", binding.stirlitz.text.toString())
+            startActivity(intent)
+            finish()
+        }
+
         startFunction()
         setParams()
 
