@@ -15,12 +15,44 @@ data class CallStackFrame (
     val arithmeticStack: ArithmeticStack = ArithmeticStack()
 )
 
+fun getCloneCallStackFrame(origin: CallStackFrame, funcCall: Boolean): CallStackFrame {
+    val cloneInput = mutableListOf<ParametersFuncCondition>()
+
+    for(input in origin.inputVariables) {
+        cloneInput.add(
+            ParametersFuncCondition(
+                input.name,
+                if (input.value is VariableInt) {
+                    VariableInt(0)
+                } else if (input.value is VariableDouble) {
+                    VariableDouble(0.0)
+                } else if (input.value is VariableBoolean) {
+                    VariableBoolean()
+                } else {
+                    Variable()
+                    throw Exception("Wrong type")
+                },
+                input.inited
+            )
+        )
+    }
+
+    return CallStackFrame(
+        origin.startNumLine,
+        if(funcCall) origin.curNmbLine else origin.curNmbLine - 1,
+        false,
+        origin.returnVariable.clone(),
+        cloneInput
+    )
+}
+
 data class Arithmetic(
     var split: List<String> = listOf(),
     val variableStack: Stack<Variable> = Stack(),
     val operationStack: Stack<String> = Stack(),
     var curIdSplit: Int = 0,
-    var functionCall: Boolean = false
+    var functionCall: Boolean = false,
+    val callFrame: Stack<CallStackFrame> = Stack()
 )
 
 data class BracketCondition(
@@ -33,7 +65,7 @@ data class BracketCondition(
 data class ParametersFuncCondition(
     val name: String,
     val value: Variable,
-    val inited: Boolean = false
+    var inited: Boolean = false
 )
 
 class ArithmeticStack {
