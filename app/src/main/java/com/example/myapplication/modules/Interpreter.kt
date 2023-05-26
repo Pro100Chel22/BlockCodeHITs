@@ -1,8 +1,10 @@
 package com.example.myapplication.modules
 
+import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.example.myapplication.CodingActivity
@@ -27,6 +29,7 @@ class Interpreter {
     private var console: Console
 
     private var isActive = false
+    private var wasStop = false
 
     constructor(_blocksView: List<View>, _context: CodingActivity, _console: Console) {
         blocksView = _blocksView
@@ -50,7 +53,7 @@ class Interpreter {
         isActive = false
     }
 
-    fun run() {
+    fun run(toNextBreakPoint: Boolean = false, runOnce: Boolean = false) {
         // Добавить проверку скобок,
         // Запретить подряд использовать == >= <= !=
         // В set и var добавить поддержку ==
@@ -62,6 +65,7 @@ class Interpreter {
         Thread {
             try {
                 while (isActive) {
+                    var callStackHasChanged = false
                     if (callStack.size > 1 && callStack.peek().funcIsOver) {
                         val rV = callStack.peek().returnVariable
                         callStack.pop()
@@ -76,40 +80,61 @@ class Interpreter {
                                 break
                             }
                         }
-                    } else {
-                        if (callStack.peek().curNmbLine >= blocksCode.size) {
-                            isActive = false
-                            break
-                        }
-
-                        processing(blocksCode[callStack.peek().curNmbLine])
-
-                        if (waitForInput) {
-                            Handler(Looper.getMainLooper()).post {
-                                context.inputRequest()
-                            }
-                            waitForInput = false
-                            isActive = false
-                            break
-                        }
-
-                        callStack.peek().curNmbLine++
+                        callStackHasChanged = true
                     }
+
+                    if (callStack.peek().curNmbLine >= blocksCode.size) {
+                        isActive = false
+                        break
+                    }
+
+                    if(toNextBreakPoint || runOnce) updateBlockMarkers()
+
+                    if (!runOnce && !wasStop && toNextBreakPoint && blocksCode[callStack.peek().curNmbLine].breakPoint || runOnce && callStackHasChanged) {
+                        markBlock(callStack.peek().curNmbLine)
+                        break
+                    }
+
+                    processing(blocksCode[callStack.peek().curNmbLine])
+
+                    if (waitForInput) {
+                        Handler(Looper.getMainLooper()).post { context.inputRequest() }
+                        waitForInput = false
+                        isActive = false
+                        break
+                    }
+
+                    callStack.peek().curNmbLine++
+
+                    if(toNextBreakPoint && runOnce && callStack.peek().curNmbLine < blocksCode.size) {
+                        markBlock(callStack.peek().curNmbLine)
+                        break
+                    }
+
+                    wasStop = false
                 }
             } catch (e: Exception) {
                 blocksView[callStack.peek().curNmbLine].findViewById<TextView>(R.id.string_number)
                     .setTextColor(ContextCompat.getColor(context, R.color.error_default))
-
+                updateBlockMarkers()
                 Handler(Looper.getMainLooper()).post {
                     context.errorRequest("Line: " + (callStack.peek().curNmbLine + 1).toString() +
                             "\nExpression: " + blocksCode[callStack.peek().curNmbLine].expression +
                             "\n" + e.message)
                 }
             } catch (e: EmptyStackException) {
+                updateBlockMarkers()
                 Handler(Looper.getMainLooper()).post {
                     context.errorRequest("Line: " + (callStack.peek().curNmbLine + 1).toString() +
                             "\nExpression: " + blocksCode[callStack.peek().curNmbLine].expression +
                             "\nStack error: " + e.message)
+                }
+            } catch (e: IndexOutOfBoundsException) {
+                updateBlockMarkers()
+                Handler(Looper.getMainLooper()).post {
+                    context.errorRequest("Line: " + (callStack.peek().curNmbLine + 1).toString() +
+                            "\nExpression: " + blocksCode[callStack.peek().curNmbLine].expression +
+                            "\nArray error: " + e.message)
                 }
             }
          }.start()
@@ -118,6 +143,32 @@ class Interpreter {
     fun input(expression: String) {
         waitForInput = false
         inputExpression = expression
+    }
+
+    fun updateBlockMarkers() {
+        for(i in blocksView.indices) {
+            val breakPoint =  blocksView[i].findViewById<Button>(R.id.buttonBreakPoint)
+            val shapeBreakPoint = breakPoint.background as GradientDrawable
+            shapeBreakPoint.setColor(ContextCompat.getColor(context, R.color.break_point_flag))
+            if(blocksCode[i].breakPoint) {
+                shapeBreakPoint.setColor(ContextCompat.getColor(context, R.color.break_point_flag_marker))
+            }
+        }
+    }
+
+    private fun markBlock(id: Int) {
+        val latch = CountDownLatch(1)
+        Handler(Looper.getMainLooper()).post {
+            context.activateDebugButtons()
+            latch.countDown()
+        }
+        latch.await()
+
+        val breakPoint =  blocksView[id].findViewById<Button>(R.id.buttonBreakPoint)
+        val shapeBreakPoint = breakPoint.background as GradientDrawable
+        shapeBreakPoint.setColor(ContextCompat.getColor(context, R.color.break_point_flag_marker_wait))
+
+        wasStop = true
     }
 
     private fun toNext(toEnd: Boolean = true) {
@@ -1045,6 +1096,10 @@ class Interpreter {
                     while (bracketStack.peek().bracket != InstructionType.FUNC) {
                         bracketStack.pop()
                     }
+                    while (blocksCode[callStack.peek().curNmbLine].instructionType != InstructionType.FUNC) {
+                        callStack.peek().curNmbLine--
+                    }
+                    toNext(true)
                     bracketStack.pop()
                     data.deleteFuncNesting()
                 } else if (callStack.peek().arithmeticStack.size() == 0) {
@@ -1056,6 +1111,10 @@ class Interpreter {
                         while (bracketStack.peek().bracket != InstructionType.FUNC) {
                             bracketStack.pop()
                         }
+                        while (blocksCode[callStack.peek().curNmbLine].instructionType != InstructionType.FUNC) {
+                            callStack.peek().curNmbLine--
+                        }
+                        toNext(true)
                         bracketStack.pop()
                         data.deleteFuncNesting()
                     }

@@ -91,6 +91,9 @@ class CodingActivity : AppCompatActivity() {
     private lateinit var console: Console
     private lateinit var interpreter: Interpreter
 
+    private var debugMode: Boolean = false
+    private var runOnce: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_coding)
@@ -159,7 +162,7 @@ class CodingActivity : AppCompatActivity() {
 
         console = Console(bottomSheetViewConsoleBinding.consoleOutput, this, R.layout.layout_console_line)
 
-        binding.buttonCompiler.setOnClickListener {
+        val startCompiler = fun () {
             if(::interpreter.isInitialized) interpreter.deactivate()
 
             val blocksView = listOfBlocksOnField
@@ -168,11 +171,71 @@ class CodingActivity : AppCompatActivity() {
 
             interpreter = Interpreter(blocksView, this, console)
 
-            interpreter.run()
+            interpreter.run(debugMode)
+        }
+
+        binding.buttonCompiler.setOnClickListener {
+            binding.buttonCompiler.visibility = View.INVISIBLE
+            binding.buttonDebug.visibility = View.INVISIBLE
+            binding.buttonRestart.visibility = View.VISIBLE
+            binding.buttonStop.visibility = View.VISIBLE
+            debugMode = false
+
+            startCompiler()
+        }
+
+        binding.buttonStop.setOnClickListener {
+            binding.buttonCompiler.visibility = View.VISIBLE
+            binding.buttonDebug.visibility = View.VISIBLE
+            binding.buttonSaveCode.visibility = View.VISIBLE
+            binding.buttonCodingSwapMode.visibility = View.VISIBLE
+            binding.buttonRestart.visibility = View.INVISIBLE
+            binding.buttonStop.visibility = View.INVISIBLE
+            binding.buttonDebugNext.visibility = View.INVISIBLE
+            binding.buttonDebugNextBreakPoint.visibility = View.INVISIBLE
+            binding.buttonLookVars.visibility = View.INVISIBLE
+            debugMode = false
+
+            if(::interpreter.isInitialized) {
+                interpreter.deactivate()
+                interpreter.updateBlockMarkers()
+            }
+        }
+
+        binding.buttonRestart.setOnClickListener {
+            debugMode = false
+
+            startCompiler()
         }
 
         binding.buttonDebug.setOnClickListener{
-            if(::interpreter.isInitialized) interpreter.deactivate()
+            binding.buttonCompiler.visibility = View.INVISIBLE
+            binding.buttonDebug.visibility = View.INVISIBLE
+            binding.buttonSaveCode.visibility = View.INVISIBLE
+            binding.buttonCodingSwapMode.visibility = View.INVISIBLE
+            binding.buttonStop.visibility = View.VISIBLE
+            binding.buttonDebugNext.visibility = View.VISIBLE
+            binding.buttonDebugNextBreakPoint.visibility = View.VISIBLE
+            binding.buttonLookVars.visibility = View.VISIBLE
+
+            deactivateDebugButtons()
+
+            debugMode = true; runOnce = false
+            startCompiler()
+        }
+
+        binding.buttonDebugNextBreakPoint.setOnClickListener {
+            deactivateDebugButtons()
+
+            debugMode = true; runOnce = false
+            interpreter.run(debugMode, runOnce)
+        }
+
+        binding.buttonDebugNext.setOnClickListener {
+            deactivateDebugButtons()
+
+            debugMode = true; runOnce = true
+            interpreter.run(debugMode, runOnce)
         }
 
         val intent = intent
@@ -411,6 +474,25 @@ class CodingActivity : AppCompatActivity() {
     }
 
 
+    fun deactivateDebugButtons() {
+        binding.buttonDebugNext.isEnabled = false
+        binding.buttonDebugNextBreakPoint.isEnabled = false
+        binding.buttonLookVars.isEnabled = false
+
+        binding.buttonDebugNext.alpha = 0.6f
+        binding.buttonDebugNextBreakPoint.alpha = 0.6f
+        binding.buttonLookVars.alpha = 0.6f
+    }
+
+    fun activateDebugButtons() {
+        binding.buttonDebugNext.isEnabled = true
+        binding.buttonDebugNextBreakPoint.isEnabled = true
+        binding.buttonLookVars.isEnabled = true
+
+        binding.buttonDebugNext.alpha = 1f
+        binding.buttonDebugNextBreakPoint.alpha = 1f
+        binding.buttonLookVars.alpha = 1f
+    }
 
     fun errorRequest(string: String) {
         val builder = AlertDialog.Builder(this)
@@ -436,7 +518,7 @@ class CodingActivity : AppCompatActivity() {
 
         val enter = {
             interpreter.input(dialogLayout.findViewById<EditText>(R.id.inputExpression).text.toString())
-            interpreter.run()
+            interpreter.run(debugMode, runOnce)
             dialog.dismiss()
         }
 

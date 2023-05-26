@@ -56,6 +56,30 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
+                android:id="@+id/buttonRestart"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/ic_restart"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.341"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/buttonDebugNextBreakPoint"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/ic_to_next_breack_point"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.057"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
                 android:id="@+id/buttonDebugNext"
                 android:layout_width="@dimen/upper_bound_container_button_width"
                 android:layout_height="@dimen/upper_bound_container_button_height"
@@ -79,7 +103,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
-                android:id="@+id/buttonDebugStop"
+                android:id="@+id/buttonStop"
                 android:layout_width="@dimen/upper_bound_container_button_width"
                 android:layout_height="@dimen/upper_bound_container_button_height"
                 android:background="@drawable/ic_stop"
@@ -87,6 +111,18 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="@dimen/button_debug_stop_horizontal_bias"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/buttonLookVars"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/ic_look_vars"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.939"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>

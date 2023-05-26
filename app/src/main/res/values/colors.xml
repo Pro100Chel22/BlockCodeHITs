@@ -12,7 +12,8 @@
     <color name="compiler_default">#46C84B</color>
     <color name="debug_stop_default">#DD1111</color>
     <color name="break_point_flag">#C9D8C7</color>
-    <color name="break_point_flag_marker">#40C62E</color>
+    <color name="break_point_flag_marker">#61AF13</color>
+    <color name="break_point_flag_marker_wait">#DAA816</color>
     <color name="connector">#FF018786</color>
     <color name="scroll_view_wave_default">#FF018786</color>
     <color name="text_main_default">#9EDAE3</color>
