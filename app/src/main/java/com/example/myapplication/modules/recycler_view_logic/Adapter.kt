@@ -15,18 +15,18 @@ class OperatorAdapter(private val context : Context, private val marginInDp : In
                       private val mapOfEditTexts : Map<EditText, Boolean>,
                       private val operatorsList : List<Operators>) : RecyclerView.Adapter<OperatorAdapter.OperatorViewHolder>(){
 
-    inner class OperatorViewHolder(private val view : View) : RecyclerView.ViewHolder(view), View.OnClickListener{
+    inner class OperatorViewHolder(view : View) : RecyclerView.ViewHolder(view), View.OnClickListener{
         val textView : TextView = view.findViewById(R.id.operator)
 
         override fun onClick(view : View){
             val keys : Set<EditText> = mapOfEditTexts.keys
             for(key in keys){
                 if(mapOfEditTexts[key] == true){
-                    val cursorPosition : Int = key.selectionStart;
-                    val editable : Editable = key.text;
-                    val stringBuilder : StringBuilder = StringBuilder(editable)
-                    stringBuilder.insert(cursorPosition, textView.text);
-                    key.setText(stringBuilder.toString());
+                    val cursorPosition : Int = key.selectionStart
+                    val editable : Editable = key.text
+                    val stringBuilder = StringBuilder(editable)
+                    stringBuilder.insert(cursorPosition, textView.text)
+                    key.setText(stringBuilder.toString())
                     key.setSelection(cursorPosition + textView.text.length)
                     break
                 }
@@ -48,15 +48,22 @@ class OperatorAdapter(private val context : Context, private val marginInDp : In
         holder.textView.text = context.resources.getString(item.operator)
 
         val marginLeft = if (position == 0) marginInDp * 2 else marginInDp
-        val marginRight = if(position == operatorsList.size - 1) marginInDp else -marginInDp
 
         val layoutParams = holder.itemView.layoutParams as RecyclerView.LayoutParams
-        layoutParams.setMargins(marginLeft, layoutParams.topMargin, layoutParams.rightMargin, layoutParams.bottomMargin)
-        if(holder.textView.text.length == 1 || holder.textView.text == "||"){
-            layoutParams.width = marginInDp * 4;
+        layoutParams.setMargins(marginLeft, layoutParams.topMargin, marginInDp, layoutParams.bottomMargin)
+        if(position < 14){
+            if(holder.textView.text.length == 1 || holder.textView.text == "||"){
+                layoutParams.width = marginInDp * 4
+            }
+            else{
+                layoutParams.width = (marginInDp * 5)
+            }
+        }
+        else if(position == operatorsList.size - 1){
+            layoutParams.width = marginInDp * 3 * holder.textView.text.length / 2
         }
         else{
-            layoutParams.width = (marginInDp * 5)
+            layoutParams.width = marginInDp * 4 * holder.textView.text.length / 2
         }
         holder.itemView.layoutParams = layoutParams
     }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="regular_block_width">350</integer>
+    <integer name="regular_block_height">90</integer>
+    <integer name="specific_block_width">200</integer>
+    <integer name="specific_block_height">55</integer>
+    <integer name="left_margin_value">30</integer>
+    <integer name="margin_for_recycler_view_items">30</integer>
+    <integer name="bottom_margin_for_every_block">15</integer>
+    <integer name="start_value_for_blocks_number">0</integer>
+    <integer name="dialog_window_width">300</integer>
+    <integer name="dialog_window_height">200</integer>
+</resources>

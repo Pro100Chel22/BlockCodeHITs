@@ -14,7 +14,7 @@
     <string name="enter">Enter</string>
 
     <string name="addition">&#x002B;</string>
-    <string name="subtraction">&#x2212;</string>
+    <string name="subtraction">-</string>
     <string name="multiplication">&#42;</string>
     <string name="division">&#47;</string>
     <string name="exponent">&#x005E;</string>
@@ -31,5 +31,16 @@
     <string name="logical_not">&#x0021;</string>
     <string name="ok">OK</string>
     <string name="error">ERROR</string>
+    <string name="two_thousand_twenty_three">2023</string>
+    <string name="_int">int</string>
+    <string name="_double">double</string>
+    <string name="_boolean">boolean</string>
+    <string name="_toInt">.toInt</string>
+    <string name="_toDouble">.toDouble</string>
+    <string name="_toBoolean">.toBoolean</string>
+
+
     <string name="saved_buttons">buttons</string>
+    <string name="bubble_sort">bubble sort</string>
+    <string name="harp">harp</string>
 </resources>

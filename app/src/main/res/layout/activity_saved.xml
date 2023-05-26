@@ -23,8 +23,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/parent"
-                android:orientation="vertical"
-                />
+                android:orientation="vertical">
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/bubbleSort"
+                    android:text="@string/bubble_sort"
+                    style="@style/savedButtonStyle"
+                    />
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/oneThousandBlocks"
+                    android:text="@string/two_thousand_twenty_three"
+                    style="@style/savedButtonStyle"
+                    />
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/harp"
+                    android:text="@string/harp"
+                    style="@style/savedButtonStyle"
+                    />
+
+            </LinearLayout>
 
         </ScrollView>
 

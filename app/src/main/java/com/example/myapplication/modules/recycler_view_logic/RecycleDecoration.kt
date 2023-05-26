@@ -34,7 +34,7 @@ class ItemsDecoration(context : Context, private val margin : Int) : RecyclerVie
         val childCount = parent.childCount;
         for(i in 0 until childCount){
             val child = parent.getChildAt(i);
-            //c.drawLine(child.right.toFloat() + 30f, child.top.toFloat(), child.right.toFloat() + 30f, child.bottom.toFloat(), linePaint);
+            c.drawLine(child.right.toFloat() + 30f, child.top.toFloat(), child.right.toFloat() + 30f, child.bottom.toFloat(), linePaint);
         }
     }
 }

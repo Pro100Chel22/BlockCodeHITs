@@ -13,7 +13,6 @@ import android.view.View.OnDragListener
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout.LayoutParams
-import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import com.example.myapplication.databinding.ActivitySavedBinding
@@ -23,6 +22,7 @@ import org.json.JSONArray
 class SavedActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivitySavedBinding
+    private var topMargin = 20
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +30,32 @@ class SavedActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_saved)
 
+        binding.bubbleSort.setOnClickListener {
+            val intent = Intent(this, CodingActivity::class.java)
+            intent.putExtra("bubble_sort", binding.bubbleSort.text.toString())
+            startActivity(intent)
+            finish()
+        }
+
+        binding.oneThousandBlocks.setOnClickListener {
+            val intent = Intent(this, CodingActivity::class.java)
+            intent.putExtra("2023", binding.oneThousandBlocks.text.toString())
+            startActivity(intent)
+            finish()
+        }
+
+        binding.harp.setOnClickListener {
+            val intent = Intent(this, CodingActivity::class.java)
+            intent.putExtra("harp", binding.harp.text.toString())
+            startActivity(intent)
+            finish()
+        }
+
         startFunction()
+        setParams()
 
         binding.deleteBlock.setOnDragListener(deleteSavedCode)
+
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 
@@ -71,10 +94,6 @@ class SavedActivity : AppCompatActivity() {
 
         button.background = styledButton.background
         button.setTextColor(resources.getColor(R.color.black))
-
-        val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-        params.topMargin = 20
-        button.layoutParams = params
 
         button.setOnClickListener {
             val intent = Intent(this, CodingActivity::class.java)
@@ -150,6 +169,17 @@ class SavedActivity : AppCompatActivity() {
 
         val jsonArray = JSONArray(list)
         savedProgramsNames.writeText(jsonArray.toString())
+    }
+
+
+    private fun setParams(){
+        for(i in 0 until binding.parent.childCount){
+            val button = binding.parent.getChildAt(i) as Button
+
+            val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+            params.topMargin = topMargin
+            button.layoutParams = params
+        }
     }
 
 

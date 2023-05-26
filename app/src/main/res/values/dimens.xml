@@ -117,7 +117,7 @@
     <dimen name="button_debug_horizontal_bias">0.661</dimen>
     <dimen name="button_debug_stop_horizontal_bias">0.661</dimen>
     <dimen name="min_zoom_layout_zoom">0.25</dimen>
-    <dimen name="max_zoom_layout_zoom">25.0</dimen>
+    <dimen name="max_zoom_layout_zoom">50.0</dimen>
     <dimen name="regular_block_textview_vertical_bias">0.475</dimen>
 
 

@@ -43,8 +43,10 @@ import com.example.myapplication.modules.getListBlocksEnds
 import com.example.myapplication.modules.getListBlocksNotHaveText
 import com.example.myapplication.modules.getMapOfCorrespondence
 import com.example.myapplication.modules.recycler_view_logic.DataSource
-import com.example.myapplication.modules.recycler_view_logic.ItemsDecoration
 import com.example.myapplication.modules.recycler_view_logic.OperatorAdapter
+import com.example.myapplication.modules.saved_list.bubbleSort
+import com.example.myapplication.modules.saved_list.harp
+import com.example.myapplication.modules.saved_list.oneThousandBlocks
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.json.JSONArray
 import org.json.JSONObject
@@ -58,9 +60,13 @@ class CodingActivity : AppCompatActivity() {
     private val leftMarginValue : Int = 30
     private val marginForRecyclerViewItems : Int = 30
     private val bottomMarginForEveryBlock : Int = 15
-    private var numberOfBlockFieldChildren :Int = 0
+    private var numberOfBlockFieldChildren : Int = 0
+    private val viewTransparent = 0.3f
+    private val viewOpaque = 1.0f
     private val regularBlockWidth : Int = 350;  private val regularBlockHeight : Int = 90
     private val specificBlockWidth : Int = 200; private val specificBlockHeight: Int = 55
+    private val dialogWindowInputWidth : Int = 300; private val dialogWindowInputHeight : Int = 200
+    private val dialogWindowErrorWidth : Int = 300; private val dialogWindowErrorHeight : Int = 400
 
 
 
@@ -112,8 +118,6 @@ class CodingActivity : AppCompatActivity() {
         operatorsRecycler.adapter = operatorsAdapter
 
 
-        val itemDecoration = ItemsDecoration(this, (40 * scaleDp).toInt())
-        operatorsRecycler.addItemDecoration(itemDecoration)
 
         initBottomSheetViewNewBlock()
         initBottomSheetConsole()
@@ -180,6 +184,7 @@ class CodingActivity : AppCompatActivity() {
             binding.buttonRestart.visibility = View.VISIBLE
             binding.buttonStop.visibility = View.VISIBLE
             debugMode = false
+            changeBlockDragListeners(false)
 
             startCompiler()
         }
@@ -195,6 +200,8 @@ class CodingActivity : AppCompatActivity() {
             binding.buttonDebugNextBreakPoint.visibility = View.INVISIBLE
             binding.buttonLookVars.visibility = View.INVISIBLE
             debugMode = false
+
+            changeBlockDragListeners(true)
 
             if(::interpreter.isInitialized) {
                 interpreter.deactivate()
@@ -219,6 +226,7 @@ class CodingActivity : AppCompatActivity() {
             binding.buttonLookVars.visibility = View.VISIBLE
 
             deactivateDebugButtons()
+            changeBlockDragListeners(false)
 
             debugMode = true; runOnce = false
             startCompiler()
@@ -239,10 +247,34 @@ class CodingActivity : AppCompatActivity() {
         }
 
         val intent = intent
-        if(intent != null && intent.hasExtra("fileName")){
-            val fileName = intent.getStringExtra("fileName").toString()
-            intent.removeExtra("fileName")
-            readBlocksDataFromParticularFileAndRecreate(fileName)
+
+        if(intent != null){
+            when{
+                intent.hasExtra("fileName") -> {
+                    val fileName = intent.getStringExtra("fileName").toString()
+                    intent.removeExtra("fileName")
+                    readBlocksDataFromParticularFileAndRecreate(fileName)
+                }
+                intent.hasExtra("bubble_sort")->{
+                    intent.removeExtra("bubble_sort")
+                    val(enums, expressions, newMargins, newWidths) = bubbleSort()
+                    instructionList = enums.toMutableList()
+                    recreateBlockList(expressions, newMargins, newWidths)
+                }
+                intent.hasExtra("2023")->{
+                    intent.removeExtra("2023")
+                    val(enums, expressions, newMargins, newWidths) = oneThousandBlocks()
+                    instructionList = enums.toMutableList()
+                    recreateBlockList(expressions, newMargins, newWidths)
+                }
+                intent.hasExtra("harp")->{
+                    intent.removeExtra("harp")
+                    val(enums, expressions, newMargins, newWidths) = harp()
+                    instructionList = enums.toMutableList()
+                    recreateBlockList(expressions, newMargins, newWidths)
+                }
+                else -> {}
+            }
         }
 
         if(savedInstanceState != null){
@@ -340,7 +372,7 @@ class CodingActivity : AppCompatActivity() {
         dialog.show()
 
         dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
-        dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (200 * scaleDp + 0.5).toInt())
+        dialog.window?.setLayout((dialogWindowInputWidth * scaleDp + 0.5).toInt(), (dialogWindowInputHeight * scaleDp + 0.5).toInt())
     }
     private fun readBlocksDataFromParticularFileAndRecreate(fileName : String){
         val expressions = mutableListOf<String>()
@@ -474,14 +506,14 @@ class CodingActivity : AppCompatActivity() {
     }
 
 
-    fun deactivateDebugButtons() {
+    private fun deactivateDebugButtons() {
         binding.buttonDebugNext.isEnabled = false
         binding.buttonDebugNextBreakPoint.isEnabled = false
         binding.buttonLookVars.isEnabled = false
 
-        binding.buttonDebugNext.alpha = 0.6f
-        binding.buttonDebugNextBreakPoint.alpha = 0.6f
-        binding.buttonLookVars.alpha = 0.6f
+        binding.buttonDebugNext.alpha = viewTransparent
+        binding.buttonDebugNextBreakPoint.alpha = viewTransparent
+        binding.buttonLookVars.alpha = viewTransparent
     }
 
     fun activateDebugButtons() {
@@ -489,9 +521,9 @@ class CodingActivity : AppCompatActivity() {
         binding.buttonDebugNextBreakPoint.isEnabled = true
         binding.buttonLookVars.isEnabled = true
 
-        binding.buttonDebugNext.alpha = 1f
-        binding.buttonDebugNextBreakPoint.alpha = 1f
-        binding.buttonLookVars.alpha = 1f
+        binding.buttonDebugNext.alpha = viewOpaque
+        binding.buttonDebugNextBreakPoint.alpha = viewOpaque
+        binding.buttonLookVars.alpha = viewOpaque
     }
 
     fun errorRequest(string: String) {
@@ -507,7 +539,7 @@ class CodingActivity : AppCompatActivity() {
         dialog.show()
 
         dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
-        dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (400 * scaleDp + 0.5).toInt())
+        dialog.window?.setLayout((dialogWindowErrorWidth * scaleDp + 0.5).toInt(), (dialogWindowErrorHeight * scaleDp + 0.5).toInt())
     }
     fun inputRequest() {
         val builder = AlertDialog.Builder(this)
@@ -528,9 +560,32 @@ class CodingActivity : AppCompatActivity() {
         dialog.show()
 
         dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
-        dialog.window?.setLayout((300 * scaleDp + 0.5).toInt(), (200 * scaleDp + 0.5).toInt())
+        dialog.window?.setLayout((dialogWindowInputWidth * scaleDp + 0.5).toInt(), (dialogWindowInputHeight * scaleDp + 0.5).toInt())
     }
 
+
+    private fun changeBlockDragListeners(flag : Boolean){
+        for(i in 0 until instructionList.size){
+            if(instructionList[i] !in listBlocksNotHaveText && instructionList[i] != InstructionType.ELIF){
+                val editText = listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression)
+                if(flag){
+                    listOfBlocksOnField[i].setOnLongClickListener{
+                        makeContainerDraggable(instructionList[i], it)
+                        true
+                    }
+                    editText.isEnabled = true
+                    binding.buttonAddNewBlock.isEnabled = true
+                    binding.deleteBlock.isEnabled = true
+                }
+                else{
+                    listOfBlocksOnField[i].setOnLongClickListener { false }
+                    editText.isEnabled = false
+                    binding.buttonAddNewBlock.isEnabled = false
+                    binding.deleteBlock.isEnabled = false
+                }
+            }
+        }
+    }
 
 
 
@@ -539,6 +594,7 @@ class CodingActivity : AppCompatActivity() {
 
         newBlock.setOnLongClickListener {
             makeContainerDraggable(key, it)
+            true
         }
         newBlock.setOnDragListener { view, dragEvent ->
             shiftBlocks(view, dragEvent, key)
@@ -713,7 +769,7 @@ class CodingActivity : AppCompatActivity() {
                 true
             }
             DragEvent.ACTION_DROP -> {
-                if(view.alpha < 1.0f){
+                if(view.alpha < viewOpaque){
                     return false
                 }
 
@@ -950,7 +1006,7 @@ class CodingActivity : AppCompatActivity() {
         }
     }
 
-    private fun makeContainerDraggable(instruction : InstructionType, view : View) : Boolean{
+    private fun makeContainerDraggable(instruction : InstructionType, view : View){
         val clipText = ""
         val item = ClipData.Item(clipText)
         val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
@@ -958,17 +1014,16 @@ class CodingActivity : AppCompatActivity() {
 
         val dragShadowBuilder = View.DragShadowBuilder(view)
         view.startDragAndDrop(data, dragShadowBuilder, view, 0)
-        view.alpha = 0.3f
+        view.alpha = viewTransparent
 
         makeViewsInvisible(listOfBlocksOnField.indexOf(view), instruction)
-        return true
     }
 
     private fun makeViewsInvisible(indexInList : Int, instruction : InstructionType){
         listOfIndices.add(indexInList)
         if(instruction in listContainersBlocks){
             for(i in indexInList + 1 until listOfBlocksOnField.size){
-                listOfBlocksOnField[i].alpha = 0.3f
+                listOfBlocksOnField[i].alpha = viewTransparent
                 listOfIndices.add(i)
                 if(instructionList[i] in listBlocksEnds && listOfBlocksOnField[i].marginLeft == listOfBlocksOnField[indexInList].marginLeft){
                     break
@@ -978,7 +1033,7 @@ class CodingActivity : AppCompatActivity() {
     }
     private fun makeViewsVisible(){
         for(i in 0 until listOfBlocksOnField.size){
-            listOfBlocksOnField[i].alpha = 1.0f
+            listOfBlocksOnField[i].alpha = viewOpaque
         }
     }
 
@@ -1137,8 +1192,6 @@ class CodingActivity : AppCompatActivity() {
             } else {
                 shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag_marker))
             }
-
-            //Toast.makeText(this, block.findViewById<EditText>(R.id.inputExpression).text.toString(), Toast.LENGTH_SHORT).show()
         }
 
         block.id = View.generateViewId()
