@@ -53,6 +53,14 @@ class Interpreter {
         isActive = false
     }
 
+    fun getVariables(): String {
+        return data.getVariables()
+    }
+
+    fun getArrays(showArray: Boolean): String {
+        return data.getArrays(showArray)
+    }
+
     fun run(toNextBreakPoint: Boolean = false, runOnce: Boolean = false) {
         // Добавить проверку скобок,
         // Запретить подряд использовать == >= <= !=
@@ -85,6 +93,7 @@ class Interpreter {
 
                     if (callStack.peek().curNmbLine >= blocksCode.size) {
                         isActive = false
+                        Handler(Looper.getMainLooper()).post { context.activateLookVars() }
                         break
                     }
 
@@ -339,7 +348,14 @@ class Interpreter {
 
         var i = 0
         while (i < arithmetic.length) {
-            if(!foundFunOrArray && arithmetic[i] in listMathOperation) {
+            if(arithmetic[i] == '\'') {
+                if(i < arithmetic.length - 2 && arithmetic.substring(i, i + 3)[2] == '\'') {
+                    add(arithmetic.substring(i, i + 3))
+                    i += 2
+                } else {
+                    throw Exception("Incorrect expression: there must be one character between the two operators '")
+                }
+            } else if(!foundFunOrArray && arithmetic[i] in listMathOperation) {
                 add(arithmetic[i].toString())
             } else if(!foundFunOrArray && arithmetic[i] in listLogicOperationPartOne) {
                 if(i < arithmetic.length - 1 && arithmetic.substring(i, i + 2) in listLogicOperationFull) {
@@ -361,7 +377,10 @@ class Interpreter {
                 } else if(i < arithmetic.length - 9 && arithmetic.substring(i, i + 10) == ".toBoolean") {
                     add(arithmetic.substring(i, i + 10))
                     i += 10
-                } else {
+                } else if(i < arithmetic.length - 6 && arithmetic.substring(i, i + 7) == ".toChar") {
+                    add(arithmetic.substring(i, i + 7))
+                    i += 7
+                }else {
                     println("ERR: incorrect expression")
                     throw Exception("Incorrect expression: unknown transformation")
                 }
@@ -441,7 +460,7 @@ class Interpreter {
             "+" to 2, "-" to 2,
             "*" to 3, "/" to 3, "%" to 3,
             "!" to 4,
-            ".toInt" to 5, ".toDouble" to 5, ".toBoolean" to 5
+            ".toInt" to 5, ".toDouble" to 5, ".toBoolean" to 5, ".toChar" to 5
         )
 
         val split = callStack.peek().arithmeticStack.peekArithmetic().split.ifEmpty {
@@ -450,12 +469,13 @@ class Interpreter {
         }
 
         val operatorAction = fun (operator: String){
-            if(operator in listOf(".toInt", ".toDouble", ".toBoolean", "!")) {
+            if(operator in listOf(".toInt", ".toDouble", ".toBoolean", ".toChar", "!")) {
                 val var1 = callStack.peek().arithmeticStack.peekArithmetic().variableStack.pop()
                 callStack.peek().arithmeticStack.peekArithmetic().variableStack.push(when(operator) {
                     ".toInt" -> var1.toInt()
                     ".toDouble" -> var1.toDouble()
                     ".toBoolean" -> var1.toBoolean()
+                    ".toChar" -> var1.toChar()
                     "!" -> var1.not()
                     else -> {
                         println("ERR: incorrect expression")
@@ -530,7 +550,7 @@ class Interpreter {
             } else if(next in listOf("[", "]")) {
                 println("ERR: incorrect expression")
                 throw Exception("Incorrect expression: false brackets: []")
-            } else if(VariableType.isConstant(next)){
+            } else if(VariableType.isConstant(next) || VariableType.isSymbol(next)){
                 println(next + " isConstant")
                 callStack.peek().arithmeticStack.peekArithmetic().variableStack.push(VariableType.toVariable(next))
             } else if(isFunction(next)) {

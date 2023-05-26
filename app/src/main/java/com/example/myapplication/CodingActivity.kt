@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.GravityCompat
 import androidx.core.view.marginBottom
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
@@ -245,6 +246,19 @@ class CodingActivity : AppCompatActivity() {
             debugMode = true; runOnce = true
             interpreter.run(debugMode, runOnce)
         }
+
+        var showArraysInFull = false
+        binding.buttonLookVars.setOnClickListener {
+            binding.variables.text = interpreter.getVariables()
+            binding.arrays.text = interpreter.getArrays(showArraysInFull)
+
+            binding.drawerLayoutLookVars.openDrawer(GravityCompat.END)
+        }
+        binding.arrays.setOnClickListener {
+            showArraysInFull = !showArraysInFull
+            binding.arrays.text = interpreter.getArrays(showArraysInFull)
+        }
+
 
         val intent = intent
 
@@ -515,7 +529,10 @@ class CodingActivity : AppCompatActivity() {
         binding.buttonDebugNextBreakPoint.alpha = viewTransparent
         binding.buttonLookVars.alpha = viewTransparent
     }
-
+    fun activateLookVars() {
+        binding.buttonLookVars.isEnabled = true
+        binding.buttonLookVars.alpha = 1f
+    }
     fun activateDebugButtons() {
         binding.buttonDebugNext.isEnabled = true
         binding.buttonDebugNextBreakPoint.isEnabled = true
