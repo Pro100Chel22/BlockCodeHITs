@@ -52,4 +52,7 @@
     <string name="look_vars_variables">Variables</string>
     <string name="look_vars_arrays">Arrays</string>
     <string name="look_vars_functions">Functions</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="exit">Do you really want to get out? All unsaved data will be deleted.</string>
 </resources>

@@ -1287,10 +1287,33 @@ class CodingActivity : AppCompatActivity() {
 
 
     override fun finish() {
-        super.finish()
-        overridePendingTransition(
-            androidx.appcompat.R.anim.abc_slide_in_top,
-            androidx.appcompat.R.anim.abc_slide_out_bottom
+        val builder = AlertDialog.Builder(this)
+        val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_exit, null)
+        builder.setView(dialogLayout)
+
+        val dialog = builder.create()
+
+        dialogLayout.findViewById<Button>(R.id.buttonNo).setOnClickListener { dialog.dismiss() }
+        dialogLayout.findViewById<Button>(R.id.buttonYes).setOnClickListener {
+            super.finish()
+            overridePendingTransition(
+                androidx.appcompat.R.anim.abc_slide_in_top,
+                androidx.appcompat.R.anim.abc_slide_out_bottom
+            )
+        }
+        dialog.setOnCancelListener { dialog.dismiss() }
+
+        dialog.show()
+
+        dialog.window?.setBackgroundDrawable(
+            ContextCompat.getDrawable(
+                this,
+                android.R.color.transparent
+            )
+        )
+        dialog.window?.setLayout(
+            (dialogWindowErrorWidth * scaleDp + 0.5).toInt(),
+            (dialogWindowErrorHeight * scaleDp + 0.5).toInt()
         )
     }
 

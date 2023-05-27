@@ -75,6 +75,7 @@
         <item name="android:backgroundTint">@color/button_home_default</item>
     </style>
 
+
     <style name="codingBackgroundStyle">
         <item name="android:background">@drawable/background</item>
         <item name="android:backgroundTint">@color/front_wave_color_default</item>

@@ -197,6 +197,16 @@
     <dimen name="drawerlayout_look_vars_name_size">30sp</dimen>
     <dimen name="drawerlayout_look_vars_text_size">20sp</dimen>
 
+    <dimen name="alert_exit_text_view_width">250dp</dimen>
+    <dimen name="alert_exit_text_view_height">100dp</dimen>
+    <dimen name="alert_exit_text_view_margin_start">30dp</dimen>
+    <dimen name="alert_exit_text_view_margin_end">30dp</dimen>
+    <dimen name="alert_exit_text_view_margin_top">16dp</dimen>
+    <dimen name="alert_exit_text_view_margin_bottom">8dp</dimen>
+    <dimen name="alert_exit_text_view_size">20sp</dimen>
+
+    <dimen name="alert_exit_button_width">100dp</dimen>
+
 
     <dimen name="splash_main_text_size">60sp</dimen>
     <dimen name="splash_logo_width">170dp</dimen>
