@@ -35,7 +35,7 @@ You can also specify a non-zero starting value of the variable, for this the '='
 </ul>
 
 To declare arrays, you must specify the type name and specify the number of elements inside the '[]' operator
-ul>
+<ul>
   <li>int a[32]
   <li>double b[10]
   <li>boolean flag[2]
@@ -43,7 +43,23 @@ ul>
 </ul>
 
 In addition, an array of type char is a string, and you can assign a string to it without specifying the number of elements:
-ul>
+<ul>
   <li>char ch[] = "String"
   <li>char ch[45] = "Temple"
 </ul>
+
+To change the value of a variable, array element, or string value in the set block, specify its name and use the '=' operator to assign a new value to it:
+<ul>
+  <li>a = 32 + 3 % (3 / 2) + b - a
+  <li>arr[i+1] = arr[i] + 4 - 1
+  <li>str = "new string"
+</ul>
+
+To convert the variable type, you need to specify the operators toInt, .toDouble, .toBoolean or .toChar before the operand:
+<ul>
+  <li>a = 32.toDouble
+  <li>arr[i+1] = arr[i].toBoolean
+  <li>str[j] = 48.toChar
+  <li>str[j] = 48.6.toInt
+</ul>
+
