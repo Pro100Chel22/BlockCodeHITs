@@ -63,3 +63,40 @@ To convert the variable type, you need to specify the operators toInt, .toDouble
   <li>str[j] = 48.6.toInt
 </ul>
 
+![124](https://github.com/ProNagibator2000/BlockCodeHITs/assets/120786249/2626a378-bf24-43b0-a609-50d5ef0467b8)
+For the if block to work, you must specify a boolean expression, for this you can use the operators ||, &&, ==, !=, <=, >=, <, >, !
+<ul>
+  <li> 1 == 213 - 212
+  <li> arr[i] > arr[j] || true
+  <li> !false
+</ul>
+
+![image](https://github.com/ProNagibator2000/BlockCodeHITs/assets/120786249/a4dd0e0c-af59-45b4-bb32-a95df8cd6294)
+The while block, as well as if, accepts a boolean expression.
+For the for block to work, you must specify three commands separated by two operators ':'
+<ul>
+  <li> init; condition; assignment
+</ul>
+The init command is executed like the var block, the condition must be specified in the same way as in the while block, the command works like the set block and is executed after the first iteration:
+<ul>
+  <li> int i = 1; i <= 10; i = i + 1
+</ul>
+    
+![image](https://github.com/ProNagibator2000/BlockCodeHITs/assets/120786249/8a19f8f0-79e8-44f3-bdee-db027a23226d)
+To declare a function, you need to specify the type of the return value, and arguments with types and names:
+<ul>
+  <li> int function(int x, double y, boolean flag)
+</ul>
+Also, each function must return a value using the return block:
+<ul>
+  <li> 0
+  <li> 5
+</ul>
+You can call the function in the set, if, while, for and return blocks, for this you need to specify the name of the function operator '()', inside which you need to specify the values to be passed:
+<ul>
+  <li> block set: a = f(f(1, 1.0, false), 2.0, true) + 2
+  <li> block return or if, for, while: f(1, 1.0, false) <= f(3, 1.0, true) || f(1, 1.0, false) == 0
+</ul>
+
+
+
