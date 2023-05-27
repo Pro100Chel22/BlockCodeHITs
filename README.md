@@ -102,7 +102,7 @@ You can call the function in the set, if, while, for and return blocks, for this
 To work with the debug, you need to choose a place where you need to stop, for this you need to click on the break point button, then it will turn green.
    
     
-![image](https://github.com/ProNagibator2000/BlockCodeHITs/assets/120786249/a6475d9c-355e-4f9a-ba7b-1858dea4bdfd)
+![image](https://github.com/ProNagibator2000/BlockCodeHITs/assets/120786249/a6475d9c-355e-4f9a-ba7b-1858dea4bdfd) <br>
 The block where the program stopped is highlighted in orange. To move to the next block, click on the button with one arrow. To move to the next breakpoint, click on the double arrow button. To view the variables that are visible to the block where the program stopped, click on the button with the eye:
 ![image](https://github.com/ProNagibator2000/BlockCodeHITs/assets/120786249/048d704f-a3b1-4943-aa00-ae9fd1c4d6a2) <br>
     
