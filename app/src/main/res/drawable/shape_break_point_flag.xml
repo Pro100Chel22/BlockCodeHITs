@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/break_point_flag" />
+    <corners android:radius="@dimen/shape_button_radius_radius" />
+    <stroke
+        android:width="@dimen/break_point_stroke_radius"
+        android:color="@color/color_stroke_block" />
+</shape>

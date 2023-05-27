@@ -4,4 +4,55 @@
     <string name="lets_code">Let\'s code</string>
     <string name="saved">Saved</string>
     <string name="todo">TODO</string>
+    <string name="console">CONS</string>
+    <string name="add_new_block">NEW</string>
+    <string name="test">sdjkfhsdkjfhskj</string>
+    <string name="instruction_elif">Elif</string>
+    <string name="instruction_else">Else</string>
+    <string name="block_hint_text">expression</string>
+    <string name="default_instruction_type">Func</string>
+    <string name="enter">Enter</string>
+
+    <string name="addition">&#x002B;</string>
+    <string name="subtraction">-</string>
+    <string name="multiplication">&#42;</string>
+    <string name="division">&#47;</string>
+    <string name="exponent">&#x005E;</string>
+    <string name="assignment">&#x003D;</string>
+    <string name="modulo">&#x0025;</string>
+    <string name="equality">&#x003D;&#x003D;</string>
+    <string name="inequality">&#x0021;&#x003D;</string>
+    <string name="greater_than">&#x003E;</string>
+    <string name="less_than">&#x003C;</string>
+    <string name="less_than_or_equal_to">&#x003C;&#x003D;</string>
+    <string name="greater_than_or_equal_to">&#x003E;&#x003D;</string>
+    <string name="logical_and">&#x0026;&#x0026;</string>
+    <string name="logical_or">&#x007C;&#x007C;</string>
+    <string name="logical_not">&#x0021;</string>
+    <string name="ok">OK</string>
+    <string name="error">ERROR</string>
+    <string name="_int">int</string>
+    <string name="_double">double</string>
+    <string name="_boolean">boolean</string>
+    <string name="_toInt">.toInt</string>
+    <string name="_toDouble">.toDouble</string>
+    <string name="_toBoolean">.toBoolean</string>
+
+
+    <string name="saved_buttons">buttons</string>
+    <string name="bubble_sort">bubble sort</string>
+    <string name="two_thousand_twenty_three">2023</string>
+    <string name="harp">harp</string>
+    <string name="fibonacci">fibonacci</string>
+    <string name="pow">pow</string>
+    <string name="fast_euclid">fast euclid</string>
+    <string name="stirlitz">stirlitz</string>
+
+    <string name="templates">TEMPLATES</string>
+    <string name="look_vars_variables">Variables</string>
+    <string name="look_vars_arrays">Arrays</string>
+    <string name="look_vars_functions">Functions</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="exit">Do you really want to get out? All unsaved data will be deleted.</string>
 </resources>

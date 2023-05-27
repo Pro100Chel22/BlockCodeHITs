@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:id="@+id/modalBottomSheetContainer"
+        style="@style/backgroundBottomSheetStyle"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/console_height"
+        android:gravity="center|top"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imageView2"
+            style="@style/bottomSheetLineStyle"
+            android:layout_width="@dimen/console_top_line_width"
+            android:layout_height="@dimen/console_top_line_height"
+            android:layout_marginTop="@dimen/console_top_line_margin_top" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/modalBottomSheetScroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/console_nested_scroll_view_margin_top"
+            android:paddingStart="@dimen/console_nested_scroll_view_padding_start"
+            android:paddingEnd="@dimen/console_nested_scroll_view_padding_end">
+
+            <LinearLayout
+                android:id="@+id/consoleOutput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+</layout>

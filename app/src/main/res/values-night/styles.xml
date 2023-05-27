@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="BottomSheetDialogThem" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="backgroundBottomSheetStyle">
+        <item name="android:background">@drawable/shape_background_bottom_sheep</item>
+        <item name="android:backgroundTint">@color/front_wave_color_hm</item>
+    </style>
+
+    <style name="bottomSheetLineStyle">
+        <item name="android:background">@drawable/shape_bottom_sheet_line</item>
+        <item name="android:backgroundTint">@color/button_other_hm</item>
+    </style>
+
+    <style name="splashBackgroundStyle">
+        <item name="android:background">@drawable/background</item>
+        <item name="android:backgroundTint">@color/front_wave_color_hm</item>
+    </style>
+
+    <style name="splashMainTextStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_main_hm</item>
+        <item name="android:textSize">@dimen/splash_main_text_size</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">6</item>
+        <item name="android:shadowRadius">4</item>
+    </style>
+
+    <style name="splashLogoStyle">
+        <item name="android:layout_width">@dimen/splash_logo_width</item>
+        <item name="android:layout_height">@dimen/splash_logo_height</item>
+        <item name="android:background">@drawable/ic_logo</item>
+        <item name="android:backgroundTint">@color/text_main_hm</item>
+    </style>
+
+    <style name="homeBackgroundStyle">
+        <item name="android:background">@drawable/background_wave_hm</item>
+    </style>
+
+    <style name="buttonSwapModeStyle">
+        <item name="android:layout_width">@dimen/button_mode_width</item>
+        <item name="android:layout_height">@dimen/button_mode_height</item>
+        <item name="android:background">@drawable/ic_wise_baobab</item>
+    </style>
+
+    <style name="homeMainTextStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_main_hm</item>
+        <item name="android:textSize">@dimen/home_main_text_size</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">6</item>
+        <item name="android:shadowRadius">4</item>
+    </style>
+
+    <style name="homeButtonStyle">
+        <item name="android:layout_width">@dimen/home_button_width</item>
+        <item name="android:layout_height">@dimen/home_button_height</item>
+        <item name="android:textColor">@color/button_text_home_hm</item>
+        <item name="android:textSize">@dimen/home_button_text_size</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">4</item>
+        <item name="android:background">@drawable/shape_custom_button_home</item>
+        <item name="android:backgroundTint">@color/button_home_hm</item>
+    </style>
+
+    <style name="codingBackgroundStyle">
+        <item name="android:background">@drawable/background</item>
+        <item name="android:backgroundTint">@color/front_wave_color_hm</item>
+    </style>
+
+    <style name="codingSaveButtonStyle">
+        <item name="android:layout_width">@dimen/button_mode_width</item>
+        <item name="android:layout_height">@dimen/button_mode_height</item>
+        <item name="android:background">@drawable/ic_code_save</item>
+        <item name="android:backgroundTint">@color/button_other_hm</item>
+    </style>
+
+    <style name="codingButtonStyle">
+        <item name="android:layout_width">@dimen/trash_can_width</item>
+        <item name="android:layout_height">@dimen/trash_can_height</item>
+        <item name="android:textColor">@color/button_text_other_hm</item>
+        <item name="android:textSize">@dimen/coding_button_text_size</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">4</item>
+        <item name="android:background">@drawable/shape_custom_button_coding</item>
+        <item name="android:backgroundTint">@color/button_other_hm</item>
+    </style>
+
+    <style name="savedBackgroundStyle">
+        <item name="android:background">@drawable/background</item>
+        <item name="android:backgroundTint">@color/front_wave_color_hm</item>
+    </style>
+
+    <style name="savedButtonStyle">
+        <item name="android:layout_width">@dimen/saved_button_width</item>
+        <item name="android:layout_height">@dimen/saved_button_height</item>
+        <item name="android:textColor">@color/button_text_other_hm</item>
+        <item name="android:textSize">@dimen/coding_button_text_size</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">4</item>
+        <item name="android:background">@drawable/shape_custom_button_saved</item>
+        <item name="android:backgroundTint">@color/button_other_hm</item>
+    </style>
+
+    <item name="color_button_delete" type="color">@color/button_other_hm</item>
+    <item name="color_button_trash_delete" type="color">@color/button_text_other_hm</item>
+
+    <item name="color_block" type="color">@color/block_hm</item>
+    <item name="color_block_var" type="color">@color/block_var_hm</item>
+    <item name="color_block_set" type="color">@color/block_set_hm</item>
+    <item name="color_block_print" type="color">@color/block_print_hm</item>
+    <item name="color_block_input" type="color">@color/block_input_hm</item>
+    <item name="color_block_if" type="color">@color/block_if_hm</item>
+    <item name="color_block_for" type="color">@color/block_for_hm</item>
+    <item name="color_block_while" type="color">@color/block_while_hm</item>
+    <item name="color_block_break" type="color">@color/block_break_hm</item>
+    <item name="color_block_continue" type="color">@color/block_continue_hm</item>
+    <item name="color_block_func" type="color">@color/block_func_hm</item>
+    <item name="color_block_return" type="color">@color/block_return_hm</item>
+    <item name="color_block_end" type="color">@color/block_end_hm</item>
+
+    <item name="color_window_text_block" type="color">@color/window_text_block_hm</item>
+    <item name="color_text_block" type="color">@color/text_block_hm</item>
+    <item name="color_text_instruction_block" type="color">@color/text_instruction_block_hm</item>
+    <item name="color_stroke_block" type="color">@color/stroke_block_hm</item>
+    <item name="color_container" type="color">@color/container_hm</item>
+</resources>

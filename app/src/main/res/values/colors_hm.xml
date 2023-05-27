@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="scroll_view_wave_hm">#FFBB86FC</color>
+    <color name="text_main_hm">#DA146F</color>
+    <color name="button_home_hm">#9C074C</color>
+    <color name="button_text_home_hm">#49072E</color>
+    <color name="button_other_hm">#BC085B</color>
+    <color name="button_text_other_hm">#4A002C</color>
+    <color name="front_wave_color_hm">#280721</color>
+    <color name="background_wave_color_hm">#320525</color>
+    <color name="background_wave_color2_hm">#370529</color>
+    <color name="background_main_hm">#BC0006</color>
+    <color name="background_main_hm_start">#FF3F062F</color>
+    <color name="background_main_hm_end">#FFDF3282</color>
+    <color name="palm_hm">#FF000000</color>
+    <color name="sun_start_hm">#FFF82782</color>
+    <color name="sun_end_hm">#FFFC9688</color>
+    <color name="block_hm">#FF459A</color>
+    <color name="block_var_hm">#21545E</color>
+    <color name="block_set_hm">#5F507A</color>
+    <color name="block_print_hm">#E13471</color>
+    <color name="block_input_hm">#D0E134</color>
+    <color name="block_if_hm">#E13434</color>
+    <color name="block_for_hm">#4C8E77</color>
+    <color name="block_while_hm">#0A6B7C</color>
+    <color name="block_break_hm">#571785</color>
+    <color name="block_continue_hm">#9441A3</color>
+    <color name="block_func_hm">#33784A</color>
+    <color name="block_return_hm">#656E3E</color>
+    <color name="block_end_hm">#4A268C</color>
+    <color name="window_text_block_hm">#8E2656</color>
+    <color name="text_block_hm">#FF77B5</color>
+    <color name="text_instruction_block_hm">#9C054B</color>
+    <color name="stroke_block_hm">#BC085B</color>
+    <color name="container_hm">#B8457A</color>
+</resources>

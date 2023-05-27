@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="layout_editor_absoluteX">-105dp</dimen>
+    <dimen name="upper_bound_container_button_width">45dp</dimen>
+    <dimen name="upper_bound_container_button_height">45dp</dimen>
+    <dimen name="lower_bound_container_button_width">100dp</dimen>
+    <dimen name="lower_bound_container_button_height">100dp</dimen>
+    <dimen name="button_add_new_block_horizontal_bias">0.948</dimen>
+    <dimen name="button_console_horizontal_bias">0.051</dimen>
+    <dimen name="recycler_view_start_margin">10dp</dimen>
+    <dimen name="recycler_view_end_margin">10dp</dimen>
+    <dimen name="zero_size">0dp</dimen>
+    <dimen name="upper_bound_container_layout_absoluteX">-105dp</dimen>
+    <dimen name="regular_block_width">350dp</dimen>
+    <dimen name="regular_block_height">90dp</dimen>
+    <dimen name="block_margin_bottom">10dp</dimen>
+    <dimen name="regular_block_textview_min_width">40dp</dimen>
+    <dimen name="block_textview_height">50dp</dimen>
+    <dimen name="block_textview_margin_start">8dp</dimen>
+    <dimen name="block_textview_text_size">37sp</dimen>
+    <dimen name="regular_block_edittext_height">50dp</dimen>
+    <dimen name="regular_block_margin_start">8dp</dimen>
+    <dimen name="regular_block_margin_end">8dp</dimen>
+    <dimen name="regular_block_padding_start">5dp</dimen>
+    <dimen name="regular_block_padding_end">5dp</dimen>
+    <dimen name="block_edittext_text_size">17sp</dimen>
+    <dimen name="block_edittext_vertical_bias">0.475</dimen>
+    <dimen name="break_point_width">35dp</dimen>
+    <dimen name="break_point_height">35dp</dimen>
+    <dimen name="break_point_margin_start">8dp</dimen>
+    <dimen name="specific_block_width">200dp</dimen>
+    <dimen name="specific_block_height">55dp</dimen>
+    <dimen name="elif_button_width">60dp</dimen>
+    <dimen name="elif_button_height">40dp</dimen>
+    <dimen name="elif_button_margin_start">8dp</dimen>
+    <dimen name="elif_button_vertical_bias">0.533</dimen>
+    <dimen name="else_button_width">60dp</dimen>
+    <dimen name="else_button_height">40dp</dimen>
+    <dimen name="else_button_margin_start">8dp</dimen>
+    <dimen name="else_button_vertical_bias">0.571</dimen>
+
+
+    <dimen name="button_home_swap_mode_horizontal_bias">0.95</dimen>
+    <dimen name="button_home_swap_mode_vertical_bias">0.023</dimen>
+    <dimen name="home_text_view_horizontal_bias">0.496</dimen>
+    <dimen name="home_text_view_vertical_bias">0.264</dimen>
+    <dimen name="home_to_coding_activity_button_horizontal_bias">0.497</dimen>
+    <dimen name="home_to_coding_activity_button_vertical_bias">0.643</dimen>
+    <dimen name="home_to_saved_activity_button_margin_top">64dp</dimen>
+    <dimen name="home_to_saved_activity_button_horizontal_bias">0.497</dimen>
+
+
+    <dimen name="splash_screen_textview_horizontal_bias">0.495</dimen>
+    <dimen name="splash_screen_textview_vertical_bias">0.731</dimen>
+    <dimen name="splash_screen_image_margin_bottom">114dp</dimen>
+
+
+    <dimen name="block_container_padding_bottom">10dp</dimen>
+
+
+    <dimen name="console_height">500dp</dimen>
+    <dimen name="console_top_line_width">80dp</dimen>
+    <dimen name="console_top_line_height">8dp</dimen>
+    <dimen name="console_top_line_margin_top">8dp</dimen>
+    <dimen name="console_nested_scroll_view_padding_start">20dp</dimen>
+    <dimen name="console_nested_scroll_view_padding_end">20dp</dimen>
+    <dimen name="console_nested_scroll_view_margin_top">20dp</dimen>
+    <dimen name="console_nested_scroll_view_margin_bottom">20dp</dimen>
+
+
+    <dimen name="console_line_size">25sp</dimen>
+
+
+    <dimen name="alert_dialog_width">300dp</dimen>
+    <dimen name="alert_dialog_error_height">320dp</dimen>
+    <dimen name="alert_dialog_error_banner_height">45dp</dimen>
+    <dimen name="alert_dialog_error_banner_margin_start">2dp</dimen>
+    <dimen name="alert_dialog_error_banner_margin_top">2dp</dimen>
+    <dimen name="alert_dialog_error_banner_margin_end">2dp</dimen>
+    <dimen name="alert_dialog_error_banner_text_size">30sp</dimen>
+    <dimen name="alert_dialog_button_width">200dp</dimen>
+    <dimen name="alert_dialog_button_margin_bottom">16dp</dimen>
+    <dimen name="alert_dialog_button_text_size">30sp</dimen>
+    <dimen name="alert_dialog_scroll_view_height">200dp</dimen>
+    <dimen name="alert_dialog_scroll_view_margin_start">16dp</dimen>
+    <dimen name="alert_dialog_scroll_view_margin_top">8dp</dimen>
+    <dimen name="alert_dialog_scroll_view_margin_end">16dp</dimen>
+    <dimen name="alert_dialog_scroll_view_margin_bottom">8dp</dimen>
+    <dimen name="alert_dialog_scroll_view_text_size">20sp</dimen>
+
+
+    <dimen name="alert_dialog_input_height">200dp</dimen>
+    <dimen name="alert_dialog_input_edittext_height">100dp</dimen>
+    <dimen name="alert_dialog_input_edittext_margin_start">16dp</dimen>
+    <dimen name="alert_dialog_input_edittext_margin_top">32dp</dimen>
+    <dimen name="alert_dialog_input_edittext_margin_end">16dp</dimen>
+    <dimen name="alert_dialog_input_edittext_margin_bottom">8dp</dimen>
+
+
+    <dimen name="operator_item_text_size">30sp</dimen>
+
+
+    <dimen name="upper_guideline_percent">0.08</dimen>
+    <dimen name="lower_guideline_percent">0.86</dimen>
+    <dimen name="button_coding_swap_mode_horizontal_bias">0.95</dimen>
+    <dimen name="button_save_code_horizontal_bias">0.044</dimen>
+    <dimen name="button_compiler_horizontal_bias">0.341</dimen>
+    <dimen name="button_debug_next_horizontal_bias">0.341</dimen>
+    <dimen name="button_debug_horizontal_bias">0.661</dimen>
+    <dimen name="button_debug_stop_horizontal_bias">0.661</dimen>
+    <dimen name="min_zoom_layout_zoom">0.25</dimen>
+    <dimen name="max_zoom_layout_zoom">50.0</dimen>
+    <dimen name="regular_block_textview_vertical_bias">0.475</dimen>
+
+
+    <dimen name="block_connector_width">4dp</dimen>
+    <dimen name="number_placeholder_width">90dp</dimen>
+    <dimen name="regular_block_number_placeholder_height">90dp</dimen>
+    <dimen name="specific_block_number_placeholder_height">55dp</dimen>
+    <dimen name="row_number_size">30sp</dimen>
+
+
+    <dimen name="background_width">360dp</dimen>
+    <dimen name="background_height">640dp</dimen>
+    <dimen name="background_viewport_width">360</dimen>
+    <dimen name="background_viewport_height">640</dimen>
+    <dimen name="background_sun_height">300dp</dimen>
+    <dimen name="background_sun_width">300dp</dimen>
+    <dimen name="background_sun_bottom">280dp</dimen>
+    <dimen name="background_wave_sun_width">100dp</dimen>
+    <dimen name="background_wave_sun_height">100dp</dimen>
+    <dimen name="background_wave_sun_viewport_width">100</dimen>
+    <dimen name="background_wave_sun_viewport_height">100</dimen>
+
+    <dimen name="ic_code_save_width">50dp</dimen>
+    <dimen name="ic_code_save_height">50dp</dimen>
+    <dimen name="ic_code_save_viewport_width">50</dimen>
+    <dimen name="ic_code_save_viewport_height">50</dimen>
+
+    <dimen name="ic_compiler_width">24dp</dimen>
+    <dimen name="ic_compiler_height">24dp</dimen>
+    <dimen name="ic_compiler_viewport_width">24</dimen>
+    <dimen name="ic_compiler_viewport_height">24</dimen>
+
+    <dimen name="ic_debug_width">16.933dp</dimen>
+    <dimen name="ic_debug_height">16.933dp</dimen>
+    <dimen name="ic_debug_viewport_width">16.933</dimen>
+    <dimen name="ic_debug_viewport_height">16.933</dimen>
+
+    <dimen name="ic_launcher_width">108dp</dimen>
+    <dimen name="ic_launcher_height">108dp</dimen>
+    <dimen name="ic_launcher_viewport_width">108</dimen>
+    <dimen name="ic_launcher_viewport_height">108</dimen>
+
+    <dimen name="ic_next_width">24dp</dimen>
+    <dimen name="ic_next_height">24dp</dimen>
+    <dimen name="ic_next_viewport_width">24</dimen>
+    <dimen name="ic_next_viewport_height">24</dimen>
+
+    <dimen name="ic_stop_width">24dp</dimen>
+    <dimen name="ic_stop_height">24dp</dimen>
+    <dimen name="ic_stop_viewport_width">24</dimen>
+    <dimen name="ic_stop_viewport_height">24</dimen>
+
+    <dimen name="trash_can_width">100dp</dimen>
+    <dimen name="trash_can_height">100dp</dimen>
+    <dimen name="trash_can_viewport_width">100</dimen>
+    <dimen name="trash_can_viewport_height">100</dimen>
+
+    <dimen name="shape_background_bottom_top_left_radius">40dp</dimen>
+    <dimen name="shape_background_bottom_top_right_radius">40dp</dimen>
+
+    <dimen name="shape_background_error_top_left_radius">14dp</dimen>
+    <dimen name="shape_background_error_top_right_radius">14dp</dimen>
+
+    <dimen name="shape_block_background_radius">20dp</dimen>
+    <dimen name="shape_block_background_stroke_width">3dp</dimen>
+
+    <dimen name="shape_button_radius_radius">999dp</dimen>
+
+    <dimen name="break_point_stroke_radius">5dp</dimen>
+
+    <dimen name="shape_container_categories_block_corner_radius">20dp</dimen>
+    <dimen name="shape_container_categories_block_stroke_width">2dp</dimen>
+
+    <dimen name="shape_custom_button_corner_radius">20dp</dimen>
+
+    <dimen name="shape_custom_button_saved_corner_radius">20dp</dimen>
+
+    <dimen name="shape_window_text_block_corner_radius">15dp</dimen>
+    <dimen name="shape_window_text_block_stroke_width">2dp</dimen>
+
+    <dimen name="drawerlayout_look_vars_width">250dp</dimen>
+    <dimen name="drawerlayout_look_vars_height">400dp</dimen>
+    <dimen name="drawerlayout_look_vars_margin_bottom_name">5dp</dimen>
+    <dimen name="drawerlayout_look_vars_margin_bottom_text">3dp</dimen>
+    <dimen name="drawerlayout_look_vars_name_size">30sp</dimen>
+    <dimen name="drawerlayout_look_vars_text_size">20sp</dimen>
+
+    <dimen name="alert_exit_text_view_width">250dp</dimen>
+    <dimen name="alert_exit_text_view_height">100dp</dimen>
+    <dimen name="alert_exit_text_view_margin_start">30dp</dimen>
+    <dimen name="alert_exit_text_view_margin_end">30dp</dimen>
+    <dimen name="alert_exit_text_view_margin_top">16dp</dimen>
+    <dimen name="alert_exit_text_view_margin_bottom">8dp</dimen>
+    <dimen name="alert_exit_text_view_size">20sp</dimen>
+
+    <dimen name="alert_exit_button_width">100dp</dimen>
+
+
+    <dimen name="splash_main_text_size">60sp</dimen>
+    <dimen name="splash_logo_width">170dp</dimen>
+    <dimen name="splash_logo_height">170dp</dimen>
+    <dimen name="button_mode_width">50dp</dimen>
+    <dimen name="button_mode_height">50dp</dimen>
+    <dimen name="home_main_text_size">55sp</dimen>
+    <dimen name="home_button_width">200dp</dimen>
+    <dimen name="home_button_height">60dp</dimen>
+    <dimen name="home_button_text_size">25sp</dimen>
+    <dimen name="coding_button_text_size">30sp</dimen>
+    <dimen name="saved_button_width">300dp</dimen>
+    <dimen name="saved_button_height">55dp</dimen>
+
+    <dimen name="user_saved_code_parent_layout_top_margin">20dp</dimen>
+    <dimen name="template_button_top_margin">10dp</dimen>
+    <dimen name="template_text_view_size">30sp</dimen>
+</resources>

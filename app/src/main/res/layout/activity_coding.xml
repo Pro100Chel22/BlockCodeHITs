@@ -1,10 +1,276 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/background"
-    tools:context=".CodingActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout_look_vars"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/par"
+            style="@style/codingBackgroundStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".CodingActivity">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/upperConstraint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="@dimen/upper_guideline_percent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/upperBoundContainer"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/zero_size"
+                app:layout_constraintBottom_toTopOf="@id/upperConstraint"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                tools:layout_editor_absoluteX="@dimen/upper_bound_container_layout_absoluteX">
+
+                <Button
+                    android:id="@+id/buttonCodingSwapMode"
+                    style="@style/buttonSwapModeStyle"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="@dimen/button_coding_swap_mode_horizontal_bias"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonSaveCode"
+                    style="@style/codingSaveButtonStyle"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="@dimen/button_save_code_horizontal_bias"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonCompiler"
+                    android:layout_width="@dimen/upper_bound_container_button_width"
+                    android:layout_height="@dimen/upper_bound_container_button_height"
+                    android:background="@drawable/ic_compiler"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="@dimen/button_compiler_horizontal_bias"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonRestart"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:background="@drawable/ic_restart"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.341"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonDebugNextBreakPoint"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:background="@drawable/ic_to_next_breack_point"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.057"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonDebugNext"
+                    android:layout_width="@dimen/upper_bound_container_button_width"
+                    android:layout_height="@dimen/upper_bound_container_button_height"
+                    android:background="@drawable/ic_next"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="@dimen/button_debug_next_horizontal_bias"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonDebug"
+                    android:layout_width="@dimen/upper_bound_container_button_width"
+                    android:layout_height="@dimen/upper_bound_container_button_height"
+                    android:background="@drawable/ic_debug"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="@dimen/button_debug_horizontal_bias"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonStop"
+                    android:layout_width="@dimen/upper_bound_container_button_width"
+                    android:layout_height="@dimen/upper_bound_container_button_height"
+                    android:background="@drawable/ic_stop"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="@dimen/button_debug_stop_horizontal_bias"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonLookVars"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:background="@drawable/ic_look_vars"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.939"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.otaliastudios.zoom.ZoomLayout
+                android:id="@+id/parent_of_blocks"
+                android:layout_width="@dimen/zero_size"
+                android:layout_height="@dimen/zero_size"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                app:hasClickableChildren="true"
+                app:layout_constraintBottom_toTopOf="@id/operator_recycler"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/upperConstraint"
+                app:maxZoom="@dimen/max_zoom_layout_zoom"
+                app:minZoom="@dimen/min_zoom_layout_zoom"
+
+                app:zoomEnabled="true">
+
+                <LinearLayout
+                    android:id="@+id/block_field"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|start"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </com.otaliastudios.zoom.ZoomLayout>
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/lowerBoundContainer"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/zero_size"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="@id/lowerConstraint">
+
+                <Button
+                    android:id="@+id/buttonAddNewBlock"
+                    style="@style/codingButtonStyle"
+                    android:text="@string/add_new_block"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="@dimen/button_add_new_block_horizontal_bias"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonConsole"
+                    style="@style/codingButtonStyle"
+                    android:text="@string/console"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="@dimen/button_console_horizontal_bias"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/deleteBlock"
+                    android:layout_width="@dimen/lower_bound_container_button_width"
+                    android:layout_height="@dimen/lower_bound_container_button_height"
+                    android:background="@drawable/ic_trash_close"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/lowerConstraint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="@dimen/lower_guideline_percent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/operator_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/recycler_view_start_margin"
+                android:layout_marginEnd="@dimen/recycler_view_end_margin"
+                app:layout_constraintBottom_toTopOf="@id/lowerConstraint" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="@dimen/drawerlayout_look_vars_width"
+            android:layout_height="@dimen/drawerlayout_look_vars_height"
+            android:layout_gravity="end|center"
+            android:background="@drawable/shape_drawerlayout_look_vars"
+            android:orientation="vertical">
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/modalDrawerLayoutScroll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/console_nested_scroll_view_margin_top"
+                android:paddingStart="@dimen/console_nested_scroll_view_padding_start"
+                android:paddingEnd="@dimen/console_nested_scroll_view_padding_end"
+                android:paddingBottom="@dimen/console_nested_scroll_view_margin_bottom">
+
+                <LinearLayout
+                    android:id="@+id/lookVars"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/drawerlayout_look_vars_margin_bottom_name"
+                        android:gravity="center"
+                        android:text="@string/look_vars_variables"
+                        android:textSize="@dimen/drawerlayout_look_vars_name_size" />
+
+                    <TextView
+                        android:id="@+id/variables"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/drawerlayout_look_vars_margin_bottom_text"
+                        android:text=""
+                        android:textSize="@dimen/drawerlayout_look_vars_text_size" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/drawerlayout_look_vars_margin_bottom_name"
+                        android:gravity="center"
+                        android:text="@string/look_vars_arrays"
+                        android:textSize="@dimen/drawerlayout_look_vars_name_size" />
+
+                    <TextView
+                        android:id="@+id/arrays"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/drawerlayout_look_vars_margin_bottom_text"
+                        android:text=""
+                        android:textSize="@dimen/drawerlayout_look_vars_text_size" />
+
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </LinearLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
+</layout>
