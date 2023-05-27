@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="@dimen/specific_block_width"
     android:layout_height="@dimen/specific_block_height"
-    android:clipChildren="false"
-    android:clipToPadding="false"
     android:layout_marginBottom="@dimen/block_margin_bottom"
-    android:background="@drawable/shape_block_background">
+    android:background="@drawable/shape_block_background"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <Button
         android:id="@+id/buttonBreakPoint"
@@ -33,32 +33,32 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/connector"
         android:layout_width="@dimen/block_connector_width"
         android:layout_height="@dimen/zero_size"
         android:background="@color/connector"
-        android:id="@+id/connector"
-        app:layout_constraintRight_toRightOf="@id/buttonBreakPoint"
         app:layout_constraintLeft_toLeftOf="@id/buttonBreakPoint"
-        app:layout_constraintTop_toBottomOf="parent"
-        />
+        app:layout_constraintRight_toRightOf="@id/buttonBreakPoint"
+        app:layout_constraintTop_toBottomOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/string_number_placeholder"
         android:layout_width="@dimen/number_placeholder_width"
         android:layout_height="@dimen/specific_block_number_placeholder_height"
-        android:id="@+id/string_number_placeholder"
         android:foregroundGravity="right"
         app:layout_constraintRight_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
         <TextView
+            android:id="@+id/string_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/line_row_numb_default"
             android:textSize="@dimen/row_number_size"
             android:textStyle="bold"
-            android:textColor="@color/line_row_numb_default"
-            android:id="@+id/string_number"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent" />
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -40,7 +40,6 @@
     <dimen name="else_button_vertical_bias">0.571</dimen>
 
 
-
     <dimen name="button_home_swap_mode_horizontal_bias">0.95</dimen>
     <dimen name="button_home_swap_mode_vertical_bias">0.023</dimen>
     <dimen name="home_text_view_horizontal_bias">0.496</dimen>
@@ -51,15 +50,12 @@
     <dimen name="home_to_saved_activity_button_horizontal_bias">0.497</dimen>
 
 
-
     <dimen name="splash_screen_textview_horizontal_bias">0.495</dimen>
     <dimen name="splash_screen_textview_vertical_bias">0.731</dimen>
     <dimen name="splash_screen_image_margin_bottom">114dp</dimen>
 
 
-
     <dimen name="block_container_padding_bottom">10dp</dimen>
-
 
 
     <dimen name="console_height">500dp</dimen>
@@ -72,9 +68,7 @@
     <dimen name="console_nested_scroll_view_margin_bottom">20dp</dimen>
 
 
-
     <dimen name="console_line_size">25sp</dimen>
-
 
 
     <dimen name="alert_dialog_width">300dp</dimen>
@@ -95,7 +89,6 @@
     <dimen name="alert_dialog_scroll_view_text_size">20sp</dimen>
 
 
-
     <dimen name="alert_dialog_input_height">200dp</dimen>
     <dimen name="alert_dialog_input_edittext_height">100dp</dimen>
     <dimen name="alert_dialog_input_edittext_margin_start">16dp</dimen>
@@ -104,9 +97,7 @@
     <dimen name="alert_dialog_input_edittext_margin_bottom">8dp</dimen>
 
 
-
     <dimen name="operator_item_text_size">30sp</dimen>
-
 
 
     <dimen name="upper_guideline_percent">0.08</dimen>
@@ -122,16 +113,11 @@
     <dimen name="regular_block_textview_vertical_bias">0.475</dimen>
 
 
-
     <dimen name="block_connector_width">4dp</dimen>
     <dimen name="number_placeholder_width">90dp</dimen>
     <dimen name="regular_block_number_placeholder_height">90dp</dimen>
     <dimen name="specific_block_number_placeholder_height">55dp</dimen>
     <dimen name="row_number_size">30sp</dimen>
-
-
-
-
 
 
     <dimen name="background_width">360dp</dimen>
@@ -210,8 +196,6 @@
     <dimen name="drawerlayout_look_vars_margin_bottom_text">3dp</dimen>
     <dimen name="drawerlayout_look_vars_name_size">30sp</dimen>
     <dimen name="drawerlayout_look_vars_text_size">20sp</dimen>
-
-
 
 
     <dimen name="splash_main_text_size">60sp</dimen>

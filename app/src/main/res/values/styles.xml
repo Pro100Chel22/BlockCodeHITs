@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="BottomSheetDialogThem" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
     </style>
@@ -20,8 +21,7 @@
 
     <style name="splashBackgroundStyle">
         <item name="android:background">@drawable/background</item>
-        <item name
-            ="android:backgroundTint">@color/background_main_default</item>
+        <item name="android:backgroundTint">@color/background_main_default</item>
     </style>
 
     <style name="splashMainTextStyle">
@@ -137,7 +137,8 @@
 
     <item name="color_window_text_block" type="color">@color/window_text_block_default</item>
     <item name="color_text_block" type="color">@color/text_block_default</item>
-    <item name="color_text_instruction_block" type="color">@color/text_instruction_block_default</item>
+    <item name="color_text_instruction_block" type="color">@color/text_instruction_block_default
+    </item>
     <item name="color_stroke_block" type="color">@color/stroke_block_default</item>
     <item name="color_container" type="color">@color/container_default</item>
 </resources>

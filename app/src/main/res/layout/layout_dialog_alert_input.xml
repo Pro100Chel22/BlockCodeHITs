@@ -7,30 +7,30 @@
     android:background="@drawable/shape_window_text_block">
 
     <EditText
-        android:id = "@+id/inputExpression"
+        android:id="@+id/inputExpression"
         android:layout_width="@dimen/zero_size"
         android:layout_height="@dimen/alert_dialog_input_edittext_height"
         android:layout_marginStart="@dimen/alert_dialog_input_edittext_margin_start"
         android:layout_marginTop="@dimen/alert_dialog_input_edittext_margin_top"
         android:layout_marginEnd="@dimen/alert_dialog_input_edittext_margin_end"
         android:layout_marginBottom="@dimen/alert_dialog_input_edittext_margin_bottom"
+        android:autofillHints=""
         android:gravity="center|bottom"
         android:inputType="text"
         app:layout_constraintBottom_toTopOf="@+id/buttonEnter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:autofillHints=""
         tools:ignore="LabelFor" />
 
     <Button
         android:id="@+id/buttonEnter"
+        style="@style/homeButtonStyle"
         android:layout_width="@dimen/alert_dialog_button_width"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/alert_dialog_button_margin_bottom"
-        style="@style/homeButtonStyle"
-        android:textSize="@dimen/alert_dialog_button_text_size"
         android:text="@string/enter"
+        android:textSize="@dimen/alert_dialog_button_text_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

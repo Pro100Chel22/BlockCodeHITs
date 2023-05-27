@@ -24,10 +24,10 @@ class SavedActivity : AppCompatActivity() {
     private val vibrator = Vibration
 
 
-    private lateinit var binding : ActivitySavedBinding
+    private lateinit var binding: ActivitySavedBinding
     private var topMargin = 20
-    private val viewTransparent : Float = 0.3f
-    private val viewOpaque : Float = 1.0f
+    private val viewTransparent: Float = 0.3f
+    private val viewOpaque: Float = 1.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,21 +89,25 @@ class SavedActivity : AppCompatActivity() {
 
         binding.deleteBlock.setOnDragListener(deleteSavedCode)
 
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
     }
 
-    private fun startFunction(){
+    private fun startFunction() {
         val list = getDataFromFile()
         fillFieldWithButtons(list)
     }
-    private fun getDataFromFile() : List<String>{
+
+    private fun getDataFromFile(): List<String> {
         val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
         val list = mutableListOf<String>()
-        if(file.exists() && file.length() > 0){
+        if (file.exists() && file.length() > 0) {
             val jsonString = file.readText()
             val jsonArray = JSONArray(jsonString)
 
-            for(i in 0 until jsonArray.length()){
+            for (i in 0 until jsonArray.length()) {
                 val item = jsonArray.get(i).toString()
                 list.add(item)
             }
@@ -111,14 +115,16 @@ class SavedActivity : AppCompatActivity() {
 
         return list
     }
-    private fun fillFieldWithButtons(list : List<String>){
-        for(i in list.indices){
+
+    private fun fillFieldWithButtons(list: List<String>) {
+        for (i in list.indices) {
             val button = createButton(list[i])
             binding.secondParent.addView(button)
         }
     }
+
     @SuppressLint("UseCompatLoadingForDrawables")
-    private fun createButton(text : String) : Button{
+    private fun createButton(text: String): Button {
         val button = Button(this)
         button.text = text
 
@@ -141,7 +147,7 @@ class SavedActivity : AppCompatActivity() {
     }
 
 
-    private fun makeButtonDraggable(button : View) : Boolean{
+    private fun makeButtonDraggable(button: View): Boolean {
         val clipText = ""
         val item = ClipData.Item(clipText)
         val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
@@ -157,20 +163,24 @@ class SavedActivity : AppCompatActivity() {
 
 
     private val deleteSavedCode = OnDragListener { view, dragEvent ->
-        when(dragEvent.action){
+        when (dragEvent.action) {
             DragEvent.ACTION_DRAG_STARTED -> {
-                view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_open, null)
+                view.background =
+                    ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_open, null)
                 dragEvent.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
             }
+
             DragEvent.ACTION_DRAG_ENTERED -> {
                 view.invalidate()
                 true
             }
+
             DragEvent.ACTION_DRAG_LOCATION -> true
             DragEvent.ACTION_DRAG_EXITED -> {
                 view.invalidate()
                 true
             }
+
             DragEvent.ACTION_DROP -> {
                 view.invalidate()
 
@@ -182,19 +192,22 @@ class SavedActivity : AppCompatActivity() {
 
                 true
             }
+
             DragEvent.ACTION_DRAG_ENDED -> {
                 view.invalidate()
                 val v = dragEvent.localState as Button
                 v.alpha = viewOpaque
-                view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_close, null)
+                view.background =
+                    ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_close, null)
                 true
             }
+
             else -> false
         }
     }
 
 
-    private fun deleteSavedCode(fileName : String){
+    private fun deleteSavedCode(fileName: String) {
         val fileToDelete = this.getFileStreamPath("$fileName.json")
         val savedProgramsNames = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
         val list = getDataFromFile().toMutableList()
@@ -207,8 +220,8 @@ class SavedActivity : AppCompatActivity() {
     }
 
 
-    private fun setParams(){
-        for(i in 0 until binding.secondParent.childCount){
+    private fun setParams() {
+        for (i in 0 until binding.secondParent.childCount) {
             val button = binding.secondParent.getChildAt(i) as Button
 
             val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
@@ -220,6 +233,9 @@ class SavedActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(androidx.appcompat.R.anim.abc_slide_in_top, androidx.appcompat.R.anim.abc_slide_out_bottom)
+        overridePendingTransition(
+            androidx.appcompat.R.anim.abc_slide_in_top,
+            androidx.appcompat.R.anim.abc_slide_out_bottom
+        )
     }
 }

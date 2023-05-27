@@ -5,8 +5,8 @@
     android:viewportWidth="@dimen/background_viewport_width"
     android:viewportHeight="@dimen/background_viewport_height"
     tools:ignore="VectorRaster">
-  <path
-      android:pathData="M-7.57,-5.29L367.97,-5.29L367.97,649.97L-7.57,649.97z"
-      android:fillColor="@color/front_wave_color_default"
-      android:fillType="nonZero" />
+    <path
+        android:fillColor="@color/front_wave_color_default"
+        android:fillType="nonZero"
+        android:pathData="M-7.57,-5.29L367.97,-5.29L367.97,649.97L-7.57,649.97z" />
 </vector>

@@ -5,7 +5,7 @@ enum class VariableType {
 
     companion object {
         fun getType(name: String, func: Boolean = false): Variable {
-            return when(name) {
+            return when (name) {
                 "int" -> VariableInt(0)
                 "double" -> VariableDouble(0.0)
                 "boolean" -> VariableBoolean(false)
@@ -13,7 +13,7 @@ enum class VariableType {
                 else -> {
                     println("ERR: you cannot create a variable of this type")
                     Variable()
-                    if(!func) {
+                    if (!func) {
                         throw Exception("You cannot create a variable of this type: $name")
                     } else {
                         throw Exception("Functions can't return this type: $name")
@@ -23,30 +23,30 @@ enum class VariableType {
         }
 
         fun toVariable(constant: String): Variable {
-            if(constant.length == 3 && constant[0] == '\'' && constant[2] == '\'') {
+            if (constant.length == 3 && constant[0] == '\'' && constant[2] == '\'') {
                 return VariableChar(constant[1])
             }
 
-            if(constant == "false"){
+            if (constant == "false") {
                 return VariableBoolean(false)
-            } else if(constant == "true") {
+            } else if (constant == "true") {
                 return VariableBoolean(true)
             }
 
             var isRealVariable = false
-            for(i in constant.indices) {
-                if(constant[i] == '.' && isRealVariable) {
+            for (i in constant.indices) {
+                if (constant[i] == '.' && isRealVariable) {
                     println("ERR: to variable incorrect expression")
                     throw Exception("Incorrect expression: $constant")
-                } else if(constant[i] == '.') {
+                } else if (constant[i] == '.') {
                     isRealVariable = true
-                } else if(constant[i].isLetter()){
+                } else if (constant[i].isLetter()) {
                     println("ERR: to variable incorrect expression")
                     throw Exception("Incorrect expression: $constant")
                 }
             }
 
-            return if(isRealVariable) {
+            return if (isRealVariable) {
                 VariableDouble(constant)
             } else {
                 VariableInt(constant)
@@ -54,46 +54,46 @@ enum class VariableType {
         }
 
         fun isConstant(string: String): Boolean {
-            if(string == "false"){
+            if (string == "false") {
                 return true
-            } else if(string == "true") {
+            } else if (string == "true") {
                 return true
             }
 
             for (i in string.indices) {
-                if(!(string[i].isDigit() || string[i] == '.' || string[i] == '-' && i == 0)) {
+                if (!(string[i].isDigit() || string[i] == '.' || string[i] == '-' && i == 0)) {
                     return false
                 }
             }
             return true
         }
-        
+
         fun isSymbol(string: String): Boolean {
-            if(string.length == 3 && string[0] == '\'' && string[2] == '\'') {
+            if (string.length == 3 && string[0] == '\'' && string[2] == '\'') {
                 return true
             }
             return false
         }
 
         fun isString(string: String): Boolean {
-            if(string.length > 1 && string[0] == '\"' && string[string.length - 1] == '\"') {
+            if (string.length > 1 && string[0] == '\"' && string[string.length - 1] == '\"') {
                 return true
             }
             return false
         }
 
         fun isName(name: String) {
-            for(ch in name) {
-                if(!(ch.isLetter() || ch.isDigit() || ch == '_')) {
+            for (ch in name) {
+                if (!(ch.isLetter() || ch.isDigit() || ch == '_')) {
                     throw Exception("Incorrect expression: the name can contain only letters numbers and underscores,  $name")
                 }
             }
 
-            if(!(name[0].isLetter() || name[0] == '_')) {
+            if (!(name[0].isLetter() || name[0] == '_')) {
                 throw Exception("Incorrect expression: the name can only start with a letter or an underscore,  $name")
             }
 
-            if(name in listOf("int", " double", " boolean", "toInt", "toDouble", "toBoolean")) {
+            if (name in listOf("int", " double", " boolean", "toInt", "toDouble", "toBoolean")) {
                 throw Exception("Incorrect expression: the name already exists,  $name")
             }
         }
@@ -102,8 +102,6 @@ enum class VariableType {
 
 open class Variable(_type: VariableType = VariableType.VOID) {
     private var type: VariableType = _type
-
-    fun getType(): VariableType { return type }
 
     open fun clone(): Variable {
         throw Exception("Incorrect expression: clone void")
@@ -189,14 +187,14 @@ open class Variable(_type: VariableType = VariableType.VOID) {
     }
 }
 
-class VariableInt: Variable {
+class VariableInt : Variable {
     private var value: Long = 0
 
-    constructor(_value: String = "0"): super(VariableType.INT) {
+    constructor(_value: String = "0") : super(VariableType.INT) {
         value = _value.toLong()
     }
 
-    constructor(_value: Long = 0): super(VariableType.INT) {
+    constructor(_value: Long = 0) : super(VariableType.INT) {
         value = _value
     }
 
@@ -210,11 +208,11 @@ class VariableInt: Variable {
 
     override fun plus(operand: Variable): Variable {
         return when (operand) {
-            is VariableInt  -> VariableInt(value + operand.getValue())
+            is VariableInt -> VariableInt(value + operand.getValue())
             is VariableDouble -> VariableDouble(value.toDouble() + operand.getValue())
             is VariableBoolean -> VariableInt(value + operand.toInt().getValue())
             is VariableChar -> VariableInt(value + operand.toInt().getValue())
-            else ->  throw Exception("Incorrect expression: operator '+' not exist for this type")
+            else -> throw Exception("Incorrect expression: operator '+' not exist for this type")
         }
     }
 
@@ -240,7 +238,7 @@ class VariableInt: Variable {
 
     override fun times(operand: Variable): Variable {
         return when (operand) {
-            is VariableInt  -> VariableInt(value * operand.getValue())
+            is VariableInt -> VariableInt(value * operand.getValue())
             is VariableDouble -> VariableDouble(value.toDouble() * operand.getValue())
             is VariableBoolean -> VariableInt(value * operand.toInt().getValue())
             is VariableChar -> VariableInt(value * operand.toInt().getValue())
@@ -309,7 +307,7 @@ class VariableInt: Variable {
     }
 
     override fun toBoolean(): VariableBoolean {
-        return if(value == 0L) {
+        return if (value == 0L) {
             VariableBoolean(false)
         } else {
             VariableBoolean(true)
@@ -317,7 +315,7 @@ class VariableInt: Variable {
     }
 
     override fun toChar(): VariableChar {
-        return VariableChar(value.toChar())
+        return VariableChar(value.toInt().toChar())
     }
 
     override fun setValue(operand: Variable) {
@@ -325,14 +323,14 @@ class VariableInt: Variable {
     }
 }
 
-class VariableDouble: Variable {
+class VariableDouble : Variable {
     private var value: Double = 0.0
 
-    constructor(_value: String = "0.0"): super(VariableType.DOUBLE) {
+    constructor(_value: String = "0.0") : super(VariableType.DOUBLE) {
         value = _value.toDouble()
     }
 
-    constructor(_value: Double = 0.0): super(VariableType.DOUBLE) {
+    constructor(_value: Double = 0.0) : super(VariableType.DOUBLE) {
         value = _value
     }
 
@@ -393,11 +391,11 @@ class VariableDouble: Variable {
     }
 
     override fun toDouble(): VariableDouble {
-        return VariableDouble(value.toDouble())
+        return VariableDouble(value)
     }
 
     override fun toBoolean(): VariableBoolean {
-        return if(value == 0.0) {
+        return if (value == 0.0) {
             VariableBoolean(false)
         } else {
             VariableBoolean(true)
@@ -405,7 +403,7 @@ class VariableDouble: Variable {
     }
 
     override fun toChar(): VariableChar {
-        return VariableChar(value.toChar())
+        return VariableChar(value.toInt().toChar())
     }
 
     override fun setValue(operand: Variable) {
@@ -413,16 +411,8 @@ class VariableDouble: Variable {
     }
 }
 
-class VariableBoolean: Variable {
-    private var value: Boolean = false
-
-    constructor(_value: Variable): super(VariableType.BOOLEAN) {
-        value = _value.toBoolean().getValue()
-    }
-
-    constructor(_value: Boolean = false): super(VariableType.BOOLEAN) {
-        value = _value
-    }
+class VariableBoolean(_value: Boolean = false) : Variable(VariableType.BOOLEAN) {
+    private var value: Boolean = _value
 
     fun getValue(): Boolean {
         return value
@@ -494,7 +484,10 @@ class VariableBoolean: Variable {
         return when (operand) {
             is VariableInt -> VariableBoolean(this.toInt().getValue() > operand.getValue())
             is VariableDouble -> VariableBoolean(this.toDouble().getValue() > operand.getValue())
-            is VariableBoolean -> VariableBoolean(this.toInt().getValue() > operand.toInt().getValue())
+            is VariableBoolean -> VariableBoolean(
+                this.toInt().getValue() > operand.toInt().getValue()
+            )
+
             is VariableChar -> VariableBoolean(this.toInt().getValue() > operand.toInt().getValue())
             else -> throw Exception("Incorrect expression: operator '>' not exist for this type")
         }
@@ -504,7 +497,10 @@ class VariableBoolean: Variable {
         return when (operand) {
             is VariableInt -> VariableBoolean(this.toInt().getValue() < operand.getValue())
             is VariableDouble -> VariableBoolean(this.toDouble().getValue() < operand.getValue())
-            is VariableBoolean -> VariableBoolean(this.toInt().getValue() < operand.toInt().getValue())
+            is VariableBoolean -> VariableBoolean(
+                this.toInt().getValue() < operand.toInt().getValue()
+            )
+
             is VariableChar -> VariableBoolean(this.toInt().getValue() < operand.toInt().getValue())
             else -> throw Exception("Incorrect expression: operator '<' not exist for this type")
         }
@@ -514,8 +510,14 @@ class VariableBoolean: Variable {
         return when (operand) {
             is VariableInt -> VariableBoolean(this.toInt().getValue() == operand.getValue())
             is VariableDouble -> VariableBoolean(this.toDouble().getValue() == operand.getValue())
-            is VariableBoolean -> VariableBoolean(this.toInt().getValue() == operand.toInt().getValue())
-            is VariableChar -> VariableBoolean(this.toInt().getValue() == operand.toInt().getValue())
+            is VariableBoolean -> VariableBoolean(
+                this.toInt().getValue() == operand.toInt().getValue()
+            )
+
+            is VariableChar -> VariableBoolean(
+                this.toInt().getValue() == operand.toInt().getValue()
+            )
+
             else -> throw Exception("Incorrect expression: operator '==' not exist for this type")
         }
     }
@@ -523,6 +525,7 @@ class VariableBoolean: Variable {
     override fun not(): VariableBoolean {
         return VariableBoolean(!value)
     }
+
     override fun toInt(): VariableInt {
         return if (value) VariableInt(1) else VariableInt(0)
     }
@@ -544,16 +547,8 @@ class VariableBoolean: Variable {
     }
 }
 
-class VariableChar: Variable {
-    private var value: Char = (0).toChar()
-
-    constructor(_value: Variable): super(VariableType.CHAR) {
-        value = _value.toChar().getValue()
-    }
-
-    constructor(_value: Char = (0).toChar()): super(VariableType.BOOLEAN) {
-        value = _value
-    }
+class VariableChar(_value: Char = (0).toChar()) : Variable(VariableType.BOOLEAN) {
+    private var value: Char = _value
 
     fun getValue(): Char {
         return value
@@ -583,7 +578,7 @@ class VariableChar: Variable {
         return when (operand) {
             is VariableInt -> VariableInt(value.code.toLong() / operand.getValue())
             is VariableDouble -> VariableDouble(value.code.toDouble() / operand.getValue())
-            is VariableBoolean -> VariableInt(value.code.toLong()/ operand.toInt().getValue())
+            is VariableBoolean -> VariableInt(value.code.toLong() / operand.toInt().getValue())
             is VariableChar -> VariableInt(value.code.toLong() / operand.toInt().getValue())
             else -> throw Exception("Incorrect expression: operator '/' not exist for this type")
         }
@@ -591,10 +586,10 @@ class VariableChar: Variable {
 
     override fun times(operand: Variable): Variable {
         return when (operand) {
-            is VariableInt -> VariableInt(value.code.toLong()  * operand.getValue())
+            is VariableInt -> VariableInt(value.code.toLong() * operand.getValue())
             is VariableDouble -> VariableDouble(value.code.toDouble() * operand.getValue())
             is VariableBoolean -> VariableInt(value.code.toLong() * operand.toInt().getValue())
-            is VariableChar -> VariableInt(value.code.toLong()  * operand.toInt().getValue())
+            is VariableChar -> VariableInt(value.code.toLong() * operand.toInt().getValue())
             else -> throw Exception("Incorrect expression: operator '*' not exist for this type")
         }
     }
@@ -603,8 +598,8 @@ class VariableChar: Variable {
         return when (operand) {
             is VariableInt -> VariableInt(value.code.toLong() % operand.getValue())
             is VariableDouble -> VariableDouble(value.code.toDouble() % operand.getValue())
-            is VariableBoolean -> VariableInt(value.code.toLong()  % operand.toInt().getValue())
-            is VariableChar -> VariableInt(value.code.toLong()  % operand.toInt().getValue())
+            is VariableBoolean -> VariableInt(value.code.toLong() % operand.toInt().getValue())
+            is VariableChar -> VariableInt(value.code.toLong() % operand.toInt().getValue())
             else -> throw Exception("Incorrect expression: operator '%' not exist for this type")
         }
     }
@@ -619,20 +614,20 @@ class VariableChar: Variable {
 
     override fun compareMore(operand: Variable): VariableBoolean {
         return when (operand) {
-            is VariableInt -> VariableBoolean(value.code.toLong()  > operand.getValue())
+            is VariableInt -> VariableBoolean(value.code.toLong() > operand.getValue())
             is VariableDouble -> VariableBoolean(value.code.toDouble() > operand.getValue())
             is VariableBoolean -> VariableBoolean(value.code.toLong() > operand.toInt().getValue())
-            is VariableChar -> VariableBoolean(value.code.toLong()  > operand.toInt().getValue())
+            is VariableChar -> VariableBoolean(value.code.toLong() > operand.toInt().getValue())
             else -> throw Exception("Incorrect expression: operator '>' not exist for this type")
         }
     }
 
     override fun compareLess(operand: Variable): VariableBoolean {
         return when (operand) {
-            is VariableInt -> VariableBoolean(value.code.toLong()  < operand.getValue())
+            is VariableInt -> VariableBoolean(value.code.toLong() < operand.getValue())
             is VariableDouble -> VariableBoolean(value.code.toDouble() < operand.getValue())
-            is VariableBoolean -> VariableBoolean(value.code.toLong()  < operand.toInt().getValue())
-            is VariableChar -> VariableBoolean(value.code.toLong()  < operand.toInt().getValue())
+            is VariableBoolean -> VariableBoolean(value.code.toLong() < operand.toInt().getValue())
+            is VariableChar -> VariableBoolean(value.code.toLong() < operand.toInt().getValue())
             else -> throw Exception("Incorrect expression: operator '<' not exist for this type")
         }
     }
@@ -650,6 +645,7 @@ class VariableChar: Variable {
     override fun not(): VariableBoolean {
         return VariableBoolean(!this.toBoolean().getValue())
     }
+
     override fun toInt(): VariableInt {
         return VariableInt(value.code.toLong())
     }
@@ -659,7 +655,7 @@ class VariableChar: Variable {
     }
 
     override fun toBoolean(): VariableBoolean {
-        return if(value == (0).toChar()) {
+        return if (value == (0).toChar()) {
             VariableBoolean(false)
         } else {
             VariableBoolean(true)

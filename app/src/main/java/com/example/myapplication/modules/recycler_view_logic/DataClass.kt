@@ -3,8 +3,8 @@ package com.example.myapplication.modules.recycler_view_logic
 import com.example.myapplication.R
 
 
-class DataSource{
-    fun loadOperators() : List<Operators>{
+class DataSource {
+    fun loadOperators(): List<Operators> {
         return mutableListOf<Operators>(
             Operators(R.string.addition),
             Operators(R.string.subtraction),

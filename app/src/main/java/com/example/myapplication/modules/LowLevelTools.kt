@@ -6,7 +6,7 @@ import android.widget.TextView
 import com.example.myapplication.CodingActivity
 import java.util.Stack
 
-data class CallStackFrame (
+data class CallStackFrame(
     val startNumLine: Int = 0,
     var curNmbLine: Int = 0,
     var funcIsOver: Boolean = true,
@@ -18,7 +18,7 @@ data class CallStackFrame (
 fun getCloneCallStackFrame(origin: CallStackFrame, funcCall: Boolean): CallStackFrame {
     val cloneInput = mutableListOf<ParametersFuncCondition>()
 
-    for(input in origin.inputVariables) {
+    for (input in origin.inputVariables) {
         cloneInput.add(
             ParametersFuncCondition(
                 input.name,
@@ -39,7 +39,7 @@ fun getCloneCallStackFrame(origin: CallStackFrame, funcCall: Boolean): CallStack
 
     return CallStackFrame(
         origin.startNumLine,
-        if(funcCall) origin.curNmbLine else origin.curNmbLine - 1,
+        if (funcCall) origin.curNmbLine else origin.curNmbLine - 1,
         false,
         origin.returnVariable.clone(),
         cloneInput
@@ -95,12 +95,12 @@ class Data {
     fun getVariables(): String {
         var str = "Global scope: \n"
 
-        val printVar = fun (name: String, variable: Variable) {
+        val printVar = fun(name: String, variable: Variable) {
             str += when (variable) {
                 is VariableInt -> "\tint $name = ${variable.getValue()}\n"
                 is VariableDouble -> "\tdouble $name = ${variable.getValue()}\n"
                 is VariableBoolean -> "\tboolean $name = ${variable.getValue()}\n"
-                is VariableChar-> "\tchar $name = '${variable.getValue()}'\n"
+                is VariableChar -> "\tchar $name = '${variable.getValue()}'\n"
                 else -> "\tvoid $name\n"
             }
         }
@@ -109,7 +109,7 @@ class Data {
             printVar(name, variable)
         }
 
-        if(funcLocalData.isNotEmpty()) {
+        if (funcLocalData.isNotEmpty()) {
             str += "\nCurrent func local scope: \n"
             for ((name, variable) in funcLocalData.peek().getVariables().entries) {
                 printVar(name, variable)
@@ -122,8 +122,8 @@ class Data {
     fun getArrays(shawArrays: Boolean): String {
         var str = "Global scope: \n"
 
-        val printArr = fun (name: String, array: Array<Variable>) {
-            if (array.isNotEmpty()){
+        val printArr = fun(name: String, array: Array<Variable>) {
+            if (array.isNotEmpty()) {
                 var line = ""
                 line += when (array[0]) {
                     is VariableInt -> "\tint $name[${array.size}] = ["
@@ -160,7 +160,7 @@ class Data {
             printArr(name, array)
         }
 
-        if(funcLocalData.isNotEmpty()) {
+        if (funcLocalData.isNotEmpty()) {
             str += "\nCurrent func local scope: \n"
             for ((name, array) in funcLocalData.peek().getArrays()) {
                 printArr(name, array)
@@ -171,71 +171,68 @@ class Data {
     }
 
     fun checkArray(name: String): Boolean {
-        //throw Exception("checkArray")
-
-        if(globalData.checkArray(name) || funcLocalData.isNotEmpty() && funcLocalData.peek().checkArray(name)) {
+        if (globalData.checkArray(name) || funcLocalData.isNotEmpty() && funcLocalData.peek()
+                .checkArray(name)
+        ) {
             return true
         }
         return false
-    } // YES
+    }
 
     fun getArray(name: String): Array<Variable> {
-        //throw Exception("getArray")
-
         return if (funcLocalData.isNotEmpty() && funcLocalData.peek().checkArray(name)) {
             funcLocalData.peek().getArray(name)
-        } else if(globalData.checkArray(name)) {
+        } else if (globalData.checkArray(name)) {
             globalData.getArray(name)
         } else {
             throw Exception("The array not exist: $name[]")
         }
-    } // YES
+    }
 
     fun setCharArray(name: String, string: String) {
-        if(funcLocalData.isEmpty()) {
-            if(!globalData.setCharArray(name, string)) {
+        if (funcLocalData.isEmpty()) {
+            if (!globalData.setCharArray(name, string)) {
                 throw Exception(globalData.getErrorText())
             }
         } else {
-            if(!funcLocalData.peek().setCharArray(name, string) && !globalData.setCharArray(name, string)) {
+            if (!funcLocalData.peek().setCharArray(name, string) && !globalData.setCharArray(
+                    name,
+                    string
+                )
+            ) {
                 throw Exception(globalData.getErrorText())
             }
         }
     }
 
     fun initVariable(name: String, variable: Variable) {
-        //throw Exception("initVariable")
-
-        if(funcLocalData.isEmpty()) {
+        if (funcLocalData.isEmpty()) {
             globalData.initVariable(name, variable)
         } else {
             funcLocalData.peek().initVariable(name, variable)
         }
-    } // YES
+    }
 
     fun initArray(name: String, countElement: Variable, initValue: Variable, string: String = "") {
-        //throw Exception("intArray")
-
-        if(funcLocalData.isEmpty()) {
+        if (funcLocalData.isEmpty()) {
             globalData.initArray(name, countElement, initValue, string)
         } else {
             funcLocalData.peek().initArray(name, countElement, initValue, string)
         }
-    } // YES
+    }
 
     fun getVariable(name: String): Variable {
-        //throw Exception("getVariable")
         val global = globalData.getVariable(name)
 
-        return if(funcLocalData.isEmpty()) {
-            if(global !is VariableInt && global !is VariableDouble && global !is VariableBoolean && global !is VariableChar) {
+        return if (funcLocalData.isEmpty()) {
+            if (global !is VariableInt && global !is VariableDouble && global !is VariableBoolean && global !is VariableChar) {
                 throw Exception(globalData.getErrorText())
             }
             global
         } else {
             val local = funcLocalData.peek().getVariable(name)
-            if(local !is VariableInt && local !is VariableDouble && local !is VariableBoolean && local !is VariableChar) {
-                if(global !is VariableInt && global !is VariableDouble && global !is VariableBoolean && global !is VariableChar) {
+            if (local !is VariableInt && local !is VariableDouble && local !is VariableBoolean && local !is VariableChar) {
+                if (global !is VariableInt && global !is VariableDouble && global !is VariableBoolean && global !is VariableChar) {
                     throw Exception(globalData.getErrorText())
                 }
                 global
@@ -243,66 +240,59 @@ class Data {
                 local
             }
         }
-    } // YES
+    }
 
     fun getArrayElement(name: String, index: Variable): Variable {
-        // throw Exception("getArrayElement")
-
         return if (funcLocalData.isNotEmpty() && funcLocalData.peek().checkArray(name)) {
             funcLocalData.peek().getArrayElement(name, index)
-        } else if(globalData.checkArray(name)) {
+        } else if (globalData.checkArray(name)) {
             globalData.getArrayElement(name, index)
         } else {
             throw Exception("The array not exist: $name[]")
         }
-    } // YES
+    }
 
     fun setVariable(name: String, variable: Variable) {
-        // throw Exception("setVariable")
-
-        if(funcLocalData.isEmpty()) {
-            if(!globalData.setVariable(name, variable)) {
+        if (funcLocalData.isEmpty()) {
+            if (!globalData.setVariable(name, variable)) {
                 throw Exception(globalData.getErrorText())
             }
         } else {
-            if(!funcLocalData.peek().setVariable(name, variable) && !globalData.setVariable(name, variable)) {
+            if (!funcLocalData.peek().setVariable(name, variable) && !globalData.setVariable(
+                    name,
+                    variable
+                )
+            ) {
                 throw Exception(globalData.getErrorText())
             }
         }
-    } // YES
+    }
 
-    fun setArrayElement (name: String, index: Variable, value: Variable) {
-        // throw Exception("setArrayElement")
-
+    fun setArrayElement(name: String, index: Variable, value: Variable) {
         if (funcLocalData.isNotEmpty() && funcLocalData.peek().checkArray(name)) {
             funcLocalData.peek().setArrayElement(name, index, value)
-        } else if(globalData.checkArray(name)) {
+        } else if (globalData.checkArray(name)) {
             globalData.setArrayElement(name, index, value)
         } else {
             throw Exception("The array not exist: $name[]")
         }
-    } // YES
+    }
 
     fun createNesting() {
-        // throw Exception("createNesting")
-
-        if(funcLocalData.isEmpty()) {
+        if (funcLocalData.isEmpty()) {
             globalData.createNesting()
         } else {
             funcLocalData.peek().createNesting()
         }
-
-    } // YES
+    }
 
     fun deleteNesting() {
-        // throw Exception("deleteNesting")
-
-        if(funcLocalData.isEmpty()) {
+        if (funcLocalData.isEmpty()) {
             globalData.deleteNesting()
         } else {
             funcLocalData.peek().deleteNesting()
         }
-    } // YES
+    }
 
     fun createFuncNesting() {
         funcLocalData.push(DataStack())
@@ -336,7 +326,7 @@ class DataStack {
     }
 
     fun checkArray(name: String): Boolean {
-        if(name in arrays) {
+        if (name in arrays) {
             return true
         }
         return false
@@ -347,67 +337,66 @@ class DataStack {
     }
 
     fun initVariable(name: String, variable: Variable) {
-        if(variables[name] == null && arrays[name] == null) {
+        if (variables[name] == null && arrays[name] == null) {
             VariableType.isName(name)
 
             deleteStack.peek().add(name)
             variables[name] = variable
         } else {
-            println("ERR: name already exist")
             throw Exception("The name already exist: $name")
         }
     }
 
-    fun initArray(name: String, countElement: Variable, initValue: Variable, string: String ) {
-        if(variables[name] == null && arrays[name] == null) {
+    fun initArray(name: String, countElement: Variable, initValue: Variable, string: String) {
+        if (variables[name] == null && arrays[name] == null) {
             VariableType.isName(name)
 
             deleteStack.peek().add(name)
-            if(countElement is VariableInt) {
-                if(countElement.getValue() in 1..1000) {
-                    if(initValue is VariableChar && string.length > 1) {
-                        if(countElement.getValue().toInt() < string.length - 2) {
+            if (countElement is VariableInt) {
+                if (countElement.getValue() in 1..1000) {
+                    if (initValue is VariableChar && string.length > 1) {
+                        if (countElement.getValue().toInt() < string.length - 2) {
                             throw Exception("Incorrect data type: the entered string is larger than the size of the array, $string")
                         }
                         arrays[name] = Array(countElement.getValue().toInt()) {
                             VariableChar(initValue.getValue())
                         }
                         for (i in arrays[name]!!.indices) {
-                            if(string.length - 3 < i) {
+                            if (string.length - 3 < i) {
                                 break
                             }
                             arrays[name]!![i] = VariableChar(string[i + 1])
                         }
                     } else {
                         arrays[name] = Array(countElement.getValue().toInt()) {
-                            when(initValue) {
+                            when (initValue) {
                                 is VariableInt -> VariableInt(initValue.getValue())
                                 is VariableDouble -> VariableDouble(initValue.getValue())
                                 is VariableBoolean -> VariableBoolean(initValue.getValue())
-                                is VariableChar-> VariableChar(initValue.getValue())
+                                is VariableChar -> VariableChar(initValue.getValue())
                                 else -> throw Exception("Incorrect data type: this type does not exist, $name")
                             }
                         }
                     }
-                } else if(initValue is VariableChar && countElement.getValue().toInt() == -1 && string.length > 1) {
+                } else if (initValue is VariableChar && countElement.getValue()
+                        .toInt() == -1 && string.length > 1
+                ) {
                     arrays[name] = Array(string.length - 2) {
                         VariableChar(initValue.getValue())
                     }
-                    if(arrays[name]!!.isNotEmpty()) {
+                    if (arrays[name]!!.isNotEmpty()) {
                         for (i in arrays[name]!!.indices) {
                             arrays[name]!![i] = VariableChar(string[i + 1])
                         }
                     }
                 } else {
                     val i = countElement.getValue()
-                    println("ERR: the array can contain from 1 to 1000 elements")
                     throw Exception("Incorrect data type: there is no such element, $name[$i]")
                 }
             } else {
                 throw Exception("Incorrect data type: the number of elements must be integer, $name")
             }
         } else {
-            println("ERR: name already exist")
             throw Exception("The name already exist: $name[]")
         }
     }
@@ -416,13 +405,11 @@ class DataStack {
         VariableType.isName(name)
 
         val variable = variables[name]
-        return if(variable != null) {
+        return if (variable != null) {
             variable
         } else {
-            println("ERR: variable not exist")
             errorText = "The variable not exist: $name"
             Variable()
-           // throw Exception("The variable not exist: $name")
         }
     }
 
@@ -430,39 +417,33 @@ class DataStack {
         VariableType.isName(name)
 
         val array = arrays[name]
-        return if(array != null) {
-            if(index is VariableInt) {
+        return if (array != null) {
+            if (index is VariableInt) {
                 val i = index.getValue().toInt()
-                if(i in (array.indices)) {
+                if (i in (array.indices)) {
                     array[i]
                 } else {
-                    println("ERR: there is no such element")
                     Variable()
-                    // errorText = "Incorrect data type: there is no such element, $name[$i]"
                     throw Exception("Incorrect data type: there is no such element, $name[$i]")
                 }
             } else {
-                println("ERR: incorrect data type")
                 Variable()
-                // errorText = "Incorrect data type: the array index must be an integer, $name"
                 throw Exception("Incorrect data type: the array index must be an integer, $name")
             }
         } else {
-            println("ERR: array not exist")
             Variable()
-            // errorText = "The array not exist: $name[]"
             throw Exception("The array not exist: $name[]")
         }
     }
 
     fun setCharArray(name: String, string: String): Boolean {
-        if(arrays[name] != null) {
-            if(arrays[name]!!.size > 0) {
-                if(arrays[name]!![0] !is VariableChar) {
+        if (arrays[name] != null) {
+            if (arrays[name]!!.size > 0) {
+                if (arrays[name]!![0] !is VariableChar) {
                     errorText = "You cannot assign a string to this array: $name[]"
                     return false
                 }
-            } else if(string != "") {
+            } else if (string != "") {
                 errorText = "The size of the array is small: $name[]"
                 return false
             }
@@ -471,24 +452,26 @@ class DataStack {
             return false
         }
 
-        if(arrays[name]!!.size < string.length - 2) {
-            errorText = "Incorrect data type: the entered string is larger than the size of the array, $string"
+        if (arrays[name]!!.size < string.length - 2) {
+            errorText =
+                "Incorrect data type: the entered string is larger than the size of the array, $string"
             return false
         }
 
-        if(string.length > 1 && VariableType.isString(string)) {
+        if (string.length > 1 && VariableType.isString(string)) {
             for (i in arrays[name]!!.indices) {
                 arrays[name]!![i] = VariableChar((0).toChar())
             }
 
             for (i in arrays[name]!!.indices) {
-                if(string.length - 3 < i) {
+                if (string.length - 3 < i) {
                     break
                 }
                 arrays[name]!![i] = VariableChar(string[i + 1])
             }
-        } else if(string != "") {
-            errorText = "Incorrect expression: only a string can be assigned to an array of type char, $name[]"
+        } else if (string != "") {
+            errorText =
+                "Incorrect expression: only a string can be assigned to an array of type char, $name[]"
             return false
         }
 
@@ -498,37 +481,32 @@ class DataStack {
     fun setVariable(name: String, variable: Variable): Boolean {
         VariableType.isName(name)
 
-        if(variables[name] != null) {
+        if (variables[name] != null) {
             variables[name]?.setValue(variable)
         } else {
-            println("ERR: variable not exist")
             errorText = "The variable not exist: $name"
-            //throw Exception("The variable not exist: $name")
             return false
         }
 
         return true
     }
 
-    fun setArrayElement (name: String, index: Variable, value: Variable) {
+    fun setArrayElement(name: String, index: Variable, value: Variable) {
         VariableType.isName(name)
 
         val array = arrays[name]
-        if(array != null) {
-            if(index is VariableInt) {
+        if (array != null) {
+            if (index is VariableInt) {
                 val i = index.getValue().toInt()
-                if(i in (array.indices)) {
+                if (i in (array.indices)) {
                     arrays[name]!![i].setValue(value)
                 } else {
-                    println("ERR: there is no such element")
                     throw Exception("Incorrect data type: there is no such element, $name[$i]")
                 }
             } else {
-                println("ERR: incorrect data type")
                 throw Exception("Incorrect data type: the array index must be an integer, $name")
             }
         } else {
-            println("ERR: array not exist")
             throw Exception("The array not exist: $name[]")
         }
     }
@@ -538,7 +516,7 @@ class DataStack {
     }
 
     fun deleteNesting() {
-        for(name in deleteStack.peek()) {
+        for (name in deleteStack.peek()) {
             variables.remove(name)
             arrays.remove(name)
         }
@@ -564,21 +542,22 @@ class Console(_consoleContainer: LinearLayout, _context: CodingActivity, _resour
 
     @SuppressLint("SetTextI18n")
     fun print(string: String) {
-        if(consoleContainer.childCount > 100 || countLine >= 100) {
+        if (consoleContainer.childCount > 100 || countLine >= 100) {
             clear()
         }
 
         val currentLine = consoleContainer.getChildAt(consoleContainer.childCount - 1) as TextView
 
-        if(string.length > 1) {
-            currentLine.text = "${currentLine.text} ${string.substring(1, string.length - 1)}\n"
+        if (string.length > 1) {
+            currentLine.text =
+                currentLine.text.toString() + string.substring(1, string.length - 1) + "\n"
         }
         countLine++
     }
 
     @SuppressLint("SetTextI18n")
     fun println(variable: Variable) {
-        if(consoleContainer.childCount > 100 || countLine >= 100) {
+        if (consoleContainer.childCount > 100 || countLine >= 100) {
             clear()
         }
 
@@ -586,23 +565,30 @@ class Console(_consoleContainer: LinearLayout, _context: CodingActivity, _resour
 
         when (variable) {
             is VariableInt -> {
-                currentLine.text = currentLine.text.toString() + variable.getValue().toString() + "\n"
+                currentLine.text =
+                    currentLine.text.toString() + variable.getValue().toString() + "\n"
                 countLine++
             }
+
             is VariableDouble -> {
-                currentLine.text = currentLine.text.toString() + variable.getValue().toString() + "\n"
+                currentLine.text =
+                    currentLine.text.toString() + variable.getValue().toString() + "\n"
                 countLine++
             }
+
             is VariableBoolean -> {
-                currentLine.text = currentLine.text.toString() + variable.getValue().toString() + "\n"
+                currentLine.text =
+                    currentLine.text.toString() + variable.getValue().toString() + "\n"
                 countLine++
             }
+
             is VariableChar -> {
-                currentLine.text = currentLine.text.toString() + variable.getValue().toString() + "\n"
+                currentLine.text =
+                    currentLine.text.toString() + variable.getValue().toString() + "\n"
                 countLine++
             }
+
             else -> {
-                println("ERR: incorrect expression output")
                 throw Exception("Incorrect expression output")
             }
         }
@@ -611,16 +597,16 @@ class Console(_consoleContainer: LinearLayout, _context: CodingActivity, _resour
 
     @SuppressLint("SetTextI18n")
     fun println(array: Array<Variable>) {
-        if(consoleContainer.childCount > 100 || countLine >=  100) {
+        if (consoleContainer.childCount > 100 || countLine >= 100) {
             clear()
         }
 
         val currentLine = consoleContainer.getChildAt(consoleContainer.childCount - 1) as TextView
 
-        if(array.isNotEmpty()) {
-            if(array[0] is VariableChar) {
-                for(ch in array) {
-                    if(ch.toChar().getValue() == (0).toChar()) {
+        if (array.isNotEmpty()) {
+            if (array[0] is VariableChar) {
+                for (ch in array) {
+                    if (ch.toChar().getValue() == (0).toChar()) {
                         break
                     }
                     currentLine.text = currentLine.text.toString() + ch.toChar().getValue()
@@ -631,21 +617,28 @@ class Console(_consoleContainer: LinearLayout, _context: CodingActivity, _resour
                 for (element in array) {
                     when (element) {
                         is VariableInt -> {
-                            currentLine.text = currentLine.text.toString() + element.getValue() + ", "
+                            currentLine.text =
+                                currentLine.text.toString() + element.getValue() + ", "
                         }
+
                         is VariableDouble -> {
-                            currentLine.text = currentLine.text.toString() + element.getValue() + ", "
+                            currentLine.text =
+                                currentLine.text.toString() + element.getValue() + ", "
                         }
+
                         is VariableBoolean -> {
-                            currentLine.text = currentLine.text.toString() + element.getValue() + ", "
+                            currentLine.text =
+                                currentLine.text.toString() + element.getValue() + ", "
                         }
+
                         else -> {
                             println("ERR: incorrect expression output")
                             throw Exception("Incorrect expression output")
                         }
                     }
                 }
-                currentLine.text = currentLine.text.toString().substring(0, currentLine.text.toString().length - 2) + "]\n"
+                currentLine.text = currentLine.text.toString()
+                    .substring(0, currentLine.text.toString().length - 2) + "]\n"
             }
         } else {
             currentLine.text = currentLine.text.toString() + "\n"

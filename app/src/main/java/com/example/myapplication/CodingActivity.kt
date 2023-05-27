@@ -62,19 +62,22 @@ import kotlin.math.min
 @Suppress("DEPRECATION")
 class CodingActivity : AppCompatActivity() {
     private var scaleDp: Float = 1f
-    private val scrollSpeed : Float = 40.0f
-    private val leftMarginValue : Int = 30
-    private val marginForRecyclerViewItems : Int = 30
-    private val bottomMarginForEveryBlock : Int = 15
-    private var numberOfBlockFieldChildren : Int = 0
+    private val scrollSpeed: Float = 40.0f
+    private val leftMarginValue: Int = 30
+    private val marginForRecyclerViewItems: Int = 30
+    private val bottomMarginForEveryBlock: Int = 15
+    private var numberOfBlockFieldChildren: Int = 0
     private val viewTransparent = 0.3f
     private val viewOpaque = 1.0f
-    private val regularBlockWidth : Int = 350;  private val regularBlockHeight : Int = 90
-    private val specificBlockWidth : Int = 200; private val specificBlockHeight: Int = 55
-    private val dialogWindowInputWidth : Int = 300; private val dialogWindowInputHeight : Int = 200
-    private val dialogWindowErrorWidth : Int = 300; private val dialogWindowErrorHeight : Int = 400
+    private val regularBlockWidth: Int = 350
+    private val regularBlockHeight: Int = 90
+    private val specificBlockWidth: Int = 200
+    private val specificBlockHeight: Int = 55
+    private val dialogWindowInputWidth: Int = 300
+    private val dialogWindowInputHeight: Int = 200
+    private val dialogWindowErrorWidth: Int = 300
+    private val dialogWindowErrorHeight: Int = 400
     private val vibrator = Vibration
-
 
 
     private var listBlocks = getListBlocks()
@@ -91,15 +94,14 @@ class CodingActivity : AppCompatActivity() {
     private var correspondence = getMapOfCorrespondence()
 
 
-
     private lateinit var bottomSheetDialogNewBlock: BottomSheetDialog
     private lateinit var bottomSheetDialogConsole: BottomSheetDialog
-    private lateinit var operatorsRecycler : RecyclerView
-    private lateinit var operatorsAdapter : OperatorAdapter
+    private lateinit var operatorsRecycler: RecyclerView
+    private lateinit var operatorsAdapter: OperatorAdapter
 
-    private lateinit var binding : ActivityCodingBinding
-    private lateinit var bottomSheetViewNewBlockBinding : LayoutNewBlocksBinding
-    private lateinit var bottomSheetViewConsoleBinding : LayoutConsoleBinding
+    private lateinit var binding: ActivityCodingBinding
+    private lateinit var bottomSheetViewNewBlockBinding: LayoutNewBlocksBinding
+    private lateinit var bottomSheetViewConsoleBinding: LayoutConsoleBinding
 
     private lateinit var console: Console
     private lateinit var interpreter: Interpreter
@@ -110,7 +112,10 @@ class CodingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_coding)
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
 
         scaleDp = resources.displayMetrics.density
 
@@ -119,9 +124,15 @@ class CodingActivity : AppCompatActivity() {
 
         val dataList = DataSource().loadOperators()
         operatorsRecycler = binding.operatorRecycler
-        operatorsAdapter = OperatorAdapter(this@CodingActivity, marginForRecyclerViewItems, editTextsFocuses, dataList)
+        operatorsAdapter = OperatorAdapter(
+            this@CodingActivity,
+            marginForRecyclerViewItems,
+            editTextsFocuses,
+            dataList
+        )
 
-        operatorsRecycler.layoutManager = LinearLayoutManager(this@CodingActivity, LinearLayoutManager.HORIZONTAL, false)
+        operatorsRecycler.layoutManager =
+            LinearLayoutManager(this@CodingActivity, LinearLayoutManager.HORIZONTAL, false)
         operatorsRecycler.adapter = operatorsAdapter
 
 
@@ -129,7 +140,8 @@ class CodingActivity : AppCompatActivity() {
         initBottomSheetViewNewBlock()
         initBottomSheetConsole()
         binding.buttonCodingSwapMode.setOnClickListener {
-            val sharedPrefs = applicationContext.getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
+            val sharedPrefs =
+                applicationContext.getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
             val editor = sharedPrefs.edit()
 
             if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_NO) {
@@ -145,7 +157,7 @@ class CodingActivity : AppCompatActivity() {
         binding.buttonAddNewBlock.setOnClickListener {
             bottomSheetDialogNewBlock.show()
         }
-        binding.buttonConsole.setOnClickListener{
+        binding.buttonConsole.setOnClickListener {
             bottomSheetDialogConsole.show()
         }
         binding.deleteBlock.setOnDragListener(deleteBlock)
@@ -171,10 +183,11 @@ class CodingActivity : AppCompatActivity() {
             true
         }
 
-        console = Console(bottomSheetViewConsoleBinding.consoleOutput, this, R.layout.layout_console_line)
+        console =
+            Console(bottomSheetViewConsoleBinding.consoleOutput, this, R.layout.layout_console_line)
 
-        val startCompiler = fun () {
-            if(::interpreter.isInitialized) interpreter.deactivate()
+        val startCompiler = fun() {
+            if (::interpreter.isInitialized) interpreter.deactivate()
 
             val blocksView = listOfBlocksOnField
 
@@ -210,7 +223,7 @@ class CodingActivity : AppCompatActivity() {
 
             changeBlockDragListeners(true)
 
-            if(::interpreter.isInitialized) {
+            if (::interpreter.isInitialized) {
                 interpreter.deactivate()
                 interpreter.updateBlockMarkers()
             }
@@ -222,7 +235,7 @@ class CodingActivity : AppCompatActivity() {
             startCompiler()
         }
 
-        binding.buttonDebug.setOnClickListener{
+        binding.buttonDebug.setOnClickListener {
             binding.buttonCompiler.visibility = View.INVISIBLE
             binding.buttonDebug.visibility = View.INVISIBLE
             binding.buttonSaveCode.visibility = View.INVISIBLE
@@ -268,62 +281,73 @@ class CodingActivity : AppCompatActivity() {
 
         val intent = intent
 
-        if(intent != null){
-            when{
+        if (intent != null) {
+            when {
                 intent.hasExtra("fileName") -> {
                     val fileName = intent.getStringExtra("fileName").toString()
                     intent.removeExtra("fileName")
                     readBlocksDataFromParticularFileAndRecreate(fileName)
                 }
-                intent.hasExtra("bubble_sort")->{
+
+                intent.hasExtra("bubble_sort") -> {
                     intent.removeExtra("bubble_sort")
-                    val(enums, expressions, newMargins, newWidths) = bubbleSort()
+                    val (enums, expressions, newMargins, newWidths) = bubbleSort()
                     instructionList = enums.toMutableList()
                     recreateBlockList(expressions, newMargins, newWidths)
                 }
-                intent.hasExtra("2023")->{
+
+                intent.hasExtra("2023") -> {
                     intent.removeExtra("2023")
-                    val(enums, expressions, newMargins, newWidths) = oneThousandBlocks()
+                    val (enums, expressions, newMargins, newWidths) = oneThousandBlocks()
                     instructionList = enums.toMutableList()
                     recreateBlockList(expressions, newMargins, newWidths)
                 }
-                intent.hasExtra("harp")->{
+
+                intent.hasExtra("harp") -> {
                     intent.removeExtra("harp")
-                    val(enums, expressions, newMargins, newWidths) = harp()
+                    val (enums, expressions, newMargins, newWidths) = harp()
                     instructionList = enums.toMutableList()
                     recreateBlockList(expressions, newMargins, newWidths)
                 }
-                intent.hasExtra("fibonacci")->{
+
+                intent.hasExtra("fibonacci") -> {
                     intent.removeExtra("fibonacci")
-                    val(enums, expressions, newMargins, newWidths) = fibonacci()
+                    val (enums, expressions, newMargins, newWidths) = fibonacci()
                     instructionList = enums.toMutableList()
                     recreateBlockList(expressions, newMargins, newWidths)
                 }
-                intent.hasExtra("pow")->{
+
+                intent.hasExtra("pow") -> {
                     intent.removeExtra("pow")
-                    val(enums, expressions, newMargins, newWidths) = pow()
+                    val (enums, expressions, newMargins, newWidths) = pow()
                     instructionList = enums.toMutableList()
                     recreateBlockList(expressions, newMargins, newWidths)
                 }
-                intent.hasExtra("fastEuclid")->{
+
+                intent.hasExtra("fastEuclid") -> {
                     intent.removeExtra("fastEuclid")
-                    val(enums, expressions, newMargins, newWidths) = fastEuclidAlgorithm()
+                    val (enums, expressions, newMargins, newWidths) = fastEuclidAlgorithm()
                     instructionList = enums.toMutableList()
                     recreateBlockList(expressions, newMargins, newWidths)
                 }
-                intent.hasExtra("stirlitz")->{
+
+                intent.hasExtra("stirlitz") -> {
                     intent.removeExtra("stirlitz")
-                    val(enums, expressions, newMargins, newWidths) = Stirlitz()
+                    val (enums, expressions, newMargins, newWidths) = Stirlitz()
                     instructionList = enums.toMutableList()
                     recreateBlockList(expressions, newMargins, newWidths)
                 }
+
                 else -> {}
             }
         }
 
-        if(savedInstanceState != null){
-            val instructionArray = savedInstanceState.getSerializable("instructions") as? Array<InstructionType>
-            val expressions = mutableListOf<String>(); expressions.addAll(savedInstanceState.getStringArrayList("expressions") ?: emptyList())
+        if (savedInstanceState != null) {
+            val instructionArray =
+                savedInstanceState.getSerializable("instructions") as? Array<InstructionType>
+            val expressions = mutableListOf<String>(); expressions.addAll(
+                savedInstanceState.getStringArrayList("expressions") ?: emptyList()
+            )
             val margins = savedInstanceState.getSerializable("margins") as ArrayList<Int>
             val widths = savedInstanceState.getSerializable("widths") as ArrayList<Int>
 
@@ -332,19 +356,19 @@ class CodingActivity : AppCompatActivity() {
         }
     }
 
-    private fun gatheringDataToSave(){
+    private fun gatheringDataToSave() {
         val json = JSONObject()
         val enumJsonArray = JSONArray()
         val marginJsonArray = JSONArray()
         val widthJsonArray = JSONArray()
-        for(i in 0 until instructionList.size){
+        for (i in 0 until instructionList.size) {
             enumJsonArray.put(instructionList[i].toString())
             marginJsonArray.put(listOfBlocksOnField[i].marginLeft.toString())
             widthJsonArray.put(listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width.toString())
         }
         val stringJSONArray = JSONArray()
-        for(i in 0 until listOfBlocksOnField.size){
-            if(instructionList[i] !in listBlocksNotHaveText)
+        for (i in 0 until listOfBlocksOnField.size) {
+            if (instructionList[i] !in listBlocksNotHaveText)
                 stringJSONArray.put(listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression).text.toString())
         }
 
@@ -356,13 +380,18 @@ class CodingActivity : AppCompatActivity() {
 
         saveBlockSequence(json)
     }
-    private fun readAndWriteButtonsData(fileName : String) : Boolean{
+
+    private fun readAndWriteButtonsData(fileName: String): Boolean {
         val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
         val list = getSavedCodeNamesList().toMutableList()
 
-        for(i in 0 until list.size){
-            if(list[i] == fileName){
-                Toast.makeText(this, "the data in file {${fileName}} was overwritten", Toast.LENGTH_LONG).show()
+        for (i in 0 until list.size) {
+            if (list[i] == fileName) {
+                Toast.makeText(
+                    this,
+                    "the data in file {${fileName}} was overwritten",
+                    Toast.LENGTH_LONG
+                ).show()
                 return false
             }
         }
@@ -373,14 +402,14 @@ class CodingActivity : AppCompatActivity() {
         return true
     }
 
-    private fun getSavedCodeNamesList() : List<String> {
+    private fun getSavedCodeNamesList(): List<String> {
         val file = this.getFileStreamPath(R.string.saved_buttons.toString() + ".json")
         val list = mutableListOf<String>()
-        if(file.exists() && file.length() > 0){
+        if (file.exists() && file.length() > 0) {
             val jsonString = file.readText()
             val jsonArray = JSONArray(jsonString)
 
-            for(i in 0 until jsonArray.length()){
+            for (i in 0 until jsonArray.length()) {
                 val item = jsonArray.get(i).toString()
                 list.add(item)
             }
@@ -388,7 +417,7 @@ class CodingActivity : AppCompatActivity() {
         return list
     }
 
-    private fun saveBlockSequence(json : JSONObject){
+    private fun saveBlockSequence(json: JSONObject) {
         val builder = AlertDialog.Builder(this)
         val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_input, null)
         builder.setView(dialogLayout)
@@ -404,21 +433,31 @@ class CodingActivity : AppCompatActivity() {
             fos.write(json.toString().toByteArray())
             fos.close()
 
-            if(fileNotExistsYet)
-                Toast.makeText(this, "file with name {${fileName}} was saved", Toast.LENGTH_LONG).show()
+            if (fileNotExistsYet)
+                Toast.makeText(this, "file with name {${fileName}} was saved", Toast.LENGTH_LONG)
+                    .show()
 
             dialog.dismiss()
         }
 
         dialogLayout.findViewById<Button>(R.id.buttonEnter).setOnClickListener { writeInFileText() }
-        dialog.setOnCancelListener {  }
+        dialog.setOnCancelListener { }
 
         dialog.show()
 
-        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
-        dialog.window?.setLayout((dialogWindowInputWidth * scaleDp + 0.5).toInt(), (dialogWindowInputHeight * scaleDp + 0.5).toInt())
+        dialog.window?.setBackgroundDrawable(
+            ContextCompat.getDrawable(
+                this,
+                android.R.color.transparent
+            )
+        )
+        dialog.window?.setLayout(
+            (dialogWindowInputWidth * scaleDp + 0.5).toInt(),
+            (dialogWindowInputHeight * scaleDp + 0.5).toInt()
+        )
     }
-    private fun readBlocksDataFromParticularFileAndRecreate(fileName : String){
+
+    private fun readBlocksDataFromParticularFileAndRecreate(fileName: String) {
         val expressions = mutableListOf<String>()
         val margins = mutableListOf<Int>()
         val widths = mutableListOf<Int>()
@@ -426,13 +465,13 @@ class CodingActivity : AppCompatActivity() {
 
 
         val fis = this.openFileInput("$fileName.json")
-        val jsonString = fis.bufferedReader().use{it.readText()}
+        val jsonString = fis.bufferedReader().use { it.readText() }
         val json = JSONObject(jsonString)
 
         val enumJSONArray = json.getJSONArray("enums")
         val marginJSONArray = json.getJSONArray("margins")
         val widthsJSONArray = json.getJSONArray("widths")
-        for(i in 0 until enumJSONArray.length()){
+        for (i in 0 until enumJSONArray.length()) {
             val enumValue = InstructionType.valueOf(enumJSONArray.getString(i))
             val marginValue = marginJSONArray.getString(i).toInt()
             val widthValue = widthsJSONArray.getString(i).toInt()
@@ -443,7 +482,7 @@ class CodingActivity : AppCompatActivity() {
         }
 
         val stringJSONArray = json.getJSONArray("strings")
-        for(i in 0 until stringJSONArray.length()){
+        for (i in 0 until stringJSONArray.length()) {
             val value = stringJSONArray.getString(i)
             expressions.add(value)
         }
@@ -455,33 +494,46 @@ class CodingActivity : AppCompatActivity() {
 
         recreateBlockList(expressions, margins, widths)
     }
-    private fun recreateBlockList(expressions : List<String>, margins : List<Int>, widths : List<Int>){
-        val handler = Handler()
-        var count : Int
-        for(i in 0 until instructionList.size){
-            if(instructionList[i] !in listBlocksEnds &&
-                instructionList[i] != InstructionType.ELIF &&
-                instructionList[i] != InstructionType.ELSE)
-                listOfBlocksOnField.add(createNewBlockAndSetItsProperties(instructionList[i], listBlocks[instructionList[i]]!!))
 
-            else{
+    private fun recreateBlockList(
+        expressions: List<String>,
+        margins: List<Int>,
+        widths: List<Int>
+    ) {
+        val handler = Handler()
+        var count: Int
+        for (i in 0 until instructionList.size) {
+            if (instructionList[i] !in listBlocksEnds &&
+                instructionList[i] != InstructionType.ELIF &&
+                instructionList[i] != InstructionType.ELSE
+            )
+                listOfBlocksOnField.add(
+                    createNewBlockAndSetItsProperties(
+                        instructionList[i],
+                        listBlocks[instructionList[i]]!!
+                    )
+                )
+            else {
                 count = i - 1
-                if(instructionList[i] != InstructionType.ELIF){
-                    while(instructionList[count] != correspondence[instructionList[i]] || widths[count] != widths[i]){
+                if (instructionList[i] != InstructionType.ELIF) {
+                    while (instructionList[count] != correspondence[instructionList[i]] || widths[count] != widths[i]) {
                         count--
                     }
                 }
 
-                val block = when(instructionList[i]){
+                val block = when (instructionList[i]) {
                     InstructionType.ELSE -> {
                         createElse()
                     }
+
                     InstructionType.ENDIF -> {
                         createEndIf()
                     }
+
                     InstructionType.ELIF -> {
                         createElif()
                     }
+
                     else -> {
                         createEndBlock(instructionList[count], listOfBlocksOnField[count], true)
                     }
@@ -489,7 +541,8 @@ class CodingActivity : AppCompatActivity() {
 
                 listOfBlocksOnField.add(block)
             }
-            val numPlaceHolder = listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder)
+            val numPlaceHolder =
+                listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder)
 
             numPlaceHolder.layoutParams.width = widths[i]
             numPlaceHolder.requestLayout()
@@ -518,15 +571,18 @@ class CodingActivity : AppCompatActivity() {
             callUpdate()
         }, 200)
     }
-    private fun recreateExpressions(expressions : List<String>){
+
+    private fun recreateExpressions(expressions: List<String>) {
         var count = 0
-        for(i in 0 until listOfBlocksOnField.size){
-            if(instructionList[i] !in listBlocksNotHaveText){
-                listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression).append(expressions[count++])
+        for (i in 0 until listOfBlocksOnField.size) {
+            if (instructionList[i] !in listBlocksNotHaveText) {
+                listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression)
+                    .append(expressions[count++])
                 listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression).requestLayout()
             }
         }
     }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         val instructionArray = instructionList.toTypedArray()
@@ -534,9 +590,10 @@ class CodingActivity : AppCompatActivity() {
         val margins = ArrayList<Int>()
         val widthsOfNumbersContainers = ArrayList<Int>()
 
-        for(i in 0 until instructionList.size){
-            if(instructionList[i] !in listBlocksNotHaveText){
-                val itemExpression = listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression)
+        for (i in 0 until instructionList.size) {
+            if (instructionList[i] !in listBlocksNotHaveText) {
+                val itemExpression =
+                    listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression)
                 expressions.add(itemExpression.text.toString())
             }
             margins.add(listOfBlocksOnField[i].marginLeft)
@@ -559,10 +616,12 @@ class CodingActivity : AppCompatActivity() {
         binding.buttonDebugNextBreakPoint.alpha = viewTransparent
         binding.buttonLookVars.alpha = viewTransparent
     }
+
     fun activateLookVars() {
         binding.buttonLookVars.isEnabled = true
         binding.buttonLookVars.alpha = 1f
     }
+
     fun activateDebugButtons() {
         binding.buttonDebugNext.isEnabled = true
         binding.buttonDebugNextBreakPoint.isEnabled = true
@@ -585,9 +644,18 @@ class CodingActivity : AppCompatActivity() {
 
         dialog.show()
 
-        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
-        dialog.window?.setLayout((dialogWindowErrorWidth * scaleDp + 0.5).toInt(), (dialogWindowErrorHeight * scaleDp + 0.5).toInt())
+        dialog.window?.setBackgroundDrawable(
+            ContextCompat.getDrawable(
+                this,
+                android.R.color.transparent
+            )
+        )
+        dialog.window?.setLayout(
+            (dialogWindowErrorWidth * scaleDp + 0.5).toInt(),
+            (dialogWindowErrorHeight * scaleDp + 0.5).toInt()
+        )
     }
+
     fun inputRequest() {
         val builder = AlertDialog.Builder(this)
         val dialogLayout = layoutInflater.inflate(R.layout.layout_dialog_alert_input, null)
@@ -606,36 +674,41 @@ class CodingActivity : AppCompatActivity() {
 
         dialog.show()
 
-        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, android.R.color.transparent))
-        dialog.window?.setLayout((dialogWindowInputWidth * scaleDp + 0.5).toInt(), (dialogWindowInputHeight * scaleDp + 0.5).toInt())
+        dialog.window?.setBackgroundDrawable(
+            ContextCompat.getDrawable(
+                this,
+                android.R.color.transparent
+            )
+        )
+        dialog.window?.setLayout(
+            (dialogWindowInputWidth * scaleDp + 0.5).toInt(),
+            (dialogWindowInputHeight * scaleDp + 0.5).toInt()
+        )
     }
 
 
-    private fun changeBlockDragListeners(flag : Boolean){
-        for(i in 0 until instructionList.size){
-            if(instructionList[i] !in listBlocksNotHaveText && instructionList[i] != InstructionType.ELIF){
+    private fun changeBlockDragListeners(flag: Boolean) {
+        for (i in 0 until instructionList.size) {
+            if (instructionList[i] !in listBlocksNotHaveText && instructionList[i] != InstructionType.ELIF) {
                 val editText = listOfBlocksOnField[i].findViewById<EditText>(R.id.inputExpression)
-                if(flag){
+                if (flag) {
                     listOfBlocksOnField[i].isEnabled = true
                     editText.isEnabled = true
                     binding.buttonAddNewBlock.isEnabled = true
                     binding.deleteBlock.isEnabled = true
-                }
-                else{
+                } else {
                     listOfBlocksOnField[i].isEnabled = false
                     editText.isEnabled = false
                     binding.buttonAddNewBlock.isEnabled = false
                     binding.deleteBlock.isEnabled = false
                 }
-            }
-            else if(instructionList[i] == InstructionType.ENDCHOICEIF){
-                if(flag){
+            } else if (instructionList[i] == InstructionType.ENDCHOICEIF) {
+                if (flag) {
                     val elifButton = listOfBlocksOnField[i].findViewById<Button>(R.id.buttonElif)
                     val elseButton = listOfBlocksOnField[i].findViewById<Button>(R.id.buttonElse)
                     elifButton.isEnabled = true
                     elseButton.isEnabled = true
-                }
-                else{
+                } else {
                     val elifButton = listOfBlocksOnField[i].findViewById<Button>(R.id.buttonElif)
                     val elseButton = listOfBlocksOnField[i].findViewById<Button>(R.id.buttonElse)
                     elifButton.isEnabled = false
@@ -646,8 +719,10 @@ class CodingActivity : AppCompatActivity() {
     }
 
 
-
-    private fun createNewBlockAndSetItsProperties(key : InstructionType, blockView : BlockView) : View{
+    private fun createNewBlockAndSetItsProperties(
+        key: InstructionType,
+        blockView: BlockView
+    ): View {
         val newBlock = buildBlock(blockView, key); newBlock.id = numberOfBlockFieldChildren
 
         newBlock.setOnLongClickListener {
@@ -657,13 +732,15 @@ class CodingActivity : AppCompatActivity() {
         newBlock.setOnDragListener { view, dragEvent ->
             shiftBlocks(view, dragEvent, key)
         }
-        if(key !in listBlocksNotHaveText){
-            val newBlockEditText = newBlock.findViewById<EditText>(R.id.inputExpression); editTextsFocuses[newBlockEditText] = false
+        if (key !in listBlocksNotHaveText) {
+            val newBlockEditText =
+                newBlock.findViewById<EditText>(R.id.inputExpression); editTextsFocuses[newBlockEditText] =
+                false
             newBlockEditText.setOnFocusChangeListener { _, b ->
                 editTextsFocuses[newBlockEditText] = b
             }
         }
-        val newBlockParams  = newBlock.layoutParams as LayoutParams
+        val newBlockParams = newBlock.layoutParams as LayoutParams
         newBlockParams.setMargins(0, 0, 0, (bottomMarginForEveryBlock * scaleDp).toInt())
 
 
@@ -671,39 +748,68 @@ class CodingActivity : AppCompatActivity() {
         numberOfBlockFieldChildren++
         return newBlock
     }
+
     @SuppressLint("ClickableViewAccessibility")
-    private fun createEndBlock(key : InstructionType, newBlock : View, isRecreating : Boolean) : View{
-        var endBlock : View? = null
-        var instruction : InstructionType? = null
-        when(key){
+    private fun createEndBlock(key: InstructionType, newBlock: View, isRecreating: Boolean): View {
+        var endBlock: View? = null
+        var instruction: InstructionType? = null
+        when (key) {
             InstructionType.IF -> {
-                endBlock = listBlocks[InstructionType.ENDCHOICEIF]?.let { buildBlock(it, InstructionType.ENDCHOICEIF) } as ConstraintLayout
+                endBlock = listBlocks[InstructionType.ENDCHOICEIF]?.let {
+                    buildBlock(
+                        it,
+                        InstructionType.ENDCHOICEIF
+                    )
+                } as ConstraintLayout
                 instruction = InstructionType.ENDCHOICEIF
 
                 val buttonElif = endBlock.getViewById(R.id.buttonElif)
                 val buttonElse = endBlock.getViewById(R.id.buttonElse)
 
                 buttonElif.setOnTouchListener { _, motionEvent ->
-                    addElseOrElif("Elif", motionEvent, listOfBlocksOnField.indexOf(endBlock),
-                        listOfBlocksOnField.indexOf(newBlock))
+                    addElseOrElif(
+                        "Elif", motionEvent, listOfBlocksOnField.indexOf(endBlock),
+                        listOfBlocksOnField.indexOf(newBlock)
+                    )
                 }
                 buttonElse.setOnTouchListener { _, motionEvent ->
-                    addElseOrElif("Else", motionEvent, listOfBlocksOnField.indexOf(endBlock),
-                        listOfBlocksOnField.indexOf(newBlock))
+                    addElseOrElif(
+                        "Else", motionEvent, listOfBlocksOnField.indexOf(endBlock),
+                        listOfBlocksOnField.indexOf(newBlock)
+                    )
                 }
             }
+
             InstructionType.WHILE -> {
-                endBlock = listBlocks[InstructionType.ENDWHILE]?.let { buildBlock(it, InstructionType.ENDWHILE) } as ConstraintLayout
+                endBlock = listBlocks[InstructionType.ENDWHILE]?.let {
+                    buildBlock(
+                        it,
+                        InstructionType.ENDWHILE
+                    )
+                } as ConstraintLayout
                 instruction = InstructionType.ENDWHILE
             }
+
             InstructionType.FUNC -> {
-                endBlock = listBlocks[InstructionType.ENDFUNC]?.let { buildBlock(it, InstructionType.ENDFUNC) } as ConstraintLayout
+                endBlock = listBlocks[InstructionType.ENDFUNC]?.let {
+                    buildBlock(
+                        it,
+                        InstructionType.ENDFUNC
+                    )
+                } as ConstraintLayout
                 instruction = InstructionType.ENDFUNC
             }
+
             InstructionType.FOR -> {
-                endBlock = listBlocks[InstructionType.ENDFOR]?.let { buildBlock(it, InstructionType.ENDFOR) } as ConstraintLayout
+                endBlock = listBlocks[InstructionType.ENDFOR]?.let {
+                    buildBlock(
+                        it,
+                        InstructionType.ENDFOR
+                    )
+                } as ConstraintLayout
                 instruction = InstructionType.ENDFOR
             }
+
             else -> {}
         }
 
@@ -714,7 +820,7 @@ class CodingActivity : AppCompatActivity() {
 
         previousMargins.add(0);previousWidths.add(0)
 
-        if(!isRecreating){
+        if (!isRecreating) {
             instructionList.add(instruction!!)
         }
 
@@ -722,29 +828,36 @@ class CodingActivity : AppCompatActivity() {
     }
 
 
-    private fun createElse() : View{
-        val elseBlock = listBlocks[InstructionType.ELSE]?.let { buildBlock(it, InstructionType.ELSE) } as View
+    private fun createElse(): View {
+        val elseBlock =
+            listBlocks[InstructionType.ELSE]?.let { buildBlock(it, InstructionType.ELSE) } as View
         elseBlock.setOnDragListener { view, dragEvent ->
             shiftBlocks(view, dragEvent, InstructionType.ELSE)
         }
         previousMargins.add(0); previousWidths.add(0)
         return elseBlock
     }
-    private fun createEndIf() : View{
-        val endifBlock = listBlocks[InstructionType.ENDIF]?.let { buildBlock(it, InstructionType.ENDIF) } as View
+
+    private fun createEndIf(): View {
+        val endifBlock =
+            listBlocks[InstructionType.ENDIF]?.let { buildBlock(it, InstructionType.ENDIF) } as View
         endifBlock.setOnDragListener { view, dragEvent ->
             shiftBlocks(view, dragEvent, InstructionType.ENDIF)
         }
         previousMargins.add(0); previousWidths.add(0)
         return endifBlock
     }
-    private fun createElif() : View{
-        val elifBlock = listBlocks[InstructionType.ELIF]?.let { buildBlock(it, InstructionType.ELIF) } as View
+
+    private fun createElif(): View {
+        val elifBlock =
+            listBlocks[InstructionType.ELIF]?.let { buildBlock(it, InstructionType.ELIF) } as View
         elifBlock.setOnDragListener { view, dragEvent ->
             shiftBlocks(view, dragEvent, InstructionType.ELIF)
         }
 
-        val elifBlockEditText = elifBlock.findViewById<EditText>(R.id.inputExpression); editTextsFocuses[elifBlockEditText] = false
+        val elifBlockEditText =
+            elifBlock.findViewById<EditText>(R.id.inputExpression); editTextsFocuses[elifBlockEditText] =
+            false
         elifBlock.findViewById<EditText>(R.id.inputExpression).setOnFocusChangeListener { _, b ->
             editTextsFocuses[elifBlockEditText] = b
         }
@@ -754,28 +867,30 @@ class CodingActivity : AppCompatActivity() {
     }
 
 
-
-
     private val deleteBlock = OnDragListener { view, dragEvent ->
-        when(dragEvent.action){
+        when (dragEvent.action) {
             DragEvent.ACTION_DRAG_STARTED -> {
-                view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_open, null)
+                view.background =
+                    ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_open, null)
                 dragEvent.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
             }
+
             DragEvent.ACTION_DRAG_ENTERED -> {
                 view.invalidate()
                 true
             }
+
             DragEvent.ACTION_DRAG_LOCATION -> true
             DragEvent.ACTION_DRAG_EXITED -> {
                 view.invalidate()
                 true
             }
+
             DragEvent.ACTION_DROP -> {
                 view.invalidate()
                 numberOfBlockFieldChildren -= listOfIndices.size
 
-                for(i in 0 until listOfIndices.size){
+                for (i in 0 until listOfIndices.size) {
                     listOfBlocksOnField.removeAt(listOfIndices[0])
                     instructionList.removeAt(listOfIndices[0])
                 }
@@ -786,37 +901,48 @@ class CodingActivity : AppCompatActivity() {
                 callUpdate()
                 true
             }
+
             DragEvent.ACTION_DRAG_ENDED -> {
                 view.invalidate()
-                view.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_close, null)
+                view.background =
+                    ResourcesCompat.getDrawable(resources, R.drawable.ic_trash_close, null)
                 vibrator.vibrate(this, 50)
                 makeViewsVisible()
                 listOfIndices.clear()
                 true
             }
+
             else -> false
         }
     }
-    private fun scrollBlocks(view : View, event : DragEvent, speed: Float) : Boolean {
-        return when(event.action){
+
+    private fun scrollBlocks(view: View, event: DragEvent, speed: Float): Boolean {
+        return when (event.action) {
             DragEvent.ACTION_DRAG_STARTED -> {
                 view.invalidate()
                 true
             }
+
             DragEvent.ACTION_DRAG_LOCATION -> {
                 binding.parentOfBlocks.panBy(0.0f, speed, false)
                 view.invalidate()
                 true
             }
+
             else -> false
         }
     }
 
-    private fun shiftBlocks(view : View, dragEvent : DragEvent, instruction : InstructionType) : Boolean{
+    private fun shiftBlocks(
+        view: View,
+        dragEvent: DragEvent,
+        instruction: InstructionType
+    ): Boolean {
         return when (dragEvent.action) {
             DragEvent.ACTION_DRAG_STARTED -> {
                 dragEvent.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
             }
+
             DragEvent.ACTION_DRAG_ENTERED -> {
                 view.invalidate()
                 true
@@ -827,8 +953,9 @@ class CodingActivity : AppCompatActivity() {
                 view.invalidate()
                 true
             }
+
             DragEvent.ACTION_DROP -> {
-                if(view.alpha < viewOpaque){
+                if (view.alpha < viewOpaque) {
                     vibrator.vibrate(this, 500)
                     return false
                 }
@@ -850,40 +977,48 @@ class CodingActivity : AppCompatActivity() {
                 updateListOfWidths()
 
                 val mainParams = v.layoutParams as LayoutParams
-                var closeParams : LayoutParams? = null
+                var closeParams: LayoutParams? = null
 
                 val previousLeftMargin = mainParams.leftMargin
 
                 mainParams.setMargins(view.marginLeft, v.marginTop, v.marginRight, v.marginBottom)
 
-                if(listOfIndices.size > 1){
-                    closeParams = listOfBlocksOnField[listOfIndices[listOfIndices.size - 1]].layoutParams as LayoutParams
-                    closeParams.setMargins(view.marginLeft, v.marginTop, v.marginRight, v.marginBottom)
-                    for(i in 1 until listOfIndices.size - 1){
-                        val innerParams = listOfBlocksOnField[listOfIndices[i]].layoutParams as LayoutParams
-                        innerParams.setMargins(v.marginLeft + listOfBlocksOnField[listOfIndices[i]].marginLeft - previousLeftMargin,
+                if (listOfIndices.size > 1) {
+                    closeParams =
+                        listOfBlocksOnField[listOfIndices[listOfIndices.size - 1]].layoutParams as LayoutParams
+                    closeParams.setMargins(
+                        view.marginLeft,
+                        v.marginTop,
+                        v.marginRight,
+                        v.marginBottom
+                    )
+                    for (i in 1 until listOfIndices.size - 1) {
+                        val innerParams =
+                            listOfBlocksOnField[listOfIndices[i]].layoutParams as LayoutParams
+                        innerParams.setMargins(
+                            v.marginLeft + listOfBlocksOnField[listOfIndices[i]].marginLeft - previousLeftMargin,
                             listOfBlocksOnField[listOfIndices[i]].marginTop,
                             listOfBlocksOnField[listOfIndices[i]].marginRight,
-                            listOfBlocksOnField[listOfIndices[i]].marginBottom)
+                            listOfBlocksOnField[listOfIndices[i]].marginBottom
+                        )
                     }
                 }
 
-                if(instruction in listContainersBlocks || instruction == InstructionType.ELIF || instruction == InstructionType.ELSE)
+                if (instruction in listContainersBlocks || instruction == InstructionType.ELIF || instruction == InstructionType.ELSE)
                     flagForMainBlocks = true
-                else if(instruction in listBlocksEnds)
+                else if (instruction in listBlocksEnds)
                     flagForEndBlocks = true
 
 
                 if (vY > targetViewHalf) {
-                    if(flagForMainBlocks)
-                       updateSwapMargins(mainParams, closeParams, view, v)
+                    if (flagForMainBlocks)
+                        updateSwapMargins(mainParams, closeParams, view, v)
                     if (vInd < targetViewOwnerInd)
                         transformInCaseOfSmallerIndex(maxInd, minInd, 1)
                     else
                         transformInCaseOfBiggerIndex(maxInd, minInd, 1)
-                }
-                else {
-                    if(flagForEndBlocks || instruction == InstructionType.ELIF || instruction == InstructionType.ELSE)
+                } else {
+                    if (flagForEndBlocks || instruction == InstructionType.ELIF || instruction == InstructionType.ELSE)
                         updateSwapMargins(mainParams, closeParams, view, v)
                     if (vInd < targetViewOwnerInd)
                         transformInCaseOfSmallerIndex(maxInd, minInd, 0)
@@ -898,31 +1033,50 @@ class CodingActivity : AppCompatActivity() {
                 alignStringNumbers()
                 true
             }
+
             DragEvent.ACTION_DRAG_ENDED -> {
                 view.invalidate()
                 true
             }
+
             else -> {
                 false
             }
         }
     }
 
-    private fun updateSwapMargins(mainParams : LayoutParams, closeParams : LayoutParams?, view : View, v : View){
-        mainParams.setMargins(view.marginLeft + (leftMarginValue * scaleDp).toInt(), v.marginTop, v.marginRight, v.marginBottom)
+    private fun updateSwapMargins(
+        mainParams: LayoutParams,
+        closeParams: LayoutParams?,
+        view: View,
+        v: View
+    ) {
+        mainParams.setMargins(
+            view.marginLeft + (leftMarginValue * scaleDp).toInt(),
+            v.marginTop,
+            v.marginRight,
+            v.marginBottom
+        )
 
-        closeParams?.setMargins(view.marginLeft + (leftMarginValue * scaleDp).toInt(), v.marginTop, v.marginRight, v.marginBottom)
-        for(i in 1 until listOfIndices.size - 1){
+        closeParams?.setMargins(
+            view.marginLeft + (leftMarginValue * scaleDp).toInt(),
+            v.marginTop,
+            v.marginRight,
+            v.marginBottom
+        )
+        for (i in 1 until listOfIndices.size - 1) {
             val innerParams = listOfBlocksOnField[listOfIndices[i]].layoutParams as LayoutParams
-            innerParams.setMargins(listOfBlocksOnField[listOfIndices[i]].marginLeft + (leftMarginValue * scaleDp).toInt(),
+            innerParams.setMargins(
+                listOfBlocksOnField[listOfIndices[i]].marginLeft + (leftMarginValue * scaleDp).toInt(),
                 listOfBlocksOnField[listOfIndices[i]].marginTop,
                 listOfBlocksOnField[listOfIndices[i]].marginRight,
-                listOfBlocksOnField[listOfIndices[i]].marginBottom)
+                listOfBlocksOnField[listOfIndices[i]].marginBottom
+            )
         }
     }
 
-    private fun transformInCaseOfSmallerIndex(maxInd : Int, minInd : Int, correction : Int){
-        for(i in minInd until minInd + listOfIndices.size){
+    private fun transformInCaseOfSmallerIndex(maxInd: Int, minInd: Int, correction: Int) {
+        for (i in minInd until minInd + listOfIndices.size) {
             listOfBlocksOnField.add(maxInd + correction, listOfBlocksOnField[minInd])
             listOfBlocksOnField.removeAt(minInd)
             instructionList.add(maxInd + correction, instructionList[minInd])
@@ -930,124 +1084,154 @@ class CodingActivity : AppCompatActivity() {
         }
     }
 
-    private fun transformInCaseOfBiggerIndex(maxInd : Int, minInd : Int, correction: Int){
+    private fun transformInCaseOfBiggerIndex(maxInd: Int, minInd: Int, correction: Int) {
         for (i in maxInd downTo minInd + 1 + correction) {
-            listOfBlocksOnField.add(maxInd + listOfIndices.size, listOfBlocksOnField[minInd + correction])
+            listOfBlocksOnField.add(
+                maxInd + listOfIndices.size,
+                listOfBlocksOnField[minInd + correction]
+            )
             listOfBlocksOnField.removeAt(minInd + correction)
             instructionList.add(maxInd + listOfIndices.size, instructionList[minInd + correction])
             instructionList.removeAt(minInd + correction)
         }
     }
 
-    private fun updateListOfMargins(){
-        for(i in 0 until listOfBlocksOnField.size){
+    private fun updateListOfMargins() {
+        for (i in 0 until listOfBlocksOnField.size) {
             previousMargins[i] = listOfBlocksOnField[i].marginLeft
         }
     }
 
-    private fun updateListOfWidths(){
-        for(i in 0 until listOfBlocksOnField.size){
-            previousWidths[i] = listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
+    private fun updateListOfWidths() {
+        for (i in 0 until listOfBlocksOnField.size) {
+            previousWidths[i] =
+                listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
         }
     }
 
-    private fun alignStringNumbers(){
-        for(i in 0 until listOfBlocksOnField.size){
-            val nextNumber = listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder)
+    private fun alignStringNumbers() {
+        for (i in 0 until listOfBlocksOnField.size) {
+            val nextNumber =
+                listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.string_number_placeholder)
             nextNumber.layoutParams.width += (listOfBlocksOnField[i].marginLeft - previousMargins[i] - (nextNumber.width - previousWidths[i]))
             listOfBlocksOnField[i].requestLayout()
             nextNumber.requestLayout()
         }
     }
 
-    private fun addViewsToBlockField(){
+    private fun addViewsToBlockField() {
         binding.blockField.removeAllViews()
-        for(i in listOfBlocksOnField){
+        for (i in listOfBlocksOnField) {
             binding.blockField.addView(i)
         }
     }
 
-    private fun updateMargins(){
-        for(i in 0 until listOfBlocksOnField.size){
+    private fun updateMargins() {
+        for (i in 0 until listOfBlocksOnField.size) {
             val params = listOfBlocksOnField[i].layoutParams as LayoutParams
-            params.setMargins(listOfBlocksOnField[i].marginLeft, listOfBlocksOnField[i].marginTop,
-                listOfBlocksOnField[i].marginRight, (bottomMarginForEveryBlock * scaleDp).toInt())
+            params.setMargins(
+                listOfBlocksOnField[i].marginLeft, listOfBlocksOnField[i].marginTop,
+                listOfBlocksOnField[i].marginRight, (bottomMarginForEveryBlock * scaleDp).toInt()
+            )
             val value = i + 1
-            listOfBlocksOnField[i].findViewById<TextView>(R.id.string_number).text = (value).toString()
+            listOfBlocksOnField[i].findViewById<TextView>(R.id.string_number).text =
+                (value).toString()
         }
     }
 
-    private fun setAllConnectorsZero(){
-        for(i in 0 until listOfBlocksOnField.size){
-            listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.connector).layoutParams.height = 0
+    private fun setAllConnectorsZero() {
+        for (i in 0 until listOfBlocksOnField.size) {
+            listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.connector).layoutParams.height =
+                0
             listOfBlocksOnField[i].findViewById<ConstraintLayout>(R.id.connector).requestLayout()
         }
     }
 
-    private fun callUpdate(){
-        for(i in 0 until listOfBlocksOnField.size){
+    private fun callUpdate() {
+        for (i in 0 until listOfBlocksOnField.size) {
             updateConnectors(i)
         }
     }
 
-    private fun updateConnectors(index : Int){
+    private fun updateConnectors(index: Int) {
         var sizeOfConnector = 0
-        for(i in index + 1 until listOfBlocksOnField.size){
+        for (i in index + 1 until listOfBlocksOnField.size) {
             sizeOfConnector += listOfBlocksOnField[i].height + (bottomMarginForEveryBlock * scaleDp).toInt()
-            if(listOfBlocksOnField[i].marginLeft < listOfBlocksOnField[index].marginLeft)
+            if (listOfBlocksOnField[i].marginLeft < listOfBlocksOnField[index].marginLeft)
                 break
-            if(listOfBlocksOnField[i].marginLeft == listOfBlocksOnField[index].marginLeft){
-                listOfBlocksOnField[index].findViewById<ConstraintLayout>(R.id.connector).layoutParams.height = sizeOfConnector
-                listOfBlocksOnField[index].findViewById<ConstraintLayout>(R.id.connector).requestLayout()
+            if (listOfBlocksOnField[i].marginLeft == listOfBlocksOnField[index].marginLeft) {
+                listOfBlocksOnField[index].findViewById<ConstraintLayout>(R.id.connector).layoutParams.height =
+                    sizeOfConnector
+                listOfBlocksOnField[index].findViewById<ConstraintLayout>(R.id.connector)
+                    .requestLayout()
                 break
             }
         }
     }
 
-    private fun addElseOrElif(elifOrElse: String, motion : MotionEvent, indexInList : Int, _ifIndex : Int) : Boolean{
+    private fun addElseOrElif(
+        elifOrElse: String,
+        motion: MotionEvent,
+        indexInList: Int,
+        _ifIndex: Int
+    ): Boolean {
         val handler = Handler()
-        return when(motion.action){
+        return when (motion.action) {
             MotionEvent.ACTION_DOWN -> {
-                val requiredBlock : View?
-                val endBlock : View?
+                val requiredBlock: View?
+                val endBlock: View?
 
-                var params : LayoutParams
+                var params: LayoutParams
 
-                if(elifOrElse == "Elif"){
+                if (elifOrElse == "Elif") {
                     requiredBlock = createElif()
 
                     listOfBlocksOnField.add(indexInList, requiredBlock)
                     instructionList.add(indexInList, InstructionType.ELIF)
 
-                    val requiredBlockNumPlaceHolder = requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder)
+                    val requiredBlockNumPlaceHolder =
+                        requiredBlock.findViewById<ConstraintLayout>(R.id.string_number_placeholder)
 
                     requiredBlockNumPlaceHolder.layoutParams.width =
                         listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
                     requiredBlockNumPlaceHolder.requestLayout()
 
                     params = requiredBlock.layoutParams as LayoutParams
-                    params.setMargins(listOfBlocksOnField[_ifIndex].marginLeft, listOfBlocksOnField[_ifIndex].marginTop,
-                        listOfBlocksOnField[_ifIndex].marginRight, listOfBlocksOnField[_ifIndex].marginBottom)
-                }
-                else{
+                    params.setMargins(
+                        listOfBlocksOnField[_ifIndex].marginLeft,
+                        listOfBlocksOnField[_ifIndex].marginTop,
+                        listOfBlocksOnField[_ifIndex].marginRight,
+                        listOfBlocksOnField[_ifIndex].marginBottom
+                    )
+                } else {
                     requiredBlock = createElse()
                     endBlock = createEndIf()
 
-                    listOfBlocksOnField.add(indexInList + 1, requiredBlock);listOfBlocksOnField.add(indexInList + 2, endBlock)
+                    listOfBlocksOnField.add(indexInList + 1, requiredBlock);listOfBlocksOnField.add(
+                        indexInList + 2,
+                        endBlock
+                    )
 
                     listOfBlocksOnField.removeAt(indexInList)
 
-                    for(i in 0 until 2){
+                    for (i in 0 until 2) {
                         params = listOfBlocksOnField[indexInList + i].layoutParams as LayoutParams
-                        params.setMargins(listOfBlocksOnField[_ifIndex].marginLeft, listOfBlocksOnField[_ifIndex].marginTop,
-                            listOfBlocksOnField[_ifIndex].marginRight, listOfBlocksOnField[_ifIndex].marginBottom)
+                        params.setMargins(
+                            listOfBlocksOnField[_ifIndex].marginLeft,
+                            listOfBlocksOnField[_ifIndex].marginTop,
+                            listOfBlocksOnField[_ifIndex].marginRight,
+                            listOfBlocksOnField[_ifIndex].marginBottom
+                        )
 
                         listOfBlocksOnField[indexInList + i].findViewById<ConstraintLayout>(R.id.string_number_placeholder).layoutParams.width =
                             listOfBlocksOnField[_ifIndex].findViewById<ConstraintLayout>(R.id.string_number_placeholder).width
                         listOfBlocksOnField[indexInList + i].requestLayout()
                     }
 
-                    instructionList.add(indexInList + 1, InstructionType.ELSE);instructionList.add(indexInList + 2, InstructionType.ENDIF)
+                    instructionList.add(indexInList + 1, InstructionType.ELSE);instructionList.add(
+                        indexInList + 2,
+                        InstructionType.ENDIF
+                    )
                     instructionList.removeAt(indexInList)
                 }
                 addViewsToBlockField()
@@ -1057,6 +1241,7 @@ class CodingActivity : AppCompatActivity() {
                 }, 10)
                 true
             }
+
             else -> {
                 handler.postDelayed({
                     callUpdate()
@@ -1066,7 +1251,7 @@ class CodingActivity : AppCompatActivity() {
         }
     }
 
-    private fun makeContainerDraggable(instruction : InstructionType, view : View){
+    private fun makeContainerDraggable(instruction: InstructionType, view: View) {
         val clipText = ""
         val item = ClipData.Item(clipText)
         val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
@@ -1081,37 +1266,43 @@ class CodingActivity : AppCompatActivity() {
         makeViewsInvisible(listOfBlocksOnField.indexOf(view), instruction)
     }
 
-    private fun makeViewsInvisible(indexInList : Int, instruction : InstructionType){
+    private fun makeViewsInvisible(indexInList: Int, instruction: InstructionType) {
         listOfIndices.add(indexInList)
-        if(instruction in listContainersBlocks){
-            for(i in indexInList + 1 until listOfBlocksOnField.size){
+        if (instruction in listContainersBlocks) {
+            for (i in indexInList + 1 until listOfBlocksOnField.size) {
                 listOfBlocksOnField[i].alpha = viewTransparent
                 listOfIndices.add(i)
-                if(instructionList[i] in listBlocksEnds && listOfBlocksOnField[i].marginLeft == listOfBlocksOnField[indexInList].marginLeft){
+                if (instructionList[i] in listBlocksEnds && listOfBlocksOnField[i].marginLeft == listOfBlocksOnField[indexInList].marginLeft) {
                     break
                 }
             }
         }
     }
-    private fun makeViewsVisible(){
-        for(i in 0 until listOfBlocksOnField.size){
+
+    private fun makeViewsVisible() {
+        for (i in 0 until listOfBlocksOnField.size) {
             listOfBlocksOnField[i].alpha = viewOpaque
         }
     }
 
 
-
     override fun finish() {
         super.finish()
-        overridePendingTransition(androidx.appcompat.R.anim.abc_slide_in_top, androidx.appcompat.R.anim.abc_slide_out_bottom)
+        overridePendingTransition(
+            androidx.appcompat.R.anim.abc_slide_in_top,
+            androidx.appcompat.R.anim.abc_slide_out_bottom
+        )
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun initBottomSheetViewNewBlock () {
-        val layoutParamsBottomSheet = LayoutParams(LayoutParams.MATCH_PARENT, (500 * scaleDp + 0.5).toInt())
+    private fun initBottomSheetViewNewBlock() {
+        val layoutParamsBottomSheet =
+            LayoutParams(LayoutParams.MATCH_PARENT, (500 * scaleDp + 0.5).toInt())
 
-        bottomSheetViewNewBlockBinding = DataBindingUtil.inflate(layoutInflater, R.layout.layout_new_blocks, null, false)
-        bottomSheetViewNewBlockBinding.modalBottomSheetContainer.layoutParams = layoutParamsBottomSheet
+        bottomSheetViewNewBlockBinding =
+            DataBindingUtil.inflate(layoutInflater, R.layout.layout_new_blocks, null, false)
+        bottomSheetViewNewBlockBinding.modalBottomSheetContainer.layoutParams =
+            layoutParamsBottomSheet
         bottomSheetDialogNewBlock = BottomSheetDialog(this, R.style.BottomSheetDialogThem)
         bottomSheetDialogNewBlock.setContentView(bottomSheetViewNewBlockBinding.root)
 
@@ -1131,21 +1322,24 @@ class CodingActivity : AppCompatActivity() {
         }
 
         for ((key, blockView) in listBlocks) {
-            if(key !in listBlocksEnds && key != InstructionType.ELSE && key != InstructionType.ELIF){
+            if (key !in listBlocksEnds && key != InstructionType.ELSE && key != InstructionType.ELIF) {
                 val block = buildBlock(blockView, key)
 
                 val addBlocks = { _: View ->
-                    if(key in listBlocksNotHaveText && numberOfBlockFieldChildren == 0){
-                        Toast.makeText(this, "You cant place it as first element", Toast.LENGTH_SHORT).show()
-                    }
-                    else{
+                    if (key in listBlocksNotHaveText && numberOfBlockFieldChildren == 0) {
+                        Toast.makeText(
+                            this,
+                            "You cant place it as first element",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
                         val newBlock = createNewBlockAndSetItsProperties(key, blockView)
 
                         listOfBlocksOnField.add(newBlock)
                         instructionList.add(key)
 
 
-                        if(key in listContainersBlocks){
+                        if (key in listContainersBlocks) {
                             listOfBlocksOnField.add(createEndBlock(key, newBlock, false))
                         }
 
@@ -1162,7 +1356,7 @@ class CodingActivity : AppCompatActivity() {
                 block.setOnClickListener(addBlocks)
                 block.findViewById<Button>(R.id.buttonBreakPoint).setOnClickListener(addBlocks)
 
-                if(key !in listBlocksNotHaveText) {
+                if (key !in listBlocksNotHaveText) {
                     val editText: EditText = block.findViewById(R.id.inputExpression)
                     editText.isFocusable = false
                     editText.keyListener = null
@@ -1174,10 +1368,12 @@ class CodingActivity : AppCompatActivity() {
                     InstructionType.SET -> {
                         listCategory.getValue("Variables")
                     }
+
                     InstructionType.PRINT,
                     InstructionType.INPUT -> {
                         listCategory.getValue("Inputs and outputs")
                     }
+
                     InstructionType.IF,
                     InstructionType.ENDCHOICEIF,
                     InstructionType.ENDIF,
@@ -1185,6 +1381,7 @@ class CodingActivity : AppCompatActivity() {
                     InstructionType.ELSE -> {
                         listCategory.getValue("Conditions")
                     }
+
                     InstructionType.FOR,
                     InstructionType.WHILE,
                     InstructionType.BREAK,
@@ -1193,27 +1390,30 @@ class CodingActivity : AppCompatActivity() {
                     InstructionType.ENDWHILE -> {
                         listCategory.getValue("Cycles")
                     }
+
                     InstructionType.FUNC,
                     InstructionType.RETURN,
                     InstructionType.ENDFUNC,
                     InstructionType.END -> {
                         listCategory.getValue("Functions")
                     }
-                    else -> 0
                 }
 
-                if(categoryId != 0) {
+                if (categoryId != 0) {
                     containerBottomSheetView.findViewById<LinearLayout>(categoryId).addView(block)
                 }
             }
         }
     }
 
-    private fun initBottomSheetConsole () {
-        val layoutParamsBottomSheet = LayoutParams(LayoutParams.MATCH_PARENT, (500 * scaleDp + 0.5).toInt())
+    private fun initBottomSheetConsole() {
+        val layoutParamsBottomSheet =
+            LayoutParams(LayoutParams.MATCH_PARENT, (500 * scaleDp + 0.5).toInt())
 
-        bottomSheetViewConsoleBinding = DataBindingUtil.inflate(layoutInflater, R.layout.layout_console, null, false)
-        bottomSheetViewConsoleBinding.modalBottomSheetContainer.layoutParams = layoutParamsBottomSheet
+        bottomSheetViewConsoleBinding =
+            DataBindingUtil.inflate(layoutInflater, R.layout.layout_console, null, false)
+        bottomSheetViewConsoleBinding.modalBottomSheetContainer.layoutParams =
+            layoutParamsBottomSheet
         bottomSheetDialogConsole = BottomSheetDialog(this, R.style.BottomSheetDialogThem)
         bottomSheetDialogConsole.setContentView(bottomSheetViewConsoleBinding.root)
     }
@@ -1223,36 +1423,61 @@ class CodingActivity : AppCompatActivity() {
 
         val shapeBlock = block.background as GradientDrawable
         shapeBlock.setColor(ContextCompat.getColor(this, blockView.colorFill))
-        shapeBlock.setStroke((3 * scaleDp + 0.5).toInt(), ContextCompat.getColor(this, blockView.colorStroke))
-        val layoutParams = if(instructionType !in listBlocksNotHaveText) {
-            val shapeText = block.findViewById<EditText>(R.id.inputExpression).background as GradientDrawable
+        shapeBlock.setStroke(
+            (3 * scaleDp + 0.5).toInt(),
+            ContextCompat.getColor(this, blockView.colorStroke)
+        )
+        val layoutParams = if (instructionType !in listBlocksNotHaveText) {
+            val shapeText =
+                block.findViewById<EditText>(R.id.inputExpression).background as GradientDrawable
             shapeText.setColor(ContextCompat.getColor(this, R.color.color_window_text_block))
-            shapeText.setStroke((2 * scaleDp + 0.5).toInt(), ContextCompat.getColor(this, blockView.colorStroke))
-            LayoutParams((regularBlockWidth * scaleDp + 0.5).toInt(), (regularBlockHeight * scaleDp + 0.5).toInt())
+            shapeText.setStroke(
+                (2 * scaleDp + 0.5).toInt(),
+                ContextCompat.getColor(this, blockView.colorStroke)
+            )
+            LayoutParams(
+                (regularBlockWidth * scaleDp + 0.5).toInt(),
+                (regularBlockHeight * scaleDp + 0.5).toInt()
+            )
         } else {
-            LayoutParams((specificBlockWidth * scaleDp + 0.5).toInt(), (specificBlockHeight * scaleDp + 0.5).toInt())
+            LayoutParams(
+                (specificBlockWidth * scaleDp + 0.5).toInt(),
+                (specificBlockHeight * scaleDp + 0.5).toInt()
+            )
         }
         layoutParams.bottomMargin = (10 * scaleDp + 0.5).toInt()
 
         block.layoutParams = layoutParams
-        if(instructionType !in listBlocksEnds) {
+        if (instructionType !in listBlocksEnds) {
             block.findViewById<TextView>(R.id.instructionType).text = blockView.instruction
         }
 
         val gradientDrawable = GradientDrawable()
         gradientDrawable.setColor(ContextCompat.getColor(this, R.color.break_point_flag))
         gradientDrawable.cornerRadius = 999f
-        gradientDrawable.setStroke((scaleDp * 5).toInt(), ContextCompat.getColor(this, R.color.color_stroke_block))
+        gradientDrawable.setStroke(
+            (scaleDp * 5).toInt(),
+            ContextCompat.getColor(this, R.color.color_stroke_block)
+        )
 
         val breakPoint = block.findViewById<Button>(R.id.buttonBreakPoint)
         breakPoint.background = gradientDrawable
-        breakPoint.setOnClickListener{
+        breakPoint.setOnClickListener {
             val shapeBreakPoint = it.background as GradientDrawable
 
-            if (shapeBreakPoint.color?.defaultColor == ContextCompat.getColor(this, R.color.break_point_flag_marker)) {
+            if (shapeBreakPoint.color?.defaultColor == ContextCompat.getColor(
+                    this,
+                    R.color.break_point_flag_marker
+                )
+            ) {
                 shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag))
             } else {
-                shapeBreakPoint.setColor(ContextCompat.getColor(this, R.color.break_point_flag_marker))
+                shapeBreakPoint.setColor(
+                    ContextCompat.getColor(
+                        this,
+                        R.color.break_point_flag_marker
+                    )
+                )
             }
         }
 
@@ -1278,7 +1503,7 @@ class CodingActivity : AppCompatActivity() {
     }
 
 
-    private fun buildContainerBlocks(id: Int) : View {
+    private fun buildContainerBlocks(id: Int): View {
         val linearLayout = LinearLayout.inflate(this, R.layout.block_container, null)
 
         val layoutParams = LayoutParams((370 * scaleDp + 0.5).toInt(), LayoutParams.WRAP_CONTENT)

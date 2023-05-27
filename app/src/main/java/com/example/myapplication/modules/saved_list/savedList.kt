@@ -1,12 +1,16 @@
 package com.example.myapplication.modules.saved_list
 
 import com.example.myapplication.modules.InstructionType
-import kotlin.math.exp
 
-data class Result(val instructionList : List<InstructionType>, val expressions : List<String>, val margins : List<Int>, val widths : List<Int>)
+data class Result(
+    val instructionList: List<InstructionType>,
+    val expressions: List<String>,
+    val margins: List<Int>,
+    val widths: List<Int>
+)
 
 
-fun bubbleSort() : Result {
+fun bubbleSort(): Result {
     val instructionList = mutableListOf(
         InstructionType.VAR,
         InstructionType.INPUT,
@@ -87,12 +91,12 @@ fun bubbleSort() : Result {
 }
 
 
-fun oneThousandBlocks() : Result{
+fun oneThousandBlocks(): Result {
     val instructionList = mutableListOf<InstructionType>()
     val expressions = mutableListOf<String>()
     val margins = mutableListOf<Int>()
     val widths = mutableListOf<Int>()
-    for(i in 0 until 2023){
+    for (i in 0 until 2023) {
         instructionList.add(InstructionType.PRINT)
         expressions.add("${i + 1}")
         margins.add(0)
@@ -101,16 +105,19 @@ fun oneThousandBlocks() : Result{
     return Result(instructionList, expressions, margins, widths)
 }
 
-fun harp() : Result{
+fun harp(): Result {
     val instructionList = mutableListOf<InstructionType>()
     val expressions = mutableListOf<String>()
     val margins = mutableListOf<Int>()
     val widths = mutableListOf<Int>()
 
-    instructionList.add(InstructionType.VAR); expressions.add("int a = 251"); margins.add(0); widths.add(253)
+    instructionList.add(InstructionType.VAR); expressions.add("int a = 251"); margins.add(0); widths.add(
+        253
+    )
 
-    var marginValue : Int = 0; var placeHolderWidth : Int = 253
-    for(i in 0 until 250){
+    var marginValue = 0
+    var placeHolderWidth = 253
+    for (i in 0 until 250) {
         instructionList.add(InstructionType.IF)
         expressions.add("${i + 1} < a")
         margins.add(marginValue)
@@ -119,10 +126,12 @@ fun harp() : Result{
         marginValue += 84; placeHolderWidth += 84
     }
 
-    instructionList.add(InstructionType.PRINT); expressions.add("a"); margins.add(marginValue); widths.add(placeHolderWidth)
-    marginValue -= 84; placeHolderWidth -= 84;
+    instructionList.add(InstructionType.PRINT); expressions.add("a"); margins.add(marginValue); widths.add(
+        placeHolderWidth
+    )
+    marginValue -= 84; placeHolderWidth -= 84
 
-    for(i in 0 until 250){
+    for (i in 0 until 250) {
         instructionList.add(InstructionType.ENDCHOICEIF)
         margins.add(marginValue)
         widths.add(placeHolderWidth)
@@ -134,7 +143,7 @@ fun harp() : Result{
 }
 
 
-fun fibonacci() : Result{
+fun fibonacci(): Result {
     val instructionList = mutableListOf(
         InstructionType.FUNC,
         InstructionType.IF,
@@ -199,7 +208,7 @@ fun fibonacci() : Result{
     return Result(instructionList, expressions, margins, widths)
 }
 
-fun pow() : Result{
+fun pow(): Result {
     val instructionList = mutableListOf(
         InstructionType.VAR,
         InstructionType.FUNC,
@@ -212,7 +221,7 @@ fun pow() : Result{
         InstructionType.SET,
         InstructionType.PRINT,
 
-    )
+        )
     val expressions = mutableListOf(
         "int i, int c",
         "int f(int x, int y)",
@@ -250,7 +259,7 @@ fun pow() : Result{
 }
 
 
-fun fastEuclidAlgorithm() : Result{
+fun fastEuclidAlgorithm(): Result {
     val instructionList = mutableListOf(
         InstructionType.VAR,
         InstructionType.INPUT,
@@ -302,7 +311,7 @@ fun fastEuclidAlgorithm() : Result{
 }
 
 
-fun Stirlitz() : Result{
+fun Stirlitz(): Result {
     val instructionList = mutableListOf(
         InstructionType.PRINT,
         InstructionType.PRINT,

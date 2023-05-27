@@ -2,10 +2,11 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/savedBackgroundStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        style="@style/savedBackgroundStyle"
         tools:context=".SavedActivity">
 
 
@@ -13,108 +14,107 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/zero_size"
             android:orientation="vertical"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBottom_toTopOf="@id/lowerBoundContainer"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:context=".SavedActivity">
 
             <LinearLayout
+                android:id="@+id/parent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/parent"
                 android:orientation="vertical">
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/bubbleSort"
-                    android:text="@string/bubble_sort"
-                    android:layout_marginTop="@dimen/template_button_top_margin"
-                    style="@style/savedButtonStyle"
-                    />
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/twozerotwothree"
-                    android:text="@string/two_thousand_twenty_three"
-                    android:layout_marginTop="@dimen/template_button_top_margin"
-                    style="@style/savedButtonStyle"
-                    />
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/harp"
-                    android:text="@string/harp"
-                    android:layout_marginTop="@dimen/template_button_top_margin"
-                    style="@style/savedButtonStyle"
-                    />
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/fibonacci"
-                    android:text="@string/fibonacci"
-                    android:layout_marginTop="@dimen/template_button_top_margin"
-                    style="@style/savedButtonStyle"
-                    />
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/pow"
-                    android:text="@string/pow"
-                    android:layout_marginTop="@dimen/template_button_top_margin"
-                    style="@style/savedButtonStyle"
-                    />
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/fastEuclid"
-                    android:text="@string/fast_euclid"
-                    android:layout_marginTop="@dimen/template_button_top_margin"
-                    style="@style/savedButtonStyle"
-                    />
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/stirlitz"
-                    android:text="@string/stirlitz"
-                    android:layout_marginTop="@dimen/template_button_top_margin"
-                    style="@style/savedButtonStyle"
-                    />
 
+                <Button
+                    android:id="@+id/bubbleSort"
+                    style="@style/savedButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/template_button_top_margin"
+                    android:text="@string/bubble_sort" />
+
+                <Button
+                    android:id="@+id/twozerotwothree"
+                    style="@style/savedButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/template_button_top_margin"
+                    android:text="@string/two_thousand_twenty_three" />
+
+                <Button
+                    android:id="@+id/harp"
+                    style="@style/savedButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/template_button_top_margin"
+                    android:text="@string/harp" />
+
+                <Button
+                    android:id="@+id/fibonacci"
+                    style="@style/savedButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/template_button_top_margin"
+                    android:text="@string/fibonacci" />
+
+                <Button
+                    android:id="@+id/pow"
+                    style="@style/savedButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/template_button_top_margin"
+                    android:text="@string/pow" />
+
+                <Button
+                    android:id="@+id/fastEuclid"
+                    style="@style/savedButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/template_button_top_margin"
+                    android:text="@string/fast_euclid" />
+
+                <Button
+                    android:id="@+id/stirlitz"
+                    style="@style/savedButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/template_button_top_margin"
+                    android:text="@string/stirlitz" />
 
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/templates"
-                        android:textSize="@dimen/template_text_view_size"
                         android:textColor="@color/color_stroke_block"
+                        android:textSize="@dimen/template_text_view_size"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
 
                         />
-                 </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout
+                    android:id="@+id/secondParent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/secondParent"
-                    android:orientation="vertical"
                     android:layout_marginTop="@dimen/user_saved_code_parent_layout_top_margin"
-                    />
+                    android:orientation="vertical" />
 
             </LinearLayout>
 
         </ScrollView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/lowerBoundContainer"
             android:layout_width="match_parent"
             android:layout_height="@dimen/zero_size"
-            android:id="@+id/lowerBoundContainer"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="@id/lowerConstraint">
 
